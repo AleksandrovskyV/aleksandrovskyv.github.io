@@ -34,11 +34,12 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 20px 0; /* отступ сверху и снизу */
-      z-index: 15;
+      margin: 10px 0; 
+      /* не fixed, чтобы двигался вниз по мере вставки img */
     }
     .loading_container img {
-      z-index: 35;
+      width: 64px; /* или любой размер gif */
+      height: 64px;
     }
   </style>
 </head>
@@ -47,10 +48,10 @@
 
 <div class="container" id="container">
   <img src="/content/exegesis/e_1_alt.png" style="opacity:1;">
+</div>
 
-  <div class="loading_container" id="loading_container">
-    <img src="/content/loading.gif">
-  </div>
+<div class="loading_container" id="loading_container">
+  <img src="/content/loading.gif">
 </div>
 
 <script>
