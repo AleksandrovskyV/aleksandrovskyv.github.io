@@ -11,15 +11,15 @@
     const isMobile = /iphone|ipad|android/.test(ua);
 
     if (isMobile) {
-      window.location.href = "main_ios.html";
+      window.location.href = "main_ios/";   // Папка с index.html
     } else {
-      window.location.href = "main.html";
+      window.location.href = "main/";       // Папка с index.html
     }
   </script>
 
   <!-- Резервный редирект для отключенного JS -->
   <noscript>
-    <meta http-equiv="refresh" content="0;url=main.html">
+    <meta http-equiv="refresh" content="0;url=main/">
   </noscript>
 </head>
 <body>
