@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>heh</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: black;
+      flex-direction: column;
+
+    }
+    .page_container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      width: 100%;
+      height: 100vh; /* контейнер ровно под экран */
+      overflow: hidden;
+      background: black;
+    }
+
+    .content {
+      transform-origin: center center; /* масштабирование из центра */
+      transition: transform 0.3s ease; /* плавное увеличение/уменьшение */
+    }
+
+    .page_container img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .page_container button {
+      position: absolute;
+      left: 50%;
+      top: 80%;               
+      transform: translateX(-50%); 
+      padding: 12px 12px;
+      font-size: 1.3rem;
+      color: rgba(65,65,65,255.0);
+      background: rgba(0,0,0,0.0);
+      border: 0;
+      cursor: pointer;
+      z-index: 10;
+      transition: transform 0.3s ease; /* плавная анимация */
+    }
+
+
+    .page_container button .highlight {
+      color: rgba(90,90,90,1); /* более яркий цвет */
+      font-size: 1.15rem;
+
+      text-decoration: underline; /* стандартное подчеркивание */
+      text-decoration-color: rgba(90,90,90,.1); /* цвет подчеркивания */
+      text-decoration-thickness: 1px; /* толщина линии */
+
+    }
+
+    .page_container button:hover .highlight {
+      color: rgba(117,117,117,1); /* более яркий цвет */
+      text-decoration-color: rgba(117,117,117,1);
+    }
+
+    .page_container button .special {
+      color: rgba(110,110,110,1); /* более яркий цвет */
+      font-size: 1.4rem; /* вместо 1.25rem */
+
+
+      text-decoration: underline; /* стандартное подчеркивание */
+      text-decoration-color: rgba(90,90,90,.7); /* цвет подчеркивания */
+      text-decoration-thickness: 1px; /* толщина линии */
+
+    }
+
+    .page_container button:hover .special {
+      color: rgba(150,150,150,1); /* более яркий цвет */
+      text-decoration-color: rgba(117,117,117,1);
+    }
+
+  </style>
+
+
+
+</head>
+<body>
+
+
+<div class="page_container">
+  <div class="content">
+    <img src="content/chat/SPT_PresentAnimation.gif">
+  </div>
+  <button data-href="https://en.wikipedia.org/wiki/HTTP_404">
+    [&nbsp;&nbsp;&nbsp;<span class="highlight"> 404 </span>&nbsp;&nbsp;&nbsp;]
+  </button>
+</div>
+
+
+
+<script>
+
+const buttons = document.querySelectorAll('.page_container button');
+
+buttons.forEach(btn => {
+  btn.addEventListener('click', e => {
+    window.open(btn.dataset.href, '_blank');
+  });
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === "Escape") {
+    if (window.location.protocol === "file:") {
+      window.location.href = "./index.html";
+    } else {
+      window.location.href = "/";
+    }
+  }
+});
+
+let scale = 1;
+let currentIndex = 0;
+let isScrolling = false;
+let scrollTarget = null; 
+const containers = document.querySelectorAll('.page_container');
+
+// Функция плавного скролла к контейнеру
+function scrollToContainer(index) {
+  scrollTarget = index;
+  isScrolling = true;
+
+  const targetY = containers[index].offsetTop;
+  const startY = window.scrollY;
+  const distance = targetY - startY;
+  const duration = 400; // длительность анимации в мс
+  let startTime = null;
+
+  function animateScroll(time) {
+    if (!startTime) startTime = time;
+    const elapsed = time - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = progress < 0.5
+      ? 2 * progress * progress
+      : -1 + (4 - 2 * progress) * progress; // easeInOut
+
+    window.scrollTo(0, startY + distance * ease);
+
+    if (progress < 1) {
+      requestAnimationFrame(animateScroll);
+    } else {
+      currentIndex = index;
+      isScrolling = false;
+      scrollTarget = null;
+    }
+  }
+
+  requestAnimationFrame(animateScroll);
+}
+
+// Обработчик колеса мыши
+let wheelTimeout;
+document.addEventListener('wheel', e => {
+  // Зум с Ctrl
+  if (e.ctrlKey) {
+    e.preventDefault();
+    scale += e.deltaY * -0.001;
+    scale = Math.min(Math.max(0.5, scale), 3);
+
+    containers.forEach(container => {
+      container.querySelector('.content').style.transform = `scale(${scale})`;
+      const button = container.querySelector('button');
+      const translateY = (scale - 1) * 10;
+      button.style.transform = `translateX(-50%) translateY(${translateY}px) scale(${scale})`;
+    });
+    return;
+  }
+
+  e.preventDefault();
+
+  // Определяем новое направление
+  let nextIndex = currentIndex;
+  if (e.deltaY > 0) nextIndex++;
+  else if (e.deltaY < 0) nextIndex--;
+
+  if (nextIndex < 0 || nextIndex >= containers.length) return;
+
+  // Перезапуск скролла, если направление изменилось
+  if (isScrolling && scrollTarget !== nextIndex) {
+    scrollToContainer(nextIndex);
+    return;
+  }
+
+  if (!isScrolling) {
+    scrollToContainer(nextIndex);
+  }
+
+  // Дебаунс быстрых скроллов
+  clearTimeout(wheelTimeout);
+  wheelTimeout = setTimeout(() => {
+    isScrolling = false;
+  }, 150);
+
+}, { passive: false });
+
+
+</script>
+
+</body>
+</html>
