@@ -100,7 +100,7 @@ async function loadSequentially(list) {
       img.width = item.w;  // задаём размеры
       img.height = item.h;
       img.style.opacity = 1;
-      container.insertBefore(img, loader);
+      container.appendChild(img);
     } catch (e) {
       console.error(e);
       break; // если хотим строго последовательность, выходим
