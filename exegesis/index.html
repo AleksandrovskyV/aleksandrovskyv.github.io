@@ -90,9 +90,11 @@ function loadImage(src, maxRetries = 5, delay = 1000) {
 }
 
 async function loadSequentially(list) {
-  for (const src of list) {
+  for (const item of list) {
     try {
-      const img = await loadImage(src); // ждём успешной загрузки
+      const img = await loadImage(item.src); // <- используем item.src
+      img.width = item.w;  // задаём размеры
+      img.height = item.h;
       img.style.opacity = 1;
       container.insertBefore(img, loader);
     } catch (e) {
@@ -102,7 +104,6 @@ async function loadSequentially(list) {
   }
   loader.style.display = "none";
 }
-
 loadSequentially(images);
 
 // ESC — выход со страницы
