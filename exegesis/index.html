@@ -20,12 +20,14 @@
       background: black;
     }
     .container img {
-      width: 100%;
-      max-width: 1600px;
-      height: auto;
-      display: block;
-      background: black;
-      pointer-events: none; /* img не реагируют на клики и hover */
+      width:100%;
+      max-width:1600px;
+      height:auto;
+      display:block;
+      background:black;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity 0.5s;
     }
 
     .loading_container {
@@ -34,7 +36,7 @@
       align-items: center;
       margin: 20px 0; /* отступ сверху и снизу */
     }
-    
+
   </style>
 </head>
 <body>
@@ -62,24 +64,24 @@ const images = [
 const container = document.getElementById("container");
 const loader = document.getElementById("loading_container");
 
-async function loadSequentially(imgList) {
-  for (const imgData of imgList) {
-    const img = document.createElement("img");
-    img.src = imgData.src;
-    img.width = imgData.w;
-    img.height = imgData.h;
 
-    try {
-      await img.decode(); // ждём полной загрузки
-    } catch(e) {
-      console.warn("Ошибка загрузки:", imgData.src);
-    }
-
-    container.appendChild(img);
-    requestAnimationFrame(() => img.style.opacity = 1); // плавно показать
+async function loadSequentially(list) {
+  for (const src of list) {
+    await new Promise(resolve => {
+      const img = document.createElement("img");
+      img.src = src;
+      img.onload = () => {
+        img.style.opacity = 1;  // плавно показать
+        container.insertBefore(img, loader); // вставляем **перед loader**
+        resolve();
+      };
+      img.onerror = () => {
+        console.warn("Ошибка загрузки:", src);
+        resolve(); // продолжаем, даже если картинка не загрузилась
+      };
+    });
   }
-  // Убираем loader после загрузки всех картинок
-  loader.remove();
+  loader.style.display = "none"; // скрываем loader после загрузки всех
 }
 
 loadSequentially(images);
