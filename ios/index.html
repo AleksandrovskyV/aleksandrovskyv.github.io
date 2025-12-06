@@ -98,19 +98,19 @@
     <button data-href="триптих/"  id="open">триптих</button>
     <button data-href="exegesis/" id="open">.exe</button>
 
-    <button data-href="bread"    id="close">bread</button>
-    <button data-href="renders"  id="close">_enders</button>
-    <button data-href="halo"     id="close">[ haloguys ]</button>
-    <button data-href="wolume"   id="close">~</button>
-    <button data-href="identity" id="close">identity</button>
-    <button data-href="покпокки" id="close">покпокки</button>
-    <button data-href="work"     id="close">работа</button>
-    <button data-href="process"  id="close">_cess</button>
-    <button data-href="снимки"   id="close">снимки</button>
-    <button data-href="const"    id="close">/</button>
-    <button data-href="graphics" id="close">графика</button>
-    <button data-href="space"    id="close">—</button>
-    <button data-href="about"    id="close">[ &hearts; ]</button>
+    <button data-href="bread/"    id="close">bread</button>
+    <button data-href="renders/"  id="close">_enders</button>
+    <button data-href="halo/"     id="close">[ haloguys ]</button>
+    <button data-href="wolume/"   id="close">~</button>
+    <button data-href="identity/" id="close">identity</button>
+    <button data-href="покпокки/" id="close">покпокки</button>
+    <button data-href="work/"     id="close">работа</button>
+    <button data-href="process/"  id="close">_cess</button>
+    <button data-href="снимки/"   id="close">снимки</button>
+    <button data-href="const/"    id="close">/</button>
+    <button data-href="graphics/" id="close">графика</button>
+    <button data-href="space/"    id="close">—</button>
+    <button data-href="about/"    id="close">[ &hearts; ]</button>
   </div>
   <div class="background" id="background"></div>
 </div>
@@ -208,12 +208,12 @@
     if (buttons.length <= 3) return; // слишком мало кнопок для перемешивания
 
     // находим фиксированные
-    const last = buttons.find(b => b.dataset.href === "/about");
-    const pre_a = buttons.find(b => b.dataset.href === "/space");
-    //const pre_b = buttons.find(b => b.dataset.href === "/halo");
+    const last = buttons.find(b => b.dataset.href === "about/");
+    const pre_a = buttons.find(b => b.dataset.href === "space/");
+    //const pre_b = buttons.find(b => b.dataset.href === "halo/");
 
     // кнопки, которые нельзя ставить последними перед фиксированными
-    const excl = buttons.filter(b => b.dataset.href === "/wolume" || b.dataset.href === "/const");
+    const excl = buttons.filter(b => b.dataset.href === "wolume/" || b.dataset.href === "const/");
 
     // остальные кнопки
     const rest = buttons.filter(b => ![last, pre_a].includes(b));
