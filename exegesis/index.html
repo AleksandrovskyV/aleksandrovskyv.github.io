@@ -36,33 +36,40 @@
 
 
 <script>
-    const images = [
-      "/content/exegesis/e_2_alt.png",
-      "/content/exegesis/e_3_alt.png",
-      "/content/exegesis/e_4_alt.png",
-      "/content/exegesis/e_5_alt.png",
-      "/content/exegesis/e_6_alt.png",
-      "/content/exegesis/e_7_alt.png",
-      "/content/exegesis/e_8_alt.png"
-    ];
+const images = [
+  "/content/exegesis/e_2_alt.png",
+  "/content/exegesis/e_3_alt.png",
+  "/content/exegesis/e_4_alt.png",
+  "/content/exegesis/e_5_alt.png",
+  "/content/exegesis/e_6_alt.png",
+  "/content/exegesis/e_7_alt.png",
+  "/content/exegesis/e_8_alt.png"
+];
 
-    const container = document.getElementById("container");
+const container = document.getElementById("container");
 
-    async function loadSequentially(imgList) {
-      for (const src of imgList) {
-        await new Promise(resolve => {
-          const img = document.createElement("img");
-          img.src = src;
-          img.onload = () => resolve();
-          img.onerror = () => resolve(); // на случай ошибки
-          container.appendChild(img);
-        });
-      }
+async function loadSequentially(imgList) {
+  for (const src of imgList) {
+    const img = document.createElement("img");
+    img.src = src;
+    img.style.opacity = 0; // чтобы добавить плавное появление позже
+
+    // ждём полной загрузки
+    try {
+      await img.decode(); 
+    } catch(e) {
+      console.warn("Ошибка загрузки:", src);
     }
 
-    loadSequentially(images);
+    container.appendChild(img);
+    img.style.transition = "opacity 0.5s";
+    requestAnimationFrame(() => img.style.opacity = 1); // плавно показать
+  }
+}
 
-// ESC — работает мгновенно
+loadSequentially(images);
+
+// ESC — выход со страницы
 function handleEscape(e) {
   if (e.key === "Escape") {
     if (window.location.protocol === "file:") {
