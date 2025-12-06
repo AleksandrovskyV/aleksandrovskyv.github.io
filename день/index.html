@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>день</title>
+
+<link rel="preload" href="/content/favicon-32x32.png" as="image">
+<link rel="icon" href="/content/favicon-32x32.png" type="image/png">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; background: black; }
+
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.overlay-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: black;
+  transition: opacity 3s ease;
+  z-index: 0;
+}
+
+.overlay button {
+  padding: 20px 0px;
+  font-size: 1.5rem;
+  background: black;
+  border: 0;
+  z-index: 99;
+  transition: opacity 0.2s ease, border-bottom 0.2s ease; /* плавное изменение */
+  /*border-bottom: 2px solid transparent;  изначально прозрачная линия */
+}
+
+.overlay button:hover {
+  /*border-bottom: 2px solid gray; /* подчёркивание при наведении */
+}
+
+#dayButton {
+  cursor: pointer;
+  color: rgba(50,50,50,1.0);
+}
+
+#dayButton:hover {
+  color: rgba(100,100,100,1.0);
+}
+
+#oButton {
+  color: rgba(50,50,50,1.0);
+}
+
+#oButton:hover {
+  color: rgba(50,50,50,1.0);
+}
+
+
+/* Кастомный скролл */
+.container::-webkit-scrollbar {
+  width: 16px;
+}
+
+.container::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 6px;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background-color: #7d7d7d; /* цвет ползунка */
+  border-radius: 6px;
+  border: 3px solid #0a0a0a; /* отступ вокруг ползунка для визуальной "воздушности" */
+  transition: background-color 0.3s ease;
+}
+
+
+.container::-webkit-scrollbar-thumb:hover {
+  background-color: #a0a0a0; /* затемнение при наведении */
+}
+
+.hidden-btn { opacity: 0; }
+.hidden-bg { opacity: 0; }
+
+.overlay.disabled {
+    pointer-events: none;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: black;
+  overflow: auto;
+  height: 100%;
+}
+
+.container img {
+  width: 100%;
+  max-width: 1400px;
+  height: auto;
+  display: block;
+}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay">
+  <button id="dayButton"> 1171 </button>
+  <button id="oButton"> ... </button>
+  <div class="overlay-bg" id="overlayBg"></div>
+</div>
+
+<audio id="myAudio" src="/content/audio/EINAUDI_REWORK_V.mp3"></audio>
+
+<div class="container" id="container">
+    <img src="/content/day/000.jpg">
+    <img data-idx="001">
+    <img data-idx="002">
+    <img data-idx="003">
+    <img data-idx="004">
+    <img data-idx="005">
+    <img data-idx="006">
+    <img data-idx="007">
+    <img data-idx="008">
+    <img data-idx="009">
+    <img data-idx="010">
+    <img data-idx="011">
+    <img data-idx="012">
+    <img data-idx="013">
+    <img data-idx="014">
+    <img data-idx="015">
+    <img data-idx="016">
+    <img data-idx="017">
+    <img data-idx="018">
+    <img data-idx="019">
+    <img data-idx="020">
+    <img data-idx="021">
+    <img data-idx="022">
+    <img data-idx="023">
+    <img data-idx="024">
+    <img data-idx="025">
+    <img data-idx="026">
+    <img data-idx="027">
+    <img data-idx="028">
+    <img data-idx="029">
+    <img data-idx="030">
+    <img data-idx="031">
+    <img data-idx="032">
+    <img data-idx="033">
+    <img data-idx="034">
+    <img data-idx="035">
+    <img data-idx="036">
+    <img data-idx="037">
+    <img data-idx="038">
+    <img data-idx="039">
+    <img data-idx="040">
+    <img data-idx="041">
+    <img data-idx="042">
+    <img data-idx="043">
+    <img data-idx="044">
+    <img data-idx="045">
+    <img data-idx="046">
+    <img data-idx="047">
+    <img data-idx="048">
+    <img data-idx="049">
+    <img data-idx="050">
+    <img data-idx="051">
+    <img data-idx="052">
+    <img data-idx="053">
+    <img data-idx="054">
+    <img data-idx="055">
+    <img data-idx="056">
+    <img data-idx="057">
+    <img data-idx="058">
+    <img data-idx="059">
+    <img data-idx="060">
+    <img data-idx="061">
+    <img data-idx="062">
+    <img data-idx="063">
+    <img data-idx="064">
+    <img data-idx="065">
+    <img data-idx="066">
+    <img data-idx="067">
+    <img data-idx="068">
+    <img data-idx="069">
+    <img data-idx="070">
+    <img data-idx="071">
+    <img data-idx="072">
+    <img data-idx="073">
+    <img data-idx="074">
+    <img data-idx="075">
+    <img data-idx="076">
+    <img data-idx="077">
+    <img data-idx="078">
+    <img data-idx="079">
+    <img data-idx="080">
+    <img data-idx="081">
+    <img data-idx="082">
+    <img data-idx="083">
+    <img data-idx="084">
+    <img data-idx="085">
+    <img data-idx="086">
+    <img data-idx="087">
+    <img data-idx="088">
+    <img data-idx="089">
+    <img data-idx="090">
+    <img data-idx="091">
+    <img data-idx="092">
+    <img data-idx="093">
+    <img data-idx="094">
+    <img data-idx="095">
+    <img data-idx="096">
+    <img data-idx="097">
+    <img data-idx="098">
+    <img data-idx="099">
+    <img data-idx="100">
+    <img data-idx="101">
+    <img data-idx="102">
+    <img data-idx="103">
+    <img data-idx="104">
+    <img data-idx="105">
+    <img data-idx="106">
+    <img data-idx="107">
+    <img data-idx="108">
+    <img data-idx="109">
+    <img data-idx="110">
+    <img data-idx="111">
+    <img data-idx="112">
+    <img data-idx="113">
+    <img data-idx="114">
+    <img data-idx="115">
+    <img data-idx="116">
+    <img data-idx="117">
+    <img data-idx="118">
+    <img data-idx="119">
+    <img data-idx="120">
+    <img data-idx="121">
+    <img data-idx="122">
+    <img data-idx="123">
+    <img data-idx="124">
+    <img data-idx="125">
+    <img data-idx="126">
+    <img data-idx="127">
+    <img data-idx="128">
+    <img data-idx="129">
+    <img data-idx="130">
+    <img data-idx="131">
+    <img data-idx="132">
+    <img data-idx="133">
+    <img data-idx="134">
+    <img data-idx="135">
+    <img data-idx="136">
+    <img data-idx="137">
+    <img data-idx="138">
+    <img data-idx="139">
+    <img data-idx="140">
+    <img data-idx="141">
+    <img data-idx="142">
+    <img data-idx="143">
+    <img data-idx="144">
+    <img data-idx="145">
+    <img data-idx="146">
+    <img data-idx="147">
+    <img data-idx="148">
+    <img data-idx="149">
+    <img data-idx="150">
+    <img data-idx="151">
+    <img data-idx="152">
+    <img data-idx="153">
+    <img data-idx="154">
+    <img data-idx="155">
+    <img data-idx="156">
+    <img data-idx="157">
+    <img data-idx="158">
+    <img data-idx="159">
+    <img data-idx="160">
+    <img data-idx="161">
+    <img data-idx="162">
+    <img data-idx="163">
+    <img data-idx="164">
+    <img data-idx="165">
+    <img data-idx="166">
+    <img data-idx="167">
+    <img data-idx="168">
+    <img data-idx="169">
+    <img data-idx="170">
+    <img data-idx="171">
+    <img data-idx="172">
+    <img data-idx="173">
+    <img data-idx="174">
+    <img data-idx="175">
+    <img data-idx="176">
+    <img data-idx="177">
+    <img data-idx="178">
+    <img data-idx="179">
+    <img data-idx="180">
+    <img data-idx="181">
+    <img data-idx="182">
+    <img data-idx="183">
+    <img data-idx="184">
+    <img data-idx="185">
+    <img data-idx="186">
+    <img data-idx="187">
+    <img data-idx="188">
+    <img data-idx="189">
+    <img data-idx="190">
+    <img data-idx="191">
+    <img data-idx="192">
+    <img data-idx="193">
+    <img data-idx="194">
+    <img data-idx="195">
+    <img data-idx="196">
+    <img data-idx="197">
+    <img data-idx="198">
+    <img data-idx="199">
+    <img data-idx="200">
+    <img data-idx="201">
+    <img data-idx="202">
+    <img data-idx="203">
+    <img data-idx="204">
+    <img data-idx="205">
+    <img data-idx="206">
+    <img data-idx="207">
+    <img data-idx="208">
+    <img data-idx="209">
+    <img data-idx="210">
+    <img data-idx="211">
+    <img data-idx="212">
+    <img data-idx="213">
+    <img data-idx="214">
+    <img data-idx="215">
+    <img data-idx="216">
+    <img data-idx="217">
+    <img data-idx="218">
+    <img data-idx="219">
+    <img data-idx="220">
+    <img data-idx="221">
+    <img data-idx="222">
+    <img data-idx="223">
+    <img data-idx="224">
+    <img data-idx="225">
+    <img data-idx="226">
+    <img data-idx="227">
+    <img data-idx="228">
+    <img data-idx="229">
+    <img data-idx="230">
+    <img data-idx="231">
+    <img data-idx="232">
+    <img data-idx="233">
+    <img data-idx="234">
+    <img data-idx="235">
+    <img data-idx="236">
+    <img data-idx="237">
+    <img data-idx="238">
+    <img data-idx="239">
+    <img data-idx="240">
+    <img data-idx="241">
+    <img data-idx="242">
+    <img data-idx="243">
+    <img data-idx="244">
+    <img data-idx="245">
+    <img data-idx="246">
+    <img data-idx="247">
+    <img data-idx="248">
+    <img data-idx="249">
+    <img data-idx="250">
+    <img data-idx="251">
+    <img data-idx="252">
+    <img data-idx="253">
+    <img data-idx="254">
+    <img data-idx="255">
+    <img data-idx="256">
+    <img data-idx="257">
+    <img data-idx="258">
+    <img data-idx="259">
+    <img data-idx="260">
+    <img data-idx="261">
+    <img data-idx="262">
+    <img data-idx="263">
+    <img data-idx="264">
+    <img data-idx="265">
+    <img data-idx="266">
+    <img data-idx="267">
+    <img data-idx="268">
+    <img data-idx="269">
+    <img data-idx="270">
+    <img data-idx="271">
+    <img data-idx="272">
+    <img data-idx="273">
+    <img data-idx="274">
+    <img data-idx="275">
+    <img data-idx="276">
+    <img data-idx="277">
+    <img data-idx="278">
+    <img data-idx="279">
+    <img data-idx="280">
+    <img data-idx="281">
+    <img data-idx="282">
+    <img data-idx="283">
+    <img data-idx="284">
+    <img data-idx="285">
+    <img data-idx="286">
+    <img data-idx="287">
+    <img data-idx="288">
+    <img data-idx="289">
+    <img data-idx="290">
+    <img data-idx="291">
+    <img data-idx="292">
+    <img data-idx="293">
+    <img data-idx="294">
+    <img data-idx="295">
+    <img data-idx="296">
+    <img data-idx="297">
+    <img data-idx="298">
+    <img data-idx="299">
+    <img data-idx="300">
+    <img data-idx="301">
+    <img data-idx="302">
+    <img data-idx="303">
+    <img data-idx="304">
+    <img data-idx="305">
+    <img data-idx="306">
+    <img data-idx="307">
+    <img data-idx="308">
+    <img data-idx="309">
+    <img data-idx="310">
+    <img data-idx="311">
+    <img data-idx="312">
+    <img data-idx="313">
+    <img data-idx="314">
+    <img data-idx="315">
+    <img data-idx="316">
+    <img data-idx="317">
+    <img data-idx="318">
+    <img data-idx="319">
+    <img data-idx="320">
+    <img data-idx="321">
+    <img data-idx="322">
+    <img data-idx="323">
+    <img data-idx="324">
+    <img data-idx="325">
+    <img data-idx="326">
+    <img data-idx="327">
+    <img data-idx="328">
+    <img data-idx="329">
+    <img data-idx="330">
+    <img data-idx="331">
+    <img data-idx="332">
+    <img data-idx="333">
+    <img data-idx="334">
+    <img data-idx="335">
+    <img data-idx="336">
+    <img data-idx="337">
+    <img data-idx="338">
+    <img data-idx="339">
+    <img data-idx="340">
+    <img data-idx="341">
+    <img data-idx="342">
+    <img data-idx="343">
+    <img data-idx="344">
+    <img data-idx="345">
+    <img data-idx="346">
+    <img data-idx="347">
+    <img data-idx="348">
+    <img data-idx="349">
+    <img data-idx="350">
+    <img data-idx="351">
+    <img data-idx="352">
+    <img data-idx="353">
+    <img data-idx="354">
+    <img data-idx="355">
+    <img data-idx="356">
+    <img data-idx="357">
+    <img data-idx="358">
+    <img data-idx="359">
+    <img data-idx="360">
+    <img data-idx="361">
+    <img data-idx="362">
+    <img data-idx="363">
+    <img data-idx="364">
+    <img data-idx="365">
+    <img data-idx="366">
+    <img data-idx="367">
+    <img data-idx="368">
+    <img data-idx="369">
+    <img data-idx="370">
+    <img data-idx="371">
+    <img data-idx="372">
+    <img data-idx="373">
+    <img data-idx="374">
+    <img data-idx="375">
+    <img data-idx="376">
+    <img data-idx="377">
+    <img data-idx="378">
+    <img data-idx="379">
+    <img data-idx="380">
+    <img data-idx="381">
+    <img data-idx="382">
+    <img data-idx="383">
+    <img data-idx="384">
+    <img data-idx="385">
+    <img data-idx="386">
+    <img data-idx="387">
+    <img data-idx="388">
+    <img data-idx="389">
+    <img data-idx="390">
+    <img data-idx="391">
+</div>
+
+<script type="module">
+  const overlay = document.getElementById('overlay');
+  const overlayBg = document.getElementById('overlayBg');
+  const dayButton = document.getElementById('dayButton');
+  const oButton = document.getElementById('oButton');
+  const audio = document.getElementById('myAudio');
+  
+  const container = document.getElementById("container");
+  const imageBytes = {};
+  const zipFiles = [
+    "/content/archive/den_1.zip",
+    "/content/archive/den_2.zip",
+    "/content/archive/den_3.zip",
+    "/content/archive/den_4.zip",
+    "/content/archive/den_5.zip",
+    "/content/archive/den_6.zip",
+    "/content/archive/den_7.zip"
+  ];
+  
+
+  function updateDayTitle() {
+    const startDate = new Date("2022-02-24"); // дата отсчёта "день 1"
+    const today = new Date();
+
+    // Разница в миллисекундах
+    const diffMs = today - startDate;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
+    
+    //document.title = `${diffDays}`;
+    oButton.textContent = `.., ${diffDays}`;
+  }
+
+  updateDayTitle(); // устанавливаем заголовок при загрузке страницы
+    
+  // Создаём воркер на лету
+  const workerCode = `
+    importScripts('https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js');
+
+    self.onmessage = (e) => {
+      const u8 = new Uint8Array(e.data.zipBuffer);
+
+      fflate.unzip(u8, (err, files) => {
+        if (err) { self.postMessage({ error: err.message }); return; }
+
+        const result = {};
+        for (const name in files) { result[name] = files[name].buffer; }
+
+        self.postMessage({ files: result });
+      });
+    };
+  `;
+
+  const blob = new Blob([workerCode], { type: "application/javascript" });
+  const blobURL = URL.createObjectURL(blob);
+  const unzipWorker = new Worker(blobURL);
+
+
+  // Обёртка unzipArchive через воркер
+  function unzipArchive(u8) {
+    return new Promise((resolve, reject) => {
+      unzipWorker.onmessage = (e) => {
+        if (e.data.error) return reject(e.data.error);
+        resolve(e.data.files);
+      };
+      unzipWorker.postMessage({ zipBuffer: u8.buffer }, [u8.buffer]);
+    });
+  }
+
+
+  // Подстановка изображений в DOM
+  function updateImages(files) {
+    for (const name in files) {
+      // Берём цифры перед .jpg
+      const m = name.match(/(\d+)(?=\.jpg$)/i);
+      if (!m) continue;
+
+      const idx = parseInt(m[1], 10);
+      const selector = `img[data-idx="${String(idx).padStart(3,'0')}"]`;
+      const img = document.querySelector(selector);
+      if (!img) continue;
+
+      const blob = new Blob([files[name]], { type: "image/jpeg" });
+      const url = URL.createObjectURL(blob);
+      img.src = url;
+      img.onload = () => URL.revokeObjectURL(url);
+    }
+  }
+
+  // Последовательная загрузка архивов
+  async function downloadAndProcessZips() {
+    for (let i = 0; i < zipFiles.length; i++) {
+      const url = zipFiles[i];
+      const res = await fetch(url);
+      const buffer = await res.arrayBuffer();
+      const u8 = new Uint8Array(buffer);
+
+      const files = await unzipArchive(u8);
+      updateImages(files);
+    }
+  }
+
+  window.addEventListener("load", () => {
+    downloadAndProcessZips();
+  });
+
+
+  
+  dayButton.addEventListener('click', () => {
+    // Воспроизведение аудио
+    audio.play().catch(err => console.log(err));
+
+    // Сначала скрываем кнопку
+    dayButton.classList.add('hidden-btn');
+    oButton.classList.add('hidden-btn');
+
+    // Через 2 секунды скрываем фон overlay
+    setTimeout(() => {
+      overlayBg.classList.add('hidden-bg');
+  	document.body.style.overflow = 'auto'; // или 'scroll'
+      // делаем overlay "прозрачным" для мыши и скролла
+      overlay.classList.add('disabled');
+
+    }, 2000);
+
+  });
+</script>
+
+</body>
+</html>

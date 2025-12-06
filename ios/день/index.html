@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>день</title>
+
+<link rel="preload" href="/content/favicon-32x32.png" as="image">
+<link rel="icon" href="/content/favicon-32x32.png" type="image/png">
+
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; background: black; }
+
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.overlay-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: black;
+  transition: opacity 3s ease;
+  z-index: 0;
+}
+
+
+.overlay button {
+  padding: 20px 0px;
+  font-size: 2.0rem;
+  background: black;
+  border: 0;
+  z-index: 99;
+  transition: opacity 0.2s ease, border-bottom 0.2s ease; /* плавное изменение */
+  /*border-bottom: 2px solid transparent;  изначально прозрачная линия */
+}
+
+.overlay button:hover {
+  /*border-bottom: 2px solid gray; /* подчёркивание при наведении */
+}
+
+#dayButton {
+  cursor: pointer;
+  color: rgba(50,50,50,1.0);
+}
+
+#dayButton:hover {
+  color: rgba(100,100,100,1.0);
+}
+
+#oButton {
+  color: rgba(75,75,75,1.0);
+}
+
+#oButton:hover {
+  color: rgba(75,75,75,1.0);
+}
+
+
+.hidden-btn { opacity: 0; }
+.hidden-bg { opacity: 0; }
+
+.overlay.disabled {
+    pointer-events: none;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: black;
+  overflow: auto;
+  height: 100%;
+}
+
+.container img {
+  width: 100%;
+  max-width: 1400px;
+  height: auto;
+  display: block;
+}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay">
+  <button id="dayButton"> 1171 </button>
+  <button id="oButton"> ... </button>
+  <div class="overlay-bg" id="overlayBg"></div>
+</div>
+
+<audio id="myAudio" src="/content/audio/EINAUDI_REWORK_V.mp3"></audio>
+
+<div class="container" id="container">
+    <img src="/content/day/000.jpg">
+    <img src="/content/day/001.jpg">
+    <img src="/content/day/002.jpg">
+    <img src="/content/day/003.jpg">
+    <img src="/content/day/004.jpg">
+    <img src="/content/day/005.jpg">
+    <img src="/content/day/006.jpg">
+    <img src="/content/day/007.jpg">
+    <img src="/content/day/008.jpg">
+    <img src="/content/day/009.jpg">
+    <img src="/content/day/010.jpg">
+    <img src="/content/day/011.jpg">
+    <img src="/content/day/012.jpg">
+    <img src="/content/day/013.jpg">
+    <img src="/content/day/014.jpg">
+    <img src="/content/day/015.jpg">
+    <img src="/content/day/016.jpg">
+    <img src="/content/day/017.jpg">
+    <img src="/content/day/018.jpg">
+    <img src="/content/day/019.jpg">
+    <img src="/content/day/020.jpg">
+    <img src="/content/day/021.jpg">
+    <img src="/content/day/022.jpg">
+    <img src="/content/day/023.jpg">
+    <img src="/content/day/024.jpg">
+    <img src="/content/day/025.jpg">
+    <img src="/content/day/026.jpg">
+    <img src="/content/day/027.jpg">
+    <img src="/content/day/028.jpg">
+    <img src="/content/day/029.jpg">
+    <img src="/content/day/030.jpg">
+    <img src="/content/day/031.jpg">
+    <img src="/content/day/032.jpg">
+    <img src="/content/day/033.jpg">
+    <img src="/content/day/034.jpg">
+    <img src="/content/day/035.jpg">
+    <img src="/content/day/036.jpg">
+    <img src="/content/day/037.jpg">
+    <img src="/content/day/038.jpg">
+    <img src="/content/day/039.jpg">
+    <img src="/content/day/040.jpg">
+    <img src="/content/day/041.jpg">
+    <img src="/content/day/042.jpg">
+    <img src="/content/day/043.jpg">
+    <img src="/content/day/044.jpg">
+    <img src="/content/day/045.jpg">
+    <img src="/content/day/046.jpg">
+    <img src="/content/day/047.jpg">
+    <img src="/content/day/048.jpg">
+    <img src="/content/day/049.jpg">
+    <img src="/content/day/050.jpg">
+    <img src="/content/day/051.jpg">
+    <img src="/content/day/052.jpg">
+    <img src="/content/day/053.jpg">
+    <img src="/content/day/054.jpg">
+    <img src="/content/day/055.jpg">
+    <img src="/content/day/056.jpg">
+    <img src="/content/day/057.jpg">
+    <img src="/content/day/058.jpg">
+    <img src="/content/day/059.jpg">
+    <img src="/content/day/060.jpg">
+    <img src="/content/day/061.jpg">
+    <img src="/content/day/062.jpg">
+    <img src="/content/day/063.jpg">
+    <img src="/content/day/064.jpg">
+    <img src="/content/day/065.jpg">
+    <img src="/content/day/066.jpg">
+    <img src="/content/day/067.jpg">
+    <img src="/content/day/068.jpg">
+    <img src="/content/day/069.jpg">
+    <img src="/content/day/070.jpg">
+    <img src="/content/day/071.jpg">
+    <img src="/content/day/072.jpg">
+    <img src="/content/day/073.jpg">
+    <img src="/content/day/074.jpg">
+    <img src="/content/day/075.jpg">
+    <img src="/content/day/076.jpg">
+    <img src="/content/day/077.jpg">
+    <img src="/content/day/078.jpg">
+    <img src="/content/day/079.jpg">
+    <img src="/content/day/080.jpg">
+    <img src="/content/day/081.jpg">
+    <img src="/content/day/082.jpg">
+    <img src="/content/day/083.jpg">
+    <img src="/content/day/084.jpg">
+    <img src="/content/day/085.jpg">
+    <img src="/content/day/086.jpg">
+    <img src="/content/day/087.jpg">
+    <img src="/content/day/088.jpg">
+    <img src="/content/day/089.jpg">
+    <img src="/content/day/090.jpg">
+    <img src="/content/day/091.jpg">
+    <img src="/content/day/092.jpg">
+    <img src="/content/day/093.jpg">
+    <img src="/content/day/094.jpg">
+    <img src="/content/day/095.jpg">
+    <img src="/content/day/096.jpg">
+    <img src="/content/day/097.jpg">
+    <img src="/content/day/098.jpg">
+    <img src="/content/day/099.jpg">
+    <img src="/content/day/100.jpg">
+    <img src="/content/day/101.jpg">
+    <img src="/content/day/102.jpg">
+    <img src="/content/day/103.jpg">
+    <img src="/content/day/104.jpg">
+    <img src="/content/day/105.jpg">
+    <img src="/content/day/106.jpg">
+    <img src="/content/day/107.jpg">
+    <img src="/content/day/108.jpg">
+    <img src="/content/day/109.jpg">
+    <img src="/content/day/110.jpg">
+    <img src="/content/day/111.jpg">
+    <img src="/content/day/112.jpg">
+    <img src="/content/day/113.jpg">
+    <img src="/content/day/114.jpg">
+    <img src="/content/day/115.jpg">
+    <img src="/content/day/116.jpg">
+    <img src="/content/day/117.jpg">
+    <img src="/content/day/118.jpg">
+    <img src="/content/day/119.jpg">
+    <img src="/content/day/120.jpg">
+    <img src="/content/day/121.jpg">
+    <img src="/content/day/122.jpg">
+    <img src="/content/day/123.jpg">
+    <img src="/content/day/124.jpg">
+    <img src="/content/day/125.jpg">
+    <img src="/content/day/126.jpg">
+    <img src="/content/day/127.jpg">
+    <img src="/content/day/128.jpg">
+    <img src="/content/day/129.jpg">
+    <img src="/content/day/130.jpg">
+    <img src="/content/day/131.jpg">
+    <img src="/content/day/132.jpg">
+    <img src="/content/day/133.jpg">
+    <img src="/content/day/134.jpg">
+    <img src="/content/day/135.jpg">
+    <img src="/content/day/136.jpg">
+    <img src="/content/day/137.jpg">
+    <img src="/content/day/138.jpg">
+    <img src="/content/day/139.jpg">
+    <img src="/content/day/140.jpg">
+    <img src="/content/day/141.jpg">
+    <img src="/content/day/142.jpg">
+    <img src="/content/day/143.jpg">
+    <img src="/content/day/144.jpg">
+    <img src="/content/day/145.jpg">
+    <img src="/content/day/146.jpg">
+    <img src="/content/day/147.jpg">
+    <img src="/content/day/148.jpg">
+    <img src="/content/day/149.jpg">
+    <img src="/content/day/150.jpg">
+    <img src="/content/day/151.jpg">
+    <img src="/content/day/152.jpg">
+    <img src="/content/day/153.jpg">
+    <img src="/content/day/154.jpg">
+    <img src="/content/day/155.jpg">
+    <img src="/content/day/156.jpg">
+    <img src="/content/day/157.jpg">
+    <img src="/content/day/158.jpg">
+    <img src="/content/day/159.jpg">
+    <img src="/content/day/160.jpg">
+    <img src="/content/day/161.jpg">
+    <img src="/content/day/162.jpg">
+    <img src="/content/day/163.jpg">
+    <img src="/content/day/164.jpg">
+    <img src="/content/day/165.jpg">
+    <img src="/content/day/166.jpg">
+    <img src="/content/day/167.jpg">
+    <img src="/content/day/168.jpg">
+    <img src="/content/day/169.jpg">
+    <img src="/content/day/170.jpg">
+    <img src="/content/day/171.jpg">
+    <img src="/content/day/172.jpg">
+    <img src="/content/day/173.jpg">
+    <img src="/content/day/174.jpg">
+    <img src="/content/day/175.jpg">
+    <img src="/content/day/176.jpg">
+    <img src="/content/day/177.jpg">
+    <img src="/content/day/178.jpg">
+    <img src="/content/day/179.jpg">
+    <img src="/content/day/180.jpg">
+    <img src="/content/day/181.jpg">
+    <img src="/content/day/182.jpg">
+    <img src="/content/day/183.jpg">
+    <img src="/content/day/184.jpg">
+    <img src="/content/day/185.jpg">
+    <img src="/content/day/186.jpg">
+    <img src="/content/day/187.jpg">
+    <img src="/content/day/188.jpg">
+    <img src="/content/day/189.jpg">
+    <img src="/content/day/190.jpg">
+    <img src="/content/day/191.jpg">
+    <img src="/content/day/192.jpg">
+    <img src="/content/day/193.jpg">
+    <img src="/content/day/194.jpg">
+    <img src="/content/day/195.jpg">
+    <img src="/content/day/196.jpg">
+    <img src="/content/day/197.jpg">
+    <img src="/content/day/198.jpg">
+    <img src="/content/day/199.jpg">
+    <img src="/content/day/200.jpg">
+    <img src="/content/day/201.jpg">
+    <img src="/content/day/202.jpg">
+    <img src="/content/day/203.jpg">
+    <img src="/content/day/204.jpg">
+    <img src="/content/day/205.jpg">
+    <img src="/content/day/206.jpg">
+    <img src="/content/day/207.jpg">
+    <img src="/content/day/208.jpg">
+    <img src="/content/day/209.jpg">
+    <img src="/content/day/210.jpg">
+    <img src="/content/day/211.jpg">
+    <img src="/content/day/212.jpg">
+    <img src="/content/day/213.jpg">
+    <img src="/content/day/214.jpg">
+    <img src="/content/day/215.jpg">
+    <img src="/content/day/216.jpg">
+    <img src="/content/day/217.jpg">
+    <img src="/content/day/218.jpg">
+    <img src="/content/day/219.jpg">
+    <img src="/content/day/220.jpg">
+    <img src="/content/day/221.jpg">
+    <img src="/content/day/222.jpg">
+    <img src="/content/day/223.jpg">
+    <img src="/content/day/224.jpg">
+    <img src="/content/day/225.jpg">
+    <img src="/content/day/226.jpg">
+    <img src="/content/day/227.jpg">
+    <img src="/content/day/228.jpg">
+    <img src="/content/day/229.jpg">
+    <img src="/content/day/230.jpg">
+    <img src="/content/day/231.jpg">
+    <img src="/content/day/232.jpg">
+    <img src="/content/day/233.jpg">
+    <img src="/content/day/234.jpg">
+    <img src="/content/day/235.jpg">
+    <img src="/content/day/236.jpg">
+    <img src="/content/day/237.jpg">
+    <img src="/content/day/238.jpg">
+    <img src="/content/day/239.jpg">
+    <img src="/content/day/240.jpg">
+    <img src="/content/day/241.jpg">
+    <img src="/content/day/242.jpg">
+    <img src="/content/day/243.jpg">
+    <img src="/content/day/244.jpg">
+    <img src="/content/day/245.jpg">
+    <img src="/content/day/246.jpg">
+    <img src="/content/day/247.jpg">
+    <img src="/content/day/248.jpg">
+    <img src="/content/day/249.jpg">
+    <img src="/content/day/250.jpg">
+    <img src="/content/day/251.jpg">
+    <img src="/content/day/252.jpg">
+    <img src="/content/day/253.jpg">
+    <img src="/content/day/254.jpg">
+    <img src="/content/day/255.jpg">
+    <img src="/content/day/256.jpg">
+    <img src="/content/day/257.jpg">
+    <img src="/content/day/258.jpg">
+    <img src="/content/day/259.jpg">
+    <img src="/content/day/260.jpg">
+    <img src="/content/day/261.jpg">
+    <img src="/content/day/262.jpg">
+    <img src="/content/day/263.jpg">
+    <img src="/content/day/264.jpg">
+    <img src="/content/day/265.jpg">
+    <img src="/content/day/266.jpg">
+    <img src="/content/day/267.jpg">
+    <img src="/content/day/268.jpg">
+    <img src="/content/day/269.jpg">
+    <img src="/content/day/270.jpg">
+    <img src="/content/day/271.jpg">
+    <img src="/content/day/272.jpg">
+    <img src="/content/day/273.jpg">
+    <img src="/content/day/274.jpg">
+    <img src="/content/day/275.jpg">
+    <img src="/content/day/276.jpg">
+    <img src="/content/day/277.jpg">
+    <img src="/content/day/278.jpg">
+    <img src="/content/day/279.jpg">
+    <img src="/content/day/280.jpg">
+    <img src="/content/day/281.jpg">
+    <img src="/content/day/282.jpg">
+    <img src="/content/day/283.jpg">
+    <img src="/content/day/284.jpg">
+    <img src="/content/day/285.jpg">
+    <img src="/content/day/286.jpg">
+    <img src="/content/day/287.jpg">
+    <img src="/content/day/288.jpg">
+    <img src="/content/day/289.jpg">
+    <img src="/content/day/290.jpg">
+    <img src="/content/day/291.jpg">
+    <img src="/content/day/292.jpg">
+    <img src="/content/day/293.jpg">
+    <img src="/content/day/294.jpg">
+    <img src="/content/day/295.jpg">
+    <img src="/content/day/296.jpg">
+    <img src="/content/day/297.jpg">
+    <img src="/content/day/298.jpg">
+    <img src="/content/day/299.jpg">
+    <img src="/content/day/300.jpg">
+    <img src="/content/day/301.jpg">
+    <img src="/content/day/302.jpg">
+    <img src="/content/day/303.jpg">
+    <img src="/content/day/304.jpg">
+    <img src="/content/day/305.jpg">
+    <img src="/content/day/306.jpg">
+    <img src="/content/day/307.jpg">
+    <img src="/content/day/308.jpg">
+    <img src="/content/day/309.jpg">
+    <img src="/content/day/310.jpg">
+    <img src="/content/day/311.jpg">
+    <img src="/content/day/312.jpg">
+    <img src="/content/day/313.jpg">
+    <img src="/content/day/314.jpg">
+    <img src="/content/day/315.jpg">
+    <img src="/content/day/316.jpg">
+    <img src="/content/day/317.jpg">
+    <img src="/content/day/318.jpg">
+    <img src="/content/day/319.jpg">
+    <img src="/content/day/320.jpg">
+    <img src="/content/day/321.jpg">
+    <img src="/content/day/322.jpg">
+    <img src="/content/day/323.jpg">
+    <img src="/content/day/324.jpg">
+    <img src="/content/day/325.jpg">
+    <img src="/content/day/326.jpg">
+    <img src="/content/day/327.jpg">
+    <img src="/content/day/328.jpg">
+    <img src="/content/day/329.jpg">
+    <img src="/content/day/330.jpg">
+    <img src="/content/day/331.jpg">
+    <img src="/content/day/332.jpg">
+    <img src="/content/day/333.jpg">
+    <img src="/content/day/334.jpg">
+    <img src="/content/day/335.jpg">
+    <img src="/content/day/336.jpg">
+    <img src="/content/day/337.jpg">
+    <img src="/content/day/338.jpg">
+    <img src="/content/day/339.jpg">
+    <img src="/content/day/340.jpg">
+    <img src="/content/day/341.jpg">
+    <img src="/content/day/342.jpg">
+    <img src="/content/day/343.jpg">
+    <img src="/content/day/344.jpg">
+    <img src="/content/day/345.jpg">
+    <img src="/content/day/346.jpg">
+    <img src="/content/day/347.jpg">
+    <img src="/content/day/348.jpg">
+    <img src="/content/day/349.jpg">
+    <img src="/content/day/350.jpg">
+    <img src="/content/day/351.jpg">
+    <img src="/content/day/352.jpg">
+    <img src="/content/day/353.jpg">
+    <img src="/content/day/354.jpg">
+    <img src="/content/day/355.jpg">
+    <img src="/content/day/356.jpg">
+    <img src="/content/day/357.jpg">
+    <img src="/content/day/358.jpg">
+    <img src="/content/day/359.jpg">
+    <img src="/content/day/360.jpg">
+    <img src="/content/day/361.jpg">
+    <img src="/content/day/362.jpg">
+    <img src="/content/day/363.jpg">
+    <img src="/content/day/364.jpg">
+    <img src="/content/day/365.jpg">
+    <img src="/content/day/366.jpg">
+    <img src="/content/day/367.jpg">
+    <img src="/content/day/368.jpg">
+    <img src="/content/day/369.jpg">
+    <img src="/content/day/370.jpg">
+    <img src="/content/day/371.jpg">
+    <img src="/content/day/372.jpg">
+    <img src="/content/day/373.jpg">
+    <img src="/content/day/374.jpg">
+    <img src="/content/day/375.jpg">
+    <img src="/content/day/376.jpg">
+    <img src="/content/day/377.jpg">
+    <img src="/content/day/378.jpg">
+    <img src="/content/day/379.jpg">
+    <img src="/content/day/380.jpg">
+    <img src="/content/day/381.jpg">
+    <img src="/content/day/382.jpg">
+    <img src="/content/day/383.jpg">
+    <img src="/content/day/384.jpg">
+    <img src="/content/day/385.jpg">
+    <img src="/content/day/386.jpg">
+    <img src="/content/day/387.jpg">
+    <img src="/content/day/388.jpg">
+    <img src="/content/day/389.jpg">
+    <img src="/content/day/390.jpg">
+    <img src="/content/day/391.jpg">
+  </div>
+<script type="module">
+  const overlay = document.getElementById('overlay');
+  const overlayBg = document.getElementById('overlayBg');
+  
+  const dayButton = document.getElementById('dayButton');
+  const oButton = document.getElementById('oButton');
+  
+  const audio = document.getElementById('myAudio');
+  
+
+  function updateDayTitle() {
+    const startDate = new Date("2022-02-24"); // дата отсчёта "день 1"
+    const today = new Date();
+
+    // Разница в миллисекундах
+    const diffMs = today - startDate;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
+    
+    //document.title = `${diffDays}`;
+    oButton.textContent = `.., ${diffDays}`;
+  }
+
+  updateDayTitle(); // устанавливаем заголовок при загрузке страницы
+
+       
+  dayButton.addEventListener('click', () => {
+    // Воспроизведение аудио
+    audio.play().catch(err => console.log(err));
+
+    // Сначала скрываем кнопку
+    dayButton.classList.add('hidden-btn');
+    oButton.classList.add('hidden-btn');
+
+    // Через 2 секунды скрываем фон overlay
+    setTimeout(() => {
+      overlayBg.classList.add('hidden-bg');
+    document.body.style.overflow = 'auto'; // или 'scroll'
+      // делаем overlay "прозрачным" для мыши и скролла
+      overlay.classList.add('disabled');
+
+    }, 2000);
+
+  });
+</script>
+
+</body>
+</html>
+    
