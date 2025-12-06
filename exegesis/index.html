@@ -27,44 +27,62 @@
       background: black;
       pointer-events: none; /* img не реагируют на клики и hover */
     }
+
+    .loading_container {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: black;
+      z-index: 1001;
+    }
+
   </style>
 </head>
 <body>
-  <div class="container" id="container">
-    <img src="/content/exegesis/e_1_alt.png">
-  </div>
 
+  
+<div class="container" id="container">
+  <img src="/content/exegesis/e_1_alt.png" style="opacity:1;">
+</div>
+
+<div class="loading_container" id="loading_container">
+  <img src="/content/loading.gif">
+</div>
 
 <script>
 const images = [
-  "/content/exegesis/e_2_alt.png",
-  "/content/exegesis/e_3_alt.png",
-  "/content/exegesis/e_4_alt.png",
-  "/content/exegesis/e_5_alt.png",
-  "/content/exegesis/e_6_alt.png",
-  "/content/exegesis/e_7_alt.png",
-  "/content/exegesis/e_8_alt.png"
+  {src: "/content/exegesis/e_2_alt.png", w: 1400, h: 745},
+  {src: "/content/exegesis/e_3_alt.png", w: 1400, h: 1104},
+  {src: "/content/exegesis/e_4_alt.png", w: 1400, h: 1704},
+  {src: "/content/exegesis/e_5_alt.png", w: 1400, h: 1450},
+  {src: "/content/exegesis/e_6_alt.png", w: 1400, h: 1665},
+  {src: "/content/exegesis/e_7_alt.png", w: 1400, h: 1575},
+  {src: "/content/exegesis/e_8_alt.png", w: 1400, h: 1575}
 ];
 
 const container = document.getElementById("container");
+const loader = document.getElementById("loading_container");
 
 async function loadSequentially(imgList) {
-  for (const src of imgList) {
+  for (const imgData of imgList) {
     const img = document.createElement("img");
-    img.src = src;
-    img.style.opacity = 0; // чтобы добавить плавное появление позже
+    img.src = imgData.src;
+    img.width = imgData.w;
+    img.height = imgData.h;
 
-    // ждём полной загрузки
     try {
-      await img.decode(); 
+      await img.decode(); // ждём полной загрузки
     } catch(e) {
-      console.warn("Ошибка загрузки:", src);
+      console.warn("Ошибка загрузки:", imgData.src);
     }
 
     container.appendChild(img);
-    img.style.transition = "opacity 0.5s";
     requestAnimationFrame(() => img.style.opacity = 1); // плавно показать
   }
+  // Убираем loader после загрузки всех картинок
+  loader.remove();
 }
 
 loadSequentially(images);
