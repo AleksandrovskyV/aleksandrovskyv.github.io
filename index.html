@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Загрузка...</title>
+
+  <!-- Редирект через JavaScript -->
+  <script>
+    const ua = navigator.userAgent.toLowerCase();
+    const isMobile = /iphone|ipad|android/.test(ua);
+
+    if (isMobile) {
+      window.location.href = "main_ios.html";
+    } else {
+      window.location.href = "main.html";
+    }
+  </script>
+
+  <!-- Резервный редирект для отключенного JS -->
+  <noscript>
+    <meta http-equiv="refresh" content="0;url=main.html">
+  </noscript>
+</head>
+<body>
+  <p>Загрузка...</p>
+</body>
+</html>
