@@ -154,7 +154,7 @@
     while (container.scrollHeight > maxHeight) {
       // Берём все кнопки close, кроме исключений
       const closeButtons = Array.from(container.querySelectorAll('button#close'))
-        .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
+        .filter(btn => btn.dataset.href !== 'space/' && btn.dataset.href !== 'about/');
 
       if (closeButtons.length === 0) break; // Больше нечего удалять
 
