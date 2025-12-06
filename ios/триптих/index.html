@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>триптих</title>
+
+<style>
+  body {
+    margin: 0;
+    background: rgba(0, 0, 0, 1.0);
+  }
+  html, body {
+    overflow: hidden;
+    height: 100%;
+    touch-action: none; /* запрет сенсорного скролла */
+  }
+  .composite_container {
+    position: relative;
+    width: 100vw;
+    height: calc(var(--vh, 1vh) * 100);
+    overflow: hidden;
+  }
+
+  .ctrl_container {
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+
+    background: transparent;
+    padding: 20px;
+
+  }
+  .ctrl_container {
+      pointer-events: none;
+  }
+
+  .ctrl_container button {
+      pointer-events: auto;
+  }
+
+  .content_container {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+
+    top: vh;
+    height: 100%;
+    display: flex;
+    align-items: center; 
+    box-sizing: border-box;
+    justify-content: center; /* изначально в центре! */
+    padding-bottom: env(safe-area-inset-bottom);
+    transition: transform 0.5s ease;
+}
+
+
+  .overlay_picture {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0; /* убрать */
+    background-image: url(content/trip/lock_mobile.png);
+    background-size: cover;
+    background-position: center;
+    pointer-events: auto;
+    opacity: 1;
+    transition: opacity 1s;
+    z-index: 50; /* поверх видео */
+}
+  .overlay_picture.hidden {
+    opacity: 0;
+  }
+
+  /* Стили видеоблоков */
+  .video-block {
+    position: relative; /* чтобы overlay был внутри блока */
+    display: inline-block;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    user-select: none;
+    margin: 20px;
+
+  }
+  .video-block video,
+  .video-block img {
+      width: calc(100vw - 40px);
+      height: auto;
+      object-fit: contain;
+  }
+
+  button {
+    padding: 20px;
+    font-size: 4vh;
+    cursor: pointer;
+	color: rgba(100,100,100,0.3);
+	background: transparent;
+	border: 0;
+  }
+  
+  button:disabled {
+    color: rgba(20, 20, 20, 0.5);
+    cursor: default;
+  }
+  /* Оверлей поверх видео */
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    pointer-events: none;
+    opacity: 1; /* по умолчанию виден */
+    transition: opacity 0.3s;
+  }
+</style>
+
+</head>
+<body>
+
+<div class="composite_container">
+  <div class="ctrl_container">
+    <button id="left"><</button>
+    <button id="right">></button>
+  </div>
+
+  <div class="content_container">
+    
+    <div class="video-block">
+      <img src="content/trip/stat_mobile.png"></img>
+      <div class="overlay_picture"></div>
+      <div class="overlay"></div>
+    </div>
+
+    <div class="video-block">
+      <video src="content/video/Bird_Mobile.mp4" loop playsinline muted webkit-playsinline poster="content/trip/lock_mobile.png" preload="auto"></video>
+      <div class="overlay"></div>
+    </div>
+   
+   
+    <div class="video-block">
+      <video src="content/video/Cat_Mobile.mp4"  loop playsinline muted webkit-playsinline poster="content/trip/lock_mobile.png" preload="auto"></video>
+      <div class="overlay"></div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<script>
+
+
+function setVh() {
+  let vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+setVh();
+window.addEventListener('resize', setVh);
+window.addEventListener('orientationchange', setVh);
+
+
+
+const container = document.querySelector('.content_container');
+const overlays = Array.from(container.querySelectorAll('.overlay'));
+
+const btnLeft = document.getElementById('left');
+const btnRight = document.getElementById('right');
+
+const blocks = Array.from(container.querySelectorAll('.video-block'));
+
+const overlayPic = document.querySelector(".overlay_picture");
+
+let currentIndex = Math.floor(blocks.length / 2);
+let previousIndex = currentIndex;
+
+
+function focusOnBlock(index) {
+  const containerWidth = container.clientWidth;
+
+  const block = blocks[index];
+  const blockRect = block.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+
+
+  // --- видео: включаем текущее, останавливаем все остальные ---
+  blocks.forEach((b, i) => {
+    const v = b.querySelector('video');
+    if (!v) return;
+    if (i === index) {
+      v.muted = false; // включаем звук
+      v.play().catch(()=>{}); // включаем активное
+    } else {
+      v.pause();               // останавливаем все остальные
+    }
+  });
+
+  // позиция центра блока относительно контейнера
+  const blockCenter = block.offsetLeft + block.offsetWidth / 2;
+
+  const translateX = containerWidth / 2 - blockCenter;
+
+  container.style.transform = `translateX(${translateX}px)`;
+
+
+  previousIndex = index;
+
+  // overlay: центральный прозрачный, остальные затемнены
+  overlays.forEach((overlay, i) => {
+    overlay.style.opacity = (i === index) ? 0 : 1;
+  });
+  
+  // кнопки
+  btnLeft.disabled = index === 0;
+  btnRight.disabled = index === blocks.length - 1;
+}
+
+// при загрузке центрируем
+window.onload = () => {
+  focusOnBlock(currentIndex);
+
+};
+
+// кнопки
+document.getElementById('left').addEventListener('click', () => {
+  if (currentIndex > 0) {
+    currentIndex--;
+    focusOnBlock(currentIndex);
+  }
+});
+
+document.getElementById('right').addEventListener('click', () => {
+  if (currentIndex < blocks.length - 1) {
+    currentIndex++;
+    focusOnBlock(currentIndex);
+  }
+});
+
+// === Overlay Picture Touch Logic ===
+
+if (overlayPic) {
+  overlayPic.addEventListener("touchstart", () => {
+    overlayPic.classList.add("hidden"); // прозрачный
+  });
+
+  overlayPic.addEventListener("touchend", () => {
+    overlayPic.classList.remove("hidden"); // вернуть
+  });
+
+  overlayPic.addEventListener("touchcancel", () => {
+    overlayPic.classList.remove("hidden"); // на случай прерывания жеста
+  });
+}
+
+// обработка стрелок
+document.addEventListener('keydown', (e) => {
+  if (e.key === "ArrowLeft") {
+    if (currentIndex > 0) {
+      currentIndex--;
+      focusOnBlock(currentIndex);
+    }
+  }
+  if (e.key === "ArrowRight") {
+    if (currentIndex < blocks.length - 1) {
+      currentIndex++;
+      focusOnBlock(currentIndex);
+    }
+  }
+});
+
+// ------------ ВОТ ЭТО — ОБРАБОТКА КЛИКА ПО ВИДЕО ------------
+blocks.forEach((block, index) => {
+  block.addEventListener("click", () => {
+    currentIndex = index;
+    focusOnBlock(index);
+  });
+});
+// ------------------------------------------------------------
+
+// обновление при ресайзе
+window.addEventListener('resize', () => {
+  focusOnBlock(currentIndex);
+});
+
+
+</script>
+
+
+</body>
+</html>
