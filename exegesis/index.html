@@ -32,17 +32,36 @@
 <body>
   <div class="container">
     <img src="/content/exegesis/e_1_alt.png">
-    <img src="/content/exegesis/e_2_alt.png">
-    <img src="/content/exegesis/e_3_alt.png">
-    <img src="/content/exegesis/e_4_alt.png">
-    <img src="/content/exegesis/e_5_alt.png">
-    <img src="/content/exegesis/e_6_alt.png">
-    <img src="/content/exegesis/e_7_alt.png">
-    <img src="/content/exegesis/e_8_alt.png">
   </div>
 
 
 <script>
+    const images = [
+      "/content/exegesis/e_2_alt.png",
+      "/content/exegesis/e_3_alt.png",
+      "/content/exegesis/e_4_alt.png",
+      "/content/exegesis/e_5_alt.png",
+      "/content/exegesis/e_6_alt.png",
+      "/content/exegesis/e_7_alt.png",
+      "/content/exegesis/e_8_alt.png"
+    ];
+
+    const container = document.getElementById("container");
+
+    async function loadSequentially(imgList) {
+      for (const src of imgList) {
+        await new Promise(resolve => {
+          const img = document.createElement("img");
+          img.src = src;
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // на случай ошибки
+          container.appendChild(img);
+        });
+      }
+    }
+
+    loadSequentially(images);
+
 // ESC — работает мгновенно
 function handleEscape(e) {
   if (e.key === "Escape") {
@@ -57,6 +76,8 @@ function handleEscape(e) {
 // Подписываем один обработчик на оба объекта
 window.addEventListener('keydown', handleEscape);
 document.addEventListener('keydown', handleEscape);
+
 </script>
+
 </body>
 </html>
