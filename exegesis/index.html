@@ -70,34 +70,37 @@ const firstImg = document.querySelector('#container img');
 const loader = document.getElementById("loading_container");
 
 
-
-
-
-async function loadFirstImageWithRetries(src, maxRetries = 5, delay = 1000) {
+async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
   let attempts = 0;
+
   while (attempts < maxRetries) {
-    const img = document.createElement("img");
-    img.src = src;
+    // Если картинка уже полностью загружена
+    if (imgEl.complete && imgEl.naturalHeight !== 0) {
+      imgEl.style.opacity = 1; // показываем
+      return imgEl;
+    }
+
     try {
       await new Promise((resolve, reject) => {
-        img.onload = () => resolve();
-        img.onerror = () => reject();
+        imgEl.onload = () => resolve();
+        imgEl.onerror = () => reject();
       });
-      container.appendChild(img);
-      img.style.opacity = 1;
-      return img; // успешно загрузили
-    } catch(e) {
+
+      imgEl.style.opacity = 1;
+      return imgEl;
+
+    } catch {
       attempts++;
       console.warn(`Ошибка загрузки первой картинки, попытка ${attempts}`);
       await new Promise(r => setTimeout(r, delay));
     }
   }
+
   console.error("Не удалось загрузить первую картинку после всех попыток");
   return null;
 }
 
 
-  
 
 // функция для загрузки одной картинки с повторной попыткой
 function loadImage(src, maxRetries = 5, delay = 1000) {
@@ -140,8 +143,7 @@ async function loadSequentially(list) {
 }
 
 // Используем перед загрузкой последовательного списка
-loadFirstImageWithRetries("/content/exegesis/e_1_alt.png")
-  .then(() => loadSequentially(images));
+loadFirstImageWithRetries(firstImg).then(() => loadSequentially(images));
 
 // ESC — выход со страницы
 function handleEscape(e) {
