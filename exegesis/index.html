@@ -66,8 +66,23 @@ const images = [
 ];
 
 const container = document.getElementById("container");
+const firstImg = document.querySelector('#container img');
 const loader = document.getElementById("loading_container");
 
+
+
+
+
+function loadFirstImage(imgEl) {
+  return new Promise(resolve => {
+    if (imgEl.complete && imgEl.naturalHeight !== 0) {
+      resolve();
+    } else {
+      imgEl.onload = () => resolve();
+      imgEl.onerror = () => resolve(); // чтобы не зависло
+    }
+  });
+}
 
 // функция для загрузки одной картинки с повторной попыткой
 function loadImage(src, maxRetries = 5, delay = 1000) {
@@ -108,7 +123,8 @@ async function loadSequentially(list) {
   }
   loader.style.display = "none";
 }
-loadSequentially(images);
+
+loadFirstImage(firstImg).then(() => loadSequentially(images));
 
 // ESC — выход со страницы
 function handleEscape(e) {
