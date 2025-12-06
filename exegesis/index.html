@@ -29,26 +29,23 @@
     }
 
     .loading_container {
-      position: fixed;
-      inset: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: black;
-      z-index: 1001;
+      margin: 20px 0; /* отступ сверху и снизу */
     }
-
+    
   </style>
 </head>
 <body>
 
-  
+
 <div class="container" id="container">
   <img src="/content/exegesis/e_1_alt.png" style="opacity:1;">
-</div>
 
-<div class="loading_container" id="loading_container">
-  <img src="/content/loading.gif">
+  <div class="loading_container" id="loading_container">
+    <img src="/content/exegesis/loading.gif">
+  </div>
 </div>
 
 <script>
