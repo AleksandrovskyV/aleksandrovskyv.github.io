@@ -10,10 +10,11 @@
     const ua = navigator.userAgent.toLowerCase();
     const isMobile = /iphone|ipad|android/.test(ua);
 
+    // Перенаправляем на папку, GitHub Pages автоматически отдаст index.html
     if (isMobile) {
-      window.location.href = "main_ios/index.html";   // Папка с index.html
+      window.location.href = "main_ios/";   // <-- папка с index.html
     } else {
-      window.location.href = "main/index.html";       // Папка с index.html
+      window.location.href = "main/";       // <-- папка с index.html
     }
   </script>
 
