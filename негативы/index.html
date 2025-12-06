@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>негативы</title>
+
+<link rel="preload" href="/content/favicon-32x32.png" as="image">
+<link rel="icon" href="/content/favicon-32x32.png" type="image/png">
+
+<style>
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{overflow:hidden; height:100%;background:#000;color:#ccc;font-family:system-ui,Segoe UI,Roboto,Arial}
+  .overlay{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    z-index:1000;
+  }
+
+
+
+  /* после завершения анимации мы дополнительно ставим visibility:hidden (JS) —
+     это защищает от :hover и от фокусировки через клавиатуру */
+  .background{
+    position:absolute;inset:0;background:#000;z-index:-100;transition:opacity 1.2s ease;
+  }
+
+  .draggable {
+    position: fixed; /* сразу исключаем их из потока */
+    visibility: hidden; /* скрываем до расчёта размеров */
+    display: none; /* элемент полностью убран из потока */
+    pointer-events: auto;
+    user-select: none;
+  }
+
+  .draggable:focus {
+      outline: none;
+  }
+  #toMainBtn{
+    position:fixed;
+    display: none;
+    top:12px; left:24px;
+    padding:24px;
+    font-size:2.0rem;
+    color: gray;
+    background: rgba(0,0,0,0.45);
+    border: 0;
+    cursor:pointer;
+    z-index: 999;
+    transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1);
+  }
+  #toMainBtn:hover{opacity:0.5;}
+
+
+</style>
+
+</head>
+
+<body>
+<img src="/content/negative/n_10.gif" class="draggable">
+<img src="/content/negative/n_4.gif" class="draggable">
+<img src="/content/negative/n_5.gif" class="draggable">
+<img src="/content/negative/n_9.gif" class="draggable">
+
+<img src="/content/negative/n_24.png" class="draggable">
+<img src="/content/negative/n_23.png" class="draggable">
+<img src="/content/negative/n_27.png" class="draggable">
+<img src="/content/negative/n_25.png" class="draggable">
+<img src="/content/negative/n_30.png" class="draggable">
+<img src="/content/negative/n_0.png" class="draggable">
+<img src="/content/negative/n_1.jpg" class="draggable">
+<img src="/content/negative/n_1.png" class="draggable">
+<img src="/content/negative/n_11.png" class="draggable">
+<img src="/content/negative/n_12.png" class="draggable">
+<img src="/content/negative/n_13.png" class="draggable">
+<img src="/content/negative/n_14.png" class="draggable">
+<img src="/content/negative/n_15.png" class="draggable">
+<img src="/content/negative/n_29.png" class="draggable">
+<img src="/content/negative/n_end.png" class="draggable">
+<img src="/content/negative/n_16.png" class="draggable">
+<img src="/content/negative/n_2.png" class="draggable">
+<img src="/content/negative/n_22.png" class="draggable">
+<img src="/content/negative/n_3.png" class="draggable">
+<img src="/content/negative/n_6.png" class="draggable">
+<img src="/content/negative/n_7.png" class="draggable">
+<img src="/content/negative/n_8.png" class="draggable">
+<img src="/content/negative/n_26.png" class="draggable">
+
+<button id="toMainBtn" data-href="/"><</button>
+
+<script>
+const toMainBtn = document.getElementById("toMainBtn");
+function checkFullsize() {
+  if (window.innerHeight === screen.height && window.innerWidth === screen.width) {
+    toMainBtn.style.display = "block";
+  } else {
+    toMainBtn.style.display = "none";
+  }
+}
+checkFullsize()
+
+const draggables = document.querySelectorAll('.draggable');
+const targetHeight = 150; // базовая высота всех изображений
+const globalScale = 1.2;  // общий множитель масштаба при загрузке
+const scales = new Map();
+let loadedCount = 0; // Счётчик загруженных картинок
+
+const zIndexes = Array.from({length: draggables.length}, (_, i) => i + 1);
+
+// Функция перемешивания z-index
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+const shuffledZ = shuffle(zIndexes);
+
+// Функция случайного акцента изображений
+function RandomAccent(accentCount = 3, scale_factor = 2.1) {
+  if (draggables.length < accentCount) return;
+  const selectedIndexes = new Set();
+  while (selectedIndexes.size < accentCount) {
+    const i = Math.floor(Math.random() * draggables.length);
+    selectedIndexes.add(i);
+  }
+  selectedIndexes.forEach(i => {
+    const el = draggables[i];
+    const baseScale = (targetHeight / el.naturalHeight) * globalScale;
+    const accentScale = baseScale * scale_factor;
+    el.width = el.naturalWidth * accentScale;
+    el.height = el.naturalHeight * accentScale;
+    scales.set(el, accentScale);
+  });
+}
+
+// Обработка каждой картинки
+draggables.forEach((el, idx) => {
+  let scale = 1; 
+  let isDragging = false;
+  let offsetX = 0, offsetY = 0;
+  let moveHandler = null;
+
+  el.tabIndex = -1;      // отключаем фокус
+  el.draggable = false;   // отключаем HTML5 drag-n-drop
+
+  el.onload = () => {
+    scale = (targetHeight / el.naturalHeight) * globalScale;
+    el.width = el.naturalWidth * scale;
+    el.height = el.naturalHeight * scale;
+
+    el.style.position = 'fixed';
+    el.style.left = Math.random() * (window.innerWidth - el.width) + 'px';
+    el.style.top = Math.random() * (window.innerHeight - el.height) + 'px';
+    el.style.cursor = 'grab';
+    el.style.visibility = 'visible';
+    el.style.display = 'block';
+    el.style.zIndex = shuffledZ[idx];
+
+    loadedCount++;
+    if (loadedCount === draggables.length) {
+      RandomAccent(3);
+    }
+  };
+
+  // Перетаскивание
+  el.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    offsetX = e.clientX - el.offsetLeft;
+    offsetY = e.clientY - el.offsetTop;
+    el.style.cursor = 'grabbing';
+
+    moveHandler = (e) => {
+      el.style.left = (e.clientX - offsetX) + 'px';
+      el.style.top = (e.clientY - offsetY) + 'px';
+    };
+
+    window.addEventListener('mousemove', moveHandler);
+    e.preventDefault();
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDragging && moveHandler) {
+      window.removeEventListener('mousemove', moveHandler);
+    }
+    isDragging = false;
+    el.style.cursor = 'grab';
+  });
+
+  // Масштабирование колесиком мыши
+  el.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.1 : -0.1;
+    scale = Math.max(0.1, scale + delta);
+    el.width = el.naturalWidth * scale;
+    el.height = el.naturalHeight * scale;
+  }, { passive: false });
+});
+
+
+
+// Обработка кнопок
+document.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    let target = btn.dataset.href;
+    
+    if (window.location.protocol === "file:") {
+      if (target.startsWith("/")) target = target.slice(1);
+      target = target + "index.html";
+    } else {
+      if (target.endsWith(".html")) target = "/" + target.replace(".html", "");
+    }
+    window.location.href = target;
+  });
+});
+
+// ESC — работает мгновенно
+function handleEscape(e) {
+  if (e.key === "Escape") {
+    if (window.location.protocol === "file:") {
+      window.location.href = "./index.html";
+    } else {
+      window.history.back();
+    }
+  }
+}
+
+// Подписываем один обработчик на оба объекта
+window.addEventListener('keydown', handleEscape);
+document.addEventListener('keydown', handleEscape);
+
+// Обновление кнопки при ресайзе
+
+window.addEventListener('resize', () => {
+  checkFullsize()
+});
+
+</script>
+
+
+
+</body>
+</html>
