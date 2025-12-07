@@ -187,9 +187,7 @@ body.dragging * {
 
 (async function preloadCritical() {
   const urls = [
-    "/content/trip/lock.png",
-    "/content/trip/stat.png",
-    "/content/trip/open.png"
+    "/content/trip/lock.png"
   ];
 
   await Promise.all(urls.map(src => new Promise(res => {
