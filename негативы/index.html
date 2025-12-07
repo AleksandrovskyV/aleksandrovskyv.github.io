@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>негативы</title>
 
-<link rel="icon" href="/content/favicon-32x32.png" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="/content/apple-touch-icon.png">
 
 <style>
   *{box-sizing:border-box; margin:0; padding:0}
@@ -127,7 +127,7 @@ const isDesk = !isMobile();
 const totalLength = baseArr.length + (isDesk ? mergContent.length : 0);
 
 // ------------------------------------------------------------
-//  2) Выбор акцентов — СРАЗУ, ДО загрузки
+//  2) Акценты + рандом 
 // ------------------------------------------------------------
 function chooseRandom(total, count) {
   const set = new Set();
