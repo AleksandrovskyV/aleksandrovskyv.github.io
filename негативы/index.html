@@ -17,8 +17,6 @@
     z-index:1000;
   }
 
-
-
   /* после завершения анимации мы дополнительно ставим visibility:hidden (JS) —
      это защищает от :hover и от фокусировки через клавиатуру */
   .background{
@@ -57,18 +55,19 @@
 </head>
 
 <body>
+
 <img src="/content/negative/g_1.gif"  class="draggable">
 <img src="/content/negative/g_2.gif"  class="draggable">
 <img src="/content/negative/g_3.gif"  class="draggable">
-<img src="/content/negative/g_4.gif"  class="draggable">
 
-<img src="/content/negative/n_1.png"  class="draggable">
+<img src="/content/negative/n_0.png"  class="draggable">
+<img src="/content/negative/n_1.jpg"  class="draggable">
 <img src="/content/negative/n_2.png"  class="draggable">
 <img src="/content/negative/n_3.png"  class="draggable">
 <img src="/content/negative/n_4.png"  class="draggable">
 <img src="/content/negative/n_5.png"  class="draggable">
 <img src="/content/negative/n_6.png"  class="draggable">
-<img src="/content/negative/n_7.jpg"  class="draggable">
+<img src="/content/negative/n_7.png"  class="draggable">
 <img src="/content/negative/n_8.png"  class="draggable">
 <img src="/content/negative/n_9.png"  class="draggable">
 <img src="/content/negative/n_10.png" class="draggable">
@@ -84,22 +83,132 @@
 <img src="/content/negative/n_20.png" class="draggable">
 <img src="/content/negative/n_21.png" class="draggable">
 <img src="/content/negative/n_22.png" class="draggable">
-<img src="/content/negative/n_22.png" class="draggable">
+
 
 <button id="toMainBtn" data-href="/"><</button>
 
+
+
 <script>
 const toMainBtn = document.getElementById("toMainBtn");
-function checkFullsize() {
-  if (window.innerHeight === screen.height && window.innerWidth === screen.width) {
-    toMainBtn.style.display = "block";
-  } else {
-    toMainBtn.style.display = "none";
+const body = document.getElementById("body");
+
+const gifs = [
+  '/content/negative/g_4.gif',
+];
+
+const imgs = [
+  '/content/negative/n_22.png',
+  '/content/negative/n_23.png',
+];
+
+const mergContent = [...gifs, ...imgs];
+
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+
+function initDraggable(el) {
+  let scale = 1;
+  let isDragging = false;
+  let offsetX = 0, offsetY = 0;
+  let moveHandler = null;
+
+  el.tabIndex = -1;
+  el.draggable = false;
+
+  const naturalLoad = () => {
+    scale = (targetHeight / el.naturalHeight) * globalScale;
+
+    el.width  = el.naturalWidth * scale;
+    el.height = el.naturalHeight * scale;
+
+    el.style.position = 'fixed';
+    el.style.left = Math.random() * (window.innerWidth - el.width) + 'px';
+    el.style.top  = Math.random() * (window.innerHeight - el.height) + 'px';
+    el.style.cursor = 'grab';
+
+    el.style.visibility = 'visible';
+    el.style.display = 'block';
+
+    // Удаляем, чтобы не вызывался повторно
+    el.removeEventListener("load", naturalLoad);
+  };
+
+  // Если загружено сразу — сработает моментально
+  el.addEventListener("load", naturalLoad);
+
+
+  // --- Drag ---
+  el.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    offsetX = e.clientX - el.offsetLeft;
+    offsetY = e.clientY - el.offsetTop;
+    el.style.cursor = 'grabbing';
+
+    moveHandler = (e) => {
+      el.style.left = (e.clientX - offsetX) + 'px';
+      el.style.top = (e.clientY - offsetY) + 'px';
+    };
+    window.addEventListener('mousemove', moveHandler);
+    e.preventDefault();
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDragging && moveHandler) {
+      window.removeEventListener('mousemove', moveHandler);
+    }
+    isDragging = false;
+    el.style.cursor = 'grab';
+  });
+
+  // --- Zoom ---
+  el.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.1 : -0.1;
+    scale = Math.max(0.1, scale + delta);
+    el.width  = el.naturalWidth * scale;
+    el.height = el.naturalHeight * scale;
+  }, { passive: false });
+}
+
+
+async function loadExtraForDesktop(list) {
+  // Только для десктопа
+  if (isMobile()) return;
+
+  for (const src of list) {
+    const img = document.createElement("img");
+    img.classList.add("draggable");
+    img.src = src;
+    img.style.visibility = "hidden";
+    img.style.display = "none";
+
+    // Проверка загрузки
+    await new Promise(resolve => {
+      img.onload = resolve;
+      img.onerror = () => resolve(null);
+    });
+
+    // Если не загрузилось — пропускаем
+    if (!img.naturalWidth) continue;
+
+    // Добавляем
+    document.body.appendChild(img);
+
+    initDraggable(img);
+    
+    // 1. Добавляем новый элемент в общий список
+    draggablesList.push(img);
+    const newZ = shuffle(Array.from({length: draggablesList.length}, (_, i) => i + 1));
+    img.style.zIndex = newZ[newZ.length - 1];
   }
 }
-checkFullsize()
+
 
 const draggables = document.querySelectorAll('.draggable');
+
 const targetHeight = 150; // базовая высота всех изображений
 const globalScale = 1.2;  // общий множитель масштаба при загрузке
 const scales = new Map();
@@ -136,6 +245,7 @@ function RandomAccent(accentCount = 3, scale_factor = 2.1) {
   });
 }
 
+
 // Обработка каждой картинки
 draggables.forEach((el, idx) => {
   let scale = 1; 
@@ -164,6 +274,17 @@ draggables.forEach((el, idx) => {
       RandomAccent(3);
     }
   };
+
+
+function checkFullsize() {
+  if (window.innerHeight === screen.height && window.innerWidth === screen.width) {
+    toMainBtn.style.display = "block";
+  } else {
+    toMainBtn.style.display = "none";
+  }
+}
+
+
 
   // Перетаскивание
   el.addEventListener('mousedown', (e) => {
@@ -200,7 +321,6 @@ draggables.forEach((el, idx) => {
 });
 
 
-
 // Обработка кнопок
 document.querySelectorAll('button').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -230,6 +350,14 @@ function handleEscape(e) {
 // Подписываем один обработчик на оба объекта
 window.addEventListener('keydown', handleEscape);
 document.addEventListener('keydown', handleEscape);
+
+
+// после полной загрузки базового DOM
+window.addEventListener("load", () => {
+  loadExtraForDesktop(mergContent);
+  checkFullsize()
+});
+
 
 // Обновление кнопки при ресайзе
 
