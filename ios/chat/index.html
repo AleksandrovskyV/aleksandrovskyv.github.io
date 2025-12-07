@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+<script>
+  (function () {
+    const ua = navigator.userAgent.toLowerCase();
+    const isMobile = /iphone|ipad|android/.test(ua);
+
+    if (!isMobile) {
+      location.replace("/sw");
+    }
+  })();
+</script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>chat___</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: black;
+      flex-direction: column;
+
+    }
+    .page_container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      width: 100%;
+      height: 100vh; 
+      overflow: hidden;
+      background: black;
+    }
+
+    .content {
+      transform-origin: center center; /* масштабирование из центра */
+      transition: transform 0.3s ease; /* плавное увеличение/уменьшение */
+    }
+
+    .page_container img {
+      width: 720px;
+      height: auto;
+      display: block;
+    }
+    .page_container button .highlight {
+      color: rgba(90,90,90,1); /* более яркий цвет */
+      font-size: 0.85rem; /* вместо 1.25rem */
+
+      text-decoration: underline; /* стандартное подчеркивание */
+      text-decoration-color: rgba(90,90,90,.7); /* цвет подчеркивания */
+      text-decoration-thickness: 1px; /* толщина линии */
+
+
+    }
+    .page_container button .special {
+      color: rgba(90,90,90,1); /* более яркий цвет */
+      font-size: 1.2rem; /* вместо 1.25rem */
+
+      text-decoration: underline; /* стандартное подчеркивание */
+      text-decoration-color: rgba(90,90,90,.7); /* цвет подчеркивания */
+      text-decoration-thickness: 1px; /* толщина линии */
+
+    }
+    /*
+    .page_container button:hover .highlight {
+      color: rgba(117,117,117,1); 
+      text-decoration-color: rgba(117,117,117,1);
+    }
+    */
+
+    .page_container button {
+      position: absolute;
+      left: 50%;
+      top: 72%;               
+      transform: translateX(-50%); 
+      padding: 12px 12px;
+      font-size: 1.1rem; /* вместо 1.25rem */
+      color: rgba(65,65,65,255.0);
+      background: rgba(0,0,0,0.0);
+      border: 0;
+      cursor: pointer;
+      z-index: 10;
+      transition: transform 0.3s ease; /* плавная анимация */
+    }
+  </style>
+
+
+
+</head>
+<body>
+
+<div class="page_container">
+  <div class="content">
+    <img src="/sw/presentation/SPT_PresentAnimation.gif">
+  </div>
+  <button data-href="https://www.halopedia.org/Superintendent">
+    [&nbsp;&nbsp;&nbsp;<span class="highlight">SPT</span>&nbsp;&nbsp;&nbsp;]
+  </button>
+</div>
+
+<div class="page_container">
+  <div class="content">
+    <img src="/sw/presentation/VLM_PresentAnimation.gif">
+  </div>
+  <button data-href="https://www.valdram.com/">
+    [&nbsp;&nbsp;&nbsp;<span class="highlight">VLM</span>&nbsp;&nbsp;&nbsp;]
+  </button>
+</div>
+
+<div class="page_container">
+  <div class="content">
+    <img src="/sw/presentation/GSK_PresentAnimation.gif">
+  </div>
+  <button data-href="https://en.wikipedia.org/wiki/343_Guilty_Spark">
+    [&nbsp;&nbsp;&nbsp;<span class="highlight">GSK</span>&nbsp;&nbsp;&nbsp;]
+  </button>
+</div>
+
+<div class="page_container">
+  <div class="content">
+    <img src="/sw/presentation/CST_PresentAnimation.gif">
+  </div>
+  <button id="special" data-href="https://github.com/AleksandrovskyV/chat">
+    [&nbsp;&nbsp;&nbsp;<span class="special">?</span>&nbsp;&nbsp;&nbsp;]
+  </button>
+</div>
+
+<script>
+
+const buttons = document.querySelectorAll('.page_container button');
+
+buttons.forEach(btn => {
+  btn.addEventListener('click', e => {
+    window.open(btn.dataset.href, '_blank');
+  });
+});
+
+</script>
+
+</body>
+</html>
