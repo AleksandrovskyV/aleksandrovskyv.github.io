@@ -57,7 +57,6 @@
 <body>
 
 <img src="/content/negative/g_1.gif"  class="draggable">
-<img src="/content/negative/g_2.gif"  class="draggable">
 <img src="/content/negative/g_3.gif"  class="draggable">
 
 <img src="/content/negative/n_0.png"  class="draggable">
@@ -75,7 +74,7 @@
 <img src="/content/negative/n_12.png" class="draggable">
 <img src="/content/negative/n_13.png" class="draggable">
 <img src="/content/negative/n_14.png" class="draggable">
-<img src="/content/negative/n_15.png" class="draggable">
+
 <img src="/content/negative/n_16.png" class="draggable">
 <img src="/content/negative/n_17.png" class="draggable">
 <img src="/content/negative/n_18.png" class="draggable">
@@ -104,12 +103,13 @@ let loadedCount = 0; // Счётчик загруженных картинок
 const zIndexes = Array.from({length: draggables.length}, (_, i) => i + 1);
 
 const gifs = [
+  '/content/negative/g_2.gif',
   '/content/negative/g_4.gif',
 ];
 
 const imgs = [
+  '/content/negative/n_15.png',
   '/content/negative/n_22.png',
-  '/content/negative/n_23.png',
 ];
 
 const mergContent = [...gifs, ...imgs];
