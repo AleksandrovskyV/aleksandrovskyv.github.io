@@ -93,6 +93,16 @@
 const toMainBtn = document.getElementById("toMainBtn");
 const body = document.getElementById("body");
 
+const draggables = document.querySelectorAll('.draggable');
+const draggablesList = Array.from(draggables);
+
+const targetHeight = 150; // базовая высота всех изображений
+const globalScale = 1.2;  // общий множитель масштаба при загрузке
+const scales = new Map();
+let loadedCount = 0; // Счётчик загруженных картинок
+
+const zIndexes = Array.from({length: draggables.length}, (_, i) => i + 1);
+
 const gifs = [
   '/content/negative/g_4.gif',
 ];
@@ -104,8 +114,18 @@ const imgs = [
 
 const mergContent = [...gifs, ...imgs];
 
+
+
 function isMobile() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+function checkFullsize() {
+  if (window.innerHeight === screen.height && window.innerWidth === screen.width) {
+    toMainBtn.style.display = "block";
+  } else {
+    toMainBtn.style.display = "none";
+  }
 }
 
 
@@ -198,7 +218,7 @@ async function loadExtraForDesktop(list) {
     document.body.appendChild(img);
 
     initDraggable(img);
-    
+
     // 1. Добавляем новый элемент в общий список
     draggablesList.push(img);
     const newZ = shuffle(Array.from({length: draggablesList.length}, (_, i) => i + 1));
@@ -207,14 +227,7 @@ async function loadExtraForDesktop(list) {
 }
 
 
-const draggables = document.querySelectorAll('.draggable');
 
-const targetHeight = 150; // базовая высота всех изображений
-const globalScale = 1.2;  // общий множитель масштаба при загрузке
-const scales = new Map();
-let loadedCount = 0; // Счётчик загруженных картинок
-
-const zIndexes = Array.from({length: draggables.length}, (_, i) => i + 1);
 
 // Функция перемешивания z-index
 function shuffle(array) {
@@ -275,14 +288,6 @@ draggables.forEach((el, idx) => {
     }
   };
 
-
-function checkFullsize() {
-  if (window.innerHeight === screen.height && window.innerWidth === screen.width) {
-    toMainBtn.style.display = "block";
-  } else {
-    toMainBtn.style.display = "none";
-  }
-}
 
 
 
