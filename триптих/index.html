@@ -20,6 +20,10 @@ body {
   overflow: hidden;
 }
 
+body:not(.ready) .container {
+  visibility: hidden;
+}
+
 .container {
   display: flex;
   gap: 20px;
@@ -178,6 +182,26 @@ body.dragging * {
 </div>
 
 <button id="toMainBtn" data-href="/"><</button>
+
+<script>
+
+(async function preloadCritical() {
+  const urls = [
+    "/content/trip/lock.png",
+    "/content/trip/stat.png",
+    "/content/trip/open.png"
+  ];
+
+  await Promise.all(urls.map(src => new Promise(res => {
+    const img = new Image();
+    img.onload = res;
+    img.onerror = res; // На всякий случай — не виснуть
+    img.src = src + "?v=" + Date.now(); // предотвращаем CDN-кэш гонку
+  })));
+
+  document.body.classList.add("ready");
+})();
+</script>
 
 <script>
 const toMainBtn = document.getElementById("toMainBtn");
