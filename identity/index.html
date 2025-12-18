@@ -168,6 +168,19 @@
 
 <div class="page_container"style="background-color: #cfced1;">
   <div class="content">
+
+    <div class="scene" id="scene">
+
+      <div class="layer" data-depth="0.15" data-zoom="1.1"
+           style="background-image:url('content/identity/line/line_c.png')"></div>
+
+      <div class="layer" data-depth="0.36" data-zoom="1.2"
+           style="background-image:url('content/identity/line/line_d.png'); 
+           
+           "></div>
+
+    </div>
+
   </div>
 </div>
 
@@ -250,10 +263,8 @@ function fitImagesInContainer() {
 window.addEventListener('load', fitImagesInContainer);
 window.addEventListener('resize', fitImagesInContainer);
 
-(function () {
-  const scene = document.getElementById('scene');
-  if (!scene) return; // защита, если сцены нет
 
+document.querySelectorAll('.scene').forEach(scene => {
   const layers = scene.querySelectorAll('.layer');
 
   let mouseX = 0, mouseY = 0;
@@ -265,7 +276,11 @@ window.addEventListener('resize', fitImagesInContainer);
       const depth = parseFloat(layer.dataset.depth) || 0;
       const x = (useGyro ? gyroX : mouseX) * depth;
       const y = (useGyro ? gyroY : mouseY) * depth;
-      layer.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      const zoom = layer.dataset.zoom || 1;
+      layer.style.transform = `
+        translate3d(${x}px, ${y}px, 0)
+        scale(${zoom})
+      `;
     });
     requestAnimationFrame(update);
   };
@@ -285,8 +300,7 @@ window.addEventListener('resize', fitImagesInContainer);
   });
 
   update();
-})();
-
+});
 
 
 buttons.forEach(btn => {
