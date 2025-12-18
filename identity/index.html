@@ -62,33 +62,33 @@
 
 
     .page_container button .highlight {
-      color: rgba(90,90,90,1); /* более яркий цвет */
+      color: rgba(90,90,90,1);
       font-size: 1.15rem;
 
-      text-decoration: underline; /* стандартное подчеркивание */
-      text-decoration-color: rgba(90,90,90,.1); /* цвет подчеркивания */
-      text-decoration-thickness: 1px; /* толщина линии */
+      text-decoration: underline; 
+      text-decoration-color: rgba(90,90,90,.1); 
+      text-decoration-thickness: 1px; 
 
     }
 
     .page_container button:hover .highlight {
-      color: rgba(117,117,117,1); /* более яркий цвет */
+      color: rgba(117,117,117,1);
       text-decoration-color: rgba(117,117,117,1);
     }
 
     .page_container button .special {
-      color: rgba(110,110,110,1); /* более яркий цвет */
-      font-size: 1.4rem; /* вместо 1.25rem */
+      color: rgba(110,110,110,1); 
+      font-size: 1.4rem; 
 
 
-      text-decoration: underline; /* стандартное подчеркивание */
-      text-decoration-color: rgba(90,90,90,.7); /* цвет подчеркивания */
-      text-decoration-thickness: 1px; /* толщина линии */
+      text-decoration: underline;
+      text-decoration-color: rgba(90,90,90,.7);
+      text-decoration-thickness: 1px;
 
     }
 
     .page_container button:hover .special {
-      color: rgba(150,150,150,1); /* более яркий цвет */
+      color: rgba(150,150,150,1);
       text-decoration-color: rgba(117,117,117,1);
     }
 
@@ -166,15 +166,16 @@
   </div>
 </div>
 
-<div class="page_container"style="background-color: #cfced1;">
-  <div class="content">
+
+<div class="page_container"style="background-color: black;">
+  <div class="content" style="background-color: #cfced1;">
 
     <div class="scene" id="scene">
 
       <div class="layer" data-depth="0.15" data-zoom="1.1"
            style="background-image:url('/content/identity/line/line_c.png')"></div>
 
-      <div class="layer" data-depth="0.36" data-zoom="1.2"
+      <div class="layer" data-depth="0.50" data-zoom="1.2"
            style="background-image:url('/content/identity/line/line_d.png'); 
            
            "></div>
@@ -184,11 +185,14 @@
   </div>
 </div>
 
+
 <div class="page_container">
   <div class="content">
     <img src="/content/identity/img/i_img_5.png">
   </div>
 </div>
+
+
 
 <div class="page_container"style="background-color: #cfced1;">
   <div class="content">
@@ -263,7 +267,6 @@ function fitImagesInContainer() {
 window.addEventListener('load', fitImagesInContainer);
 window.addEventListener('resize', fitImagesInContainer);
 
-
 document.querySelectorAll('.scene').forEach(scene => {
   const layers = scene.querySelectorAll('.layer');
 
@@ -301,6 +304,7 @@ document.querySelectorAll('.scene').forEach(scene => {
 
   update();
 });
+
 
 
 buttons.forEach(btn => {
