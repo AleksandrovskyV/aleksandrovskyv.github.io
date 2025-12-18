@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="content/fav/f_id_alt.png" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="content/fav/f_id.png">
+
+<title>identity</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: black;
+      flex-direction: column;
+
+    }
+    .page_container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background: black;
+    }
+
+    .content {
+      transform-origin: center center; /* масштабирование из центра */
+      transition: transform 0.3s ease; /* плавное увеличение/уменьшение */
+    }
+
+    .page_container img {
+      width: 100vw;
+      height: auto;
+      object-fit: cover;
+      background-position: center;
+      background-size: contain; /* КЛЮЧ */
+    }
+
+    .page_container button {
+      position: absolute;
+      left: 50%;
+      top: 80%;               
+      transform: translateX(-50%); 
+      padding: 12px 12px;
+      font-size: 1.3rem;
+      color: rgba(65,65,65,255.0);
+      background: rgba(0,0,0,0.0);
+      border: 0;
+      cursor: pointer;
+      z-index: 10;
+      transition: transform 0.3s ease; /* плавная анимация */
+    }
+
+
+    .page_container button .highlight {
+      color: rgba(90,90,90,1); /* более яркий цвет */
+      font-size: 1.15rem;
+
+      text-decoration: underline; /* стандартное подчеркивание */
+      text-decoration-color: rgba(90,90,90,.1); /* цвет подчеркивания */
+      text-decoration-thickness: 1px; /* толщина линии */
+
+    }
+
+    .page_container button:hover .highlight {
+      color: rgba(117,117,117,1); /* более яркий цвет */
+      text-decoration-color: rgba(117,117,117,1);
+    }
+
+    .page_container button .special {
+      color: rgba(110,110,110,1); /* более яркий цвет */
+      font-size: 1.4rem; /* вместо 1.25rem */
+
+
+      text-decoration: underline; /* стандартное подчеркивание */
+      text-decoration-color: rgba(90,90,90,.7); /* цвет подчеркивания */
+      text-decoration-thickness: 1px; /* толщина линии */
+
+    }
+
+    .page_container button:hover .special {
+      color: rgba(150,150,150,1); /* более яркий цвет */
+      text-decoration-color: rgba(117,117,117,1);
+    }
+
+
+    .scene {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      perspective: 800px;
+    }
+
+    .layer {
+      position: absolute;
+      inset: 0;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      will-change: transform;
+      pointer-events: none;
+
+    }
+
+  </style>
+
+
+
+</head>
+<body>
+
+
+
+<div class="page_container">
+  <div class="content">
+    <img src="content/identity/img/i_img_0.png">
+  </div>
+</div>
+
+<div class="page_container">
+  <div class="content">
+
+    <div class="scene" id="scene">
+
+      <div class="layer" data-depth="0.00"
+           style="background-image:url('content/identity/pyra/py_bg.png')"></div>
+
+      <div class="layer" data-depth="0.08"
+           style="background-image:url('content/identity/stars.png')"></div>
+
+      <div class="layer" data-depth="0.09"
+           style="background-image:url('content/identity/pyra/py_small_new.png')"></div>
+
+      <div class="layer" data-depth="0.12"
+           style="background-image:url('content/identity/pyra/py_big.png')"></div>
+
+      <div class="layer" data-depth="0.25"
+           style="background-image:url('content/identity/dust.png')"></div>
+
+
+    </div>
+
+  </div>
+</div>
+
+
+
+<div class="page_container"style="background-color: #cfced1;">
+  <div class="content">
+  </div>
+</div>
+
+<div class="page_container">
+  <div class="content">
+    <img src="content/identity/img/i_img_3.png">
+  </div>
+</div>
+
+<div class="page_container"style="background-color: #cfced1;">
+  <div class="content">
+  </div>
+</div>
+
+<div class="page_container">
+  <div class="content">
+    <img src="content/identity/img/i_img_5.png">
+  </div>
+</div>
+
+<div class="page_container"style="background-color: #cfced1;">
+  <div class="content">
+  </div>
+</div>
+
+<div class="page_container">
+  <div class="content">
+    <img src="content/identity/img/i_img_7.png">
+  </div>
+</div>
+
+<div class="page_container">
+  <div class="content">
+    <img src="content/identity/img/i_img_8.png">
+  </div>
+</div>
+
+<div class="page_container">
+  <div class="content">
+    <img src="content/identity/img/i_img_9.png">
+  </div>
+</div>
+
+<div class="page_container">
+  <div class="content">
+    <img src="content/identity/img/i_img_10.png">
+  </div>
+</div>
+
+<div class="page_container">
+  <div class="content">
+    <img src="content/identity/img/i_img_11.png">
+  </div>
+</div>
+
+<div class="page_container" style="background-color: #dadada;">
+  <div class="content">
+    <img src="content/identity/img/i_img_12.png">
+  </div>
+</div>
+
+<div class="page_container" style="background-color: #dadada;">
+  <div class="content">
+  </div>
+</div>
+
+<script>
+
+const buttons = document.querySelectorAll('.page_container button');
+const images = document.querySelectorAll('.page_container img');
+
+function fitImagesInContainer() {
+  document.querySelectorAll('.page_container').forEach(container => {
+    const img = container.querySelector('img');
+    if (!img || !img.naturalWidth) return;
+
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
+
+    const scale = Math.max(cw / iw, ch / ih);
+
+    img.style.width = iw + 'px';
+    img.style.height = ih + 'px';
+    img.style.transform = `scale(${scale})`;
+    img.style.transformOrigin = 'center center';
+  });
+}
+
+window.addEventListener('load', fitImagesInContainer);
+window.addEventListener('resize', fitImagesInContainer);
+
+(function () {
+  const scene = document.getElementById('scene');
+  if (!scene) return; // защита, если сцены нет
+
+  const layers = scene.querySelectorAll('.layer');
+
+  let mouseX = 0, mouseY = 0;
+  let gyroX = 0, gyroY = 0;
+  let useGyro = false;
+
+  const update = () => {
+    layers.forEach(layer => {
+      const depth = parseFloat(layer.dataset.depth) || 0;
+      const x = (useGyro ? gyroX : mouseX) * depth;
+      const y = (useGyro ? gyroY : mouseY) * depth;
+      layer.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    });
+    requestAnimationFrame(update);
+  };
+
+  scene.addEventListener('mousemove', e => {
+    const rect = scene.getBoundingClientRect();
+    mouseX = (e.clientX - rect.left - rect.width / 2) * -0.2;
+    mouseY = (e.clientY - rect.top  - rect.height / 2) * -0.2;
+  });
+
+  window.addEventListener('deviceorientation', e => {
+    if (e.beta != null && e.gamma != null) {
+      useGyro = true;
+      gyroX = e.gamma * 2;
+      gyroY = e.beta * 2;
+    }
+  });
+
+  update();
+})();
+
+
+
+buttons.forEach(btn => {
+  btn.addEventListener('click', e => {
+    window.open(btn.dataset.href, '_blank');
+  });
+});
+
+function handleEscape(e) {
+  if (e.key === "Escape") {
+    if (window.location.protocol === "file:") {
+      window.location.href = "./index.html";
+    } else {
+      window.history.back();
+    }
+  }
+}
+
+// Подписываем один обработчик на оба объекта
+window.addEventListener('keydown', handleEscape);
+document.addEventListener('keydown', handleEscape);
+
+let scale = 1;
+const containers = document.querySelectorAll('.page_container');
+
+
+document.addEventListener('wheel', e => {
+  if (e.ctrlKey) {
+    e.preventDefault();
+    scale += e.deltaY * -0.001;
+    scale = Math.min(Math.max(0.5, scale), 3);
+
+    containers.forEach(container => {
+      container.querySelector('.content').style.transform = `scale(${scale})`;
+    });
+  }
+}, { passive: false });
+
+</script>
+
+</body>
+</html>
