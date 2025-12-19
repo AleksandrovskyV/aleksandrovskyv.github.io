@@ -50,17 +50,7 @@
     }
 
     .page_container button {
-      position: absolute;
-      left: 50%;
-      top: 80%;               
-      transform: translateX(-50%); 
-      padding: 12px 12px;
       font-size: 1.3rem;
-      color: rgba(65,65,65,255.0);
-      background: rgba(0,0,0,0.0);
-      border: 0;
-      cursor: pointer;
-      z-index: 10;
       transition: transform 0.3s ease; /* плавная анимация */
     }
 
@@ -95,6 +85,82 @@
       color: rgba(150,150,150,1);
       text-decoration-color: rgba(117,117,117,1);
     }
+
+
+    .text_block {
+      position: relative;
+      font-family: sans-serif;
+      user-select: text;
+      line-height: 1.6;
+      box-sizing: border-box;    /* ! */
+      width: 40vw;
+      
+    }
+
+    .text_block .head {
+      font-size: 21px;
+      font-weight: 300;
+    }
+
+    .text_block .text {
+      font-size: 15px;
+      margin: 12px;
+      margin-left: 0px;
+    }
+
+
+
+    .node-stage {
+      position: relative;
+
+      width: 1400px;
+      height: 580px;
+
+      /* адаптация */
+      max-width: 100%;
+      aspect-ratio: 4 / 3;
+    }
+
+    .node-stage-wrap {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* SVG живёт ВНУТРИ stage */
+    .connections {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .connections line {
+      stroke: black;
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+      z-index: 99;
+    }
+
+    /* кнопки */
+    .node {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      transform: translate(-50%, -50%);
+      background: transparent;
+      border: none;
+      border-radius: 50%;
+      z-index: 2;
+    }
+
+    /* координаты ВНУТРИ 800×600 */
+    .node[data-id="A"] { left: 280px; top: 340px; }
+    .node[data-id="B"] { left: 620px; top: 500px; }
+    .node[data-id="C"] { left: 1180px; top: 80px; }
+
 
 
     .scene {
@@ -159,10 +225,36 @@
 
 
 
-<div class="page_container"style="background-color: #cfced1;">
+<div class="page_container" style="background:#cfced1;">
   <div class="content">
+
+    <div class="node-stage-wrap">
+      <div class="node-stage">
+
+        <svg class="connections">
+          <line id="lineAB"/>
+          <line id="lineBC"/>
+        </svg>
+
+        <button class="node" data-id="A">
+          <div class="lottie-ring" id="lottieA"></div>
+        </button>
+
+        <button class="node" data-id="B">
+          <div class="lottie-ring" id="lottieB"></div>
+        </button>
+
+        <button class="node" data-id="C">
+          <div class="lottie-ring" id="lottieC"></div>
+        </button>
+
+      </div>
+    </div>
+
   </div>
 </div>
+
+
 
 <div class="page_container">
   <div class="content">
@@ -242,6 +334,23 @@
 
 <div class="page_container" style="background-color: #dadada;">
   <div class="content">
+
+    <div class="text_block" >
+      <div class="head">Дизайнеры:</div>
+      <div class="text"style="margin-top:24px;">
+        Виктор Александровский<br>
+        Даниил Стерхов <br>
+        Виктор Копейкин<br><br><br><br>
+      <div class="head">Поддержка:</div>
+      <div class="text"style="margin-top:24px;">
+        Дмитрий Бережной<br>
+        Евгений Стерхов <br>
+        Ксения Новокшёнова<br><br><br>
+
+        2016 г.
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -314,7 +423,9 @@ document.querySelectorAll('.scene').forEach(scene => {
 
 buttons.forEach(btn => {
   btn.addEventListener('click', e => {
-    window.open(btn.dataset.href, '_blank');
+    const href = btn.dataset.href;
+    if (!href) return; 
+    window.open(href, '_blank');
   });
 });
 
@@ -332,6 +443,9 @@ function handleEscape(e) {
 window.addEventListener('keydown', handleEscape);
 document.addEventListener('keydown', handleEscape);
 
+
+// Зумирование на пк через ctrl
+
 let scale = 1;
 const containers = document.querySelectorAll('.page_container');
 
@@ -348,7 +462,214 @@ document.addEventListener('wheel', e => {
   }
 }, { passive: false });
 
+// Зумирование на телефоне
+
+let pinchStartDist = null;
+let pinchStartScale = scale;
+
+document.addEventListener('touchstart', e => {
+  if (e.touches.length === 2) {
+    pinchStartDist = getTouchDist(e.touches);
+    pinchStartScale = scale;
+  }
+}, { passive: false });
+
+document.addEventListener('touchmove', e => {
+  if (e.touches.length === 2 && pinchStartDist) {
+    e.preventDefault();
+
+    const currentDist = getTouchDist(e.touches);
+    const zoomFactor = currentDist / pinchStartDist;
+
+    scale = pinchStartScale * zoomFactor;
+    scale = Math.min(Math.max(0.15, scale), 3);
+
+    containers.forEach(container => {
+      container.querySelector('.content').style.transform = `scale(${scale})`;
+    });
+  }
+}, { passive: false });
+
+document.addEventListener('touchend', e => {
+  if (e.touches.length < 2) {
+    pinchStartDist = null;
+  }
+});
+
+function getTouchDist(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.hypot(dx, dy);
+}
+
 // Lottie block
+
+/* -------------------------------
+   Lottie Button
+-------------------------------- */
+
+function connectNodes(a, b, line) {
+  const ax = a.offsetLeft;
+  const ay = a.offsetTop;
+
+  const bx = b.offsetLeft;
+  const by = b.offsetTop;
+
+  line.setAttribute('x1', ax);
+  line.setAttribute('y1', ay);
+  line.setAttribute('x2', bx);
+  line.setAttribute('y2', by);
+}
+
+const nodeA = document.querySelector('.node[data-id="A"]');
+const nodeB = document.querySelector('.node[data-id="B"]');
+const nodeC = document.querySelector('.node[data-id="C"]');
+
+const lineAB = document.getElementById('lineAB');
+const lineBC = document.getElementById('lineBC');
+
+function updateConnections() {
+  connectNodes(nodeA, nodeB, lineAB);
+  connectNodes(nodeB, nodeC, lineBC);
+}
+window.addEventListener('load', updateConnections);
+window.addEventListener('resize', updateConnections);
+
+const stage = document.querySelector('.node-stage');
+const svg = document.querySelector('.connections');
+
+function resizeSVG() {
+  const rect = stage.getBoundingClientRect();
+  svg.setAttribute('width', rect.width);
+  svg.setAttribute('height', rect.height);
+  svg.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
+}
+
+window.addEventListener('load', resizeSVG);
+window.addEventListener('resize', resizeSVG);
+
+
+const wiggleNodes = ['A', 'C']
+  .map(id => document.querySelector(`.node[data-id="${id}"]`));
+
+const start = performance.now();
+
+function wiggle(time, {
+  freq = 0.1,
+  amp = 20,
+  seed = 0
+}) {
+  return (
+    Math.sin(time * freq + seed) +
+    Math.sin(time * freq * 1.7 + seed * 2) * 0.5
+  ) * amp;
+}
+const basePositions = new Map();
+
+document.querySelectorAll('.node').forEach(node => {
+  basePositions.set(node, {
+    x: node.offsetLeft,
+    y: node.offsetTop
+  });
+});
+const nodes = {
+  A: { x: 280, y: 340 },
+  B: { x: 620, y: 500 },
+  C: { x: 1180, y: 80 }
+};
+Object.values(nodes).forEach(p => {
+  p.wx = p.x;
+  p.wy = p.y;
+});
+
+function render() {
+  // кнопки
+  Object.entries(nodes).forEach(([id, p]) => {
+    const el = document.querySelector(`.node[data-id="${id}"]`);
+    el.style.left = `${p.wx}px`;
+    el.style.top  = `${p.wy}px`;
+  });
+
+  // линии
+  lineAB.setAttribute('x1', nodes.A.wx);
+  lineAB.setAttribute('y1', nodes.A.wy);
+  lineAB.setAttribute('x2', nodes.B.wx);
+  lineAB.setAttribute('y2', nodes.B.wy);
+
+  lineBC.setAttribute('x1', nodes.B.wx);
+  lineBC.setAttribute('y1', nodes.B.wy);
+  lineBC.setAttribute('x2', nodes.C.wx);
+  lineBC.setAttribute('y2', nodes.C.wy);
+}
+
+function animate() {
+  const time = (performance.now() - start) / 1000;
+
+  wiggleNodes.forEach((node, i) => {
+    const id = node.dataset.id;
+    const base = nodes[id];
+
+    const dx = wiggle(time, { freq: 0.6, amp: 14, seed: i * 10 });
+    const dy = wiggle(time, { freq: 0.8, amp: 14, seed: i * 20 });
+
+    base.wx = base.x + dx;
+    base.wy = base.y + dy;
+  });
+
+  render();
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+
+function initRing(buttonId) {
+  const container = document.getElementById(buttonId);
+
+  const anim = lottie.loadAnimation({
+    container,
+    renderer: 'svg',
+    loop: false,
+    autoplay: false,
+    path: '/content/lottie/button_hover.json'
+  });
+
+  let tween = null;
+
+  function playTo(frame) {
+    if (tween) tween.kill();
+
+    tween = gsap.to({ f: anim.currentFrame }, {
+      f: frame,
+      duration: 0.25,
+      ease: 'none',
+      onUpdate() {
+        anim.goToAndStop(this.targets()[0].f, true);
+      }
+    });
+  }
+
+  const btn = container.closest('.node');
+
+  btn.addEventListener('pointerenter', () => {
+    playTo(anim.totalFrames - 1);
+  });
+
+  btn.addEventListener('pointerleave', () => {
+    playTo(0);
+  });
+}
+
+initRing('lottieA');
+initRing('lottieB');
+initRing('lottieC');
+
+
+
+/* -------------------------------
+   Lottie Sequence
+-------------------------------- */
+
 gsap.registerPlugin(ScrollTrigger);
 
 
@@ -437,9 +758,9 @@ ScrollTrigger.create({
 
   // onLeave — НЕ НУЖЕН
 });
-
-
 </script>
+
+
 
 </body>
 </html>
