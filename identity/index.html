@@ -99,7 +99,7 @@
     }
 
     @media (max-width: 768px) {
-      .text-block {
+      .ui-text-block {
         width: 85vw;
         font-size: 22px;
       }
@@ -117,19 +117,19 @@
 
       color: #000;
       text-align: left;
+      z-index: 999;
+
       
     }
 
     .ui-layer {
       position: absolute;
       inset: 0;
-      z-index: 10;
+      z-index: 999;
 
       display: flex;
       align-items: center;     /* центр по высоте */
       justify-content: center; /* центр по горизонтали */
-
-      pointer-events: none;   /* 👈 важно */
     }
 
 
@@ -147,6 +147,10 @@
       margin-left: 0px;
     }
 
+    #lottie-scroll {
+      width: clamp(320px, 60vw, 900px); /* ← ВАРИАТИВНО ОТ ШИРИНЫ */
+      margin: 0 auto;
+    }
 
 
     .node-stage {
@@ -342,7 +346,7 @@
 
 <div class="page_container lottie-section" style="background-color: #cfced1;">
   <div class="content">
-    <div id="lottie-scroll" style="width:60vw; height:60vh;"></div>
+    <div id="lottie-scroll"></div>
   </div>
 </div>
 
@@ -454,10 +458,9 @@ document.querySelectorAll('.scene').forEach(scene => {
     requestAnimationFrame(update);
   };
 
-  scene.addEventListener('mousemove', e => {
-    const rect = scene.getBoundingClientRect();
-    mouseX = (e.clientX - rect.left - rect.width / 2) * -0.2;
-    mouseY = (e.clientY - rect.top  - rect.height / 2) * -0.2;
+  window.addEventListener('mousemove', e => {
+    mouseX = (e.clientX - window.innerWidth  / 2) * -0.2;
+    mouseY = (e.clientY - window.innerHeight / 2) * -0.2;
   });
 
   window.addEventListener('deviceorientation', e => {
@@ -731,18 +734,36 @@ let lottieReady = false;
 let playTween = null;
 
 const FPS = 50;
+const LOTTIE_RATIO = 1040 / 1040;
 
 const lottieAnim = lottie.loadAnimation({
   container: document.getElementById('lottie-scroll'),
-  renderer: 'svg',
-  loop: false,
+  renderer: 'canvas',
   autoplay: false,
-  path: '/content/lottie/anim_incl_pause.json'
+  loop: false,
+  path: '/content/lottie/anim_incl_pause.json',
+  rendererSettings: {
+    preserveAspectRatio: 'xMidYMid meet',
+    clearCanvas: true
+  }
 });
+
+function resizeLottie() {
+  const container = document.getElementById('lottie-scroll');
+  const w = container.clientWidth;
+  container.style.height = (w / LOTTIE_RATIO) + 'px';
+  lottieAnim.resize();
+}
 
 lottieAnim.addEventListener('DOMLoaded', () => {
   lottieReady = true;
 });
+
+lottieAnim.addEventListener('DOMLoaded', resizeLottie);
+window.addEventListener('resize', resizeLottie);
+window.addEventListener('orientationchange', resizeLottie);
+
+
 
 /* -------------------------------
    PLAY
