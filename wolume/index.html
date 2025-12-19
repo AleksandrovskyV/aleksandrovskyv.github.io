@@ -2,25 +2,35 @@
 <html lang="ru"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="/content/fav/f_id.png" type="image/png">
-<link rel="apple-touch-icon" sizes="180x180" href="/content/fav/f_w_alt.png">
 
 <title>wolume</title>
 
+
+<link rel="icon" href="/content/fav/f_id.png" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="/content/fav/f_w_alt.png">
+
+
+
+
 <style>
-html,body{
-margin:0;
-padding:0;
-overflow:hidden;
-width:100%;
-height:100%;
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
-.viewport{
-width:100vw;
-height:100vh;
-background:#ffffff;
-cursor:grab;
+
+.viewport {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background:#ffffff;
+  touch-action: none;
+  cursor:grab;
 }
+
 .board{
 position:absolute;
 width:5000px;
@@ -236,28 +246,33 @@ let itemStartLeft = 0;
 let itemStartTop = 0;
 const rotations = new WeakMap();
 
+
+let touchDragItem = null;
+let touchDragStartX = 0;
+let touchDragStartY = 0;
+let touchItemStartLeft = 0;
+let touchItemStartTop = 0;
+
+
+
 function centerOnSVG() {
-  const svgBlock = document.querySelector(".block.svg");
-  if (!svgBlock) return;
-
-  const svgImg = svgBlock.querySelector("img");
-
-  const svgLeft = parseFloat(svgBlock.style.left) || 0;
-  const svgTop  = parseFloat(svgBlock.style.top) || 0;
-
-  const svgWidth  = svgImg.naturalWidth || svgImg.width;
-  const svgHeight = svgImg.naturalHeight || svgImg.height;
+  // ЖЁСТКО заданная геометрия SVG
+  const svg = {
+    left: 496,
+    top: 23,
+    width: 13050,
+    height: 2236
+  };
 
   const vw = viewport.clientWidth;
   const vh = viewport.clientHeight;
 
-  // стартовый масштаб (если нужен)
-  scale = 0.2;
+  // стартовый масштаб — под мобильный
+  scale = 0.42;
 
-  offsetX = vw / 2 - (svgLeft + svgWidth / 2) * scale;
-  offsetY = vh / 2 - (svgTop  + svgHeight / 2) * scale;
+  offsetX = vw / 2 - svg.left * scale - (svg.width  * scale) / 2;
+  offsetY = vh / 2 - svg.top  * scale - (svg.height * scale) / 2;
 }
-
 
 function updateTransform(){
 board.style.transform=`translate(${offsetX}px,${offsetY}px) scale(${scale})`
@@ -352,7 +367,136 @@ viewport.addEventListener("wheel", e => {
   updateTransform();
 }, { passive: false });
 
-updateTransform()
+// Зумирование и перемещение на телефоне
+let pinchStartDist = 0;
+let pinchStartScale = 1;
+let pinchCenterX = 0;
+let pinchCenterY = 0;
+let pinchBoardX = 0;
+let pinchBoardY = 0;
+
+let touchPanning = false;
+let touchStartX = 0;
+let touchStartY = 0;
+
+
+function getTouchDist(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.hypot(dx, dy);
+}
+
+document.querySelectorAll(".block.drag").forEach(el => {
+  el.addEventListener("touchstart", e => {
+    if (e.touches.length !== 1) return;
+
+    e.stopPropagation();
+    e.preventDefault();
+
+    touchDragItem = el;
+    touchPanning = false;     // ВАЖНО
+
+    touchDragStartX = e.touches[0].clientX;
+    touchDragStartY = e.touches[0].clientY;
+
+    touchItemStartLeft = parseFloat(el.style.left) || 0;
+    touchItemStartTop  = parseFloat(el.style.top)  || 0;
+  }, { passive: false });
+});
+
+function getTouchCenter(touches) {
+  return {
+    x: (touches[0].clientX + touches[1].clientX) / 2,
+    y: (touches[0].clientY + touches[1].clientY) / 2
+  };
+}
+
+viewport.addEventListener("touchstart", e => {
+
+  // если палец на блоке — НИЧЕГО не делаем
+  if (e.target.closest(".block.drag")) return;
+
+  if (e.touches.length === 1) {
+    touchPanning = true;
+    pinchStartDist = 0;
+
+    touchStartX = e.touches[0].clientX - offsetX;
+    touchStartY = e.touches[0].clientY - offsetY;
+  }
+
+  if (e.touches.length === 2) {
+    touchPanning = false;
+    e.preventDefault();
+
+    pinchStartDist = getTouchDist(e.touches);
+    pinchStartScale = scale;
+
+    const center = getTouchCenter(e.touches);
+    pinchCenterX = center.x;
+    pinchCenterY = center.y;
+
+    pinchBoardX = (pinchCenterX - offsetX) / scale;
+    pinchBoardY = (pinchCenterY - offsetY) / scale;
+  }
+}, { passive: false });
+
+
+viewport.addEventListener("touchmove", e => {
+
+// DRAG BLOCK
+  if (touchDragItem && e.touches.length === 1) {
+    e.preventDefault();
+
+    const dx = (e.touches[0].clientX - touchDragStartX) / scale;
+    const dy = (e.touches[0].clientY - touchDragStartY) / scale;
+
+    touchDragItem.style.left = touchItemStartLeft + dx + "px";
+    touchDragItem.style.top  = touchItemStartTop  + dy + "px";
+
+    return; // важно — не даём канвасу двигаться
+  }
+
+  // PAN
+  if (touchPanning && e.touches.length === 1) {
+    e.preventDefault();
+
+    offsetX = e.touches[0].clientX - touchStartX;
+    offsetY = e.touches[0].clientY - touchStartY;
+
+    updateTransform();
+    return;
+  }
+
+  // PINCH
+  if (e.touches.length === 2 && pinchStartDist) {
+    e.preventDefault();
+
+    const dist = getTouchDist(e.touches);
+    const zoom = dist / pinchStartDist;
+
+    scale = pinchStartScale * zoom;
+    scale = Math.min(Math.max(scale, 0.15), 4);
+
+    offsetX = pinchCenterX - pinchBoardX * scale;
+    offsetY = pinchCenterY - pinchBoardY * scale;
+
+    updateTransform();
+  }
+}, { passive: false });
+
+viewport.addEventListener("touchend", e => {
+  if (e.touches.length === 0) {
+    touchDragItem = null;
+    touchPanning = false;
+    pinchStartDist = 0;
+  }
+}, { passive: false });
+
+window.addEventListener("load", () => {
+  centerOnSVG()
+  updateTransform()
+})
+
 </script>
 
 
