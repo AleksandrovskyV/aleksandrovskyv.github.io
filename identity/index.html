@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
 <link rel="icon" href="/content/fav/f_id.png" type="image/png">
 <link rel="apple-touch-icon" sizes="180x180" href="/content/fav/f_w_id.png">
 
@@ -94,13 +96,50 @@
       line-height: 1.6;
       box-sizing: border-box;    /* ! */
       width: clamp(380px, 40vw, 1400px);
+    }
+
+    @media (max-width: 768px) {
+      .text-block {
+        width: 85vw;
+        font-size: 22px;
+      }
+    }
+
+    .ui-text-block {
+      font-family: sans-serif;
+      width: 50vw;
+      max-width: 900px;
+      min-width: 320px;
+
+      font-size: 30px;
+      font-weight: 300;
+      line-height: 1.6;
+
+      color: #000;
+      text-align: left;
       
     }
+
+    .ui-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+
+      display: flex;
+      align-items: center;     /* центр по высоте */
+      justify-content: center; /* центр по горизонтали */
+
+      pointer-events: none;   /* 👈 важно */
+    }
+
+
 
     .text_block .head {
       font-size: 30px;
       font-weight: 300;
     }
+
+
 
     .text_block .text {
       font-size: 22px;
@@ -265,9 +304,11 @@
 
 <div class="page_container"style="background-color: black;">
   <div class="content" style="background-color: #cfced1;">
+      
+
 
     <div class="scene" id="scene">
-
+    
       <div class="layer" data-depth="0.15" data-zoom="1.1"
            style="background-image:url('/content/identity/line/line_c.png')"></div>
 
@@ -277,6 +318,15 @@
            "></div>
 
     </div>
+
+    <!-- UI СЛОЙ С ТЕКСТОМ -->
+    <div class="ui-layer">
+      <div class="ui-text-block">
+        Our teams’ approach to the creation of the design is based on our
+        individual skills. Every team member puts a lot of work on every
+        stage of production.
+      </div>
+    </div>    
 
   </div>
 </div>
@@ -331,6 +381,8 @@
     <img src="/content/identity/img/i_img_12.png">
   </div>
 </div>
+
+
 
 <div class="page_container" style="background-color: #dadada;">
   <div class="content">
