@@ -6,6 +6,10 @@
 <link rel="icon" href="/content/fav/f_id.png" type="image/png">
 <link rel="apple-touch-icon" sizes="180x180" href="/content/fav/f_w_id.png">
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
 <title>identity</title>
 
   <style>
@@ -194,8 +198,9 @@
 
 
 
-<div class="page_container"style="background-color: #cfced1;">
+<div class="page_container lottie-section" style="background-color: #cfced1;">
   <div class="content">
+    <div id="lottie-scroll" style="width:60vw; height:60vh;"></div>
   </div>
 </div>
 
@@ -342,6 +347,97 @@ document.addEventListener('wheel', e => {
     });
   }
 }, { passive: false });
+
+// Lottie block
+gsap.registerPlugin(ScrollTrigger);
+
+
+let isPlaying = false;
+let hasPlayed = false;
+let lottieReady = false;
+let playTween = null;
+
+const FPS = 50;
+
+const lottieAnim = lottie.loadAnimation({
+  container: document.getElementById('lottie-scroll'),
+  renderer: 'svg',
+  loop: false,
+  autoplay: false,
+  path: '/content/lottie/anim_incl_pause.json'
+});
+
+lottieAnim.addEventListener('DOMLoaded', () => {
+  lottieReady = true;
+});
+
+/* -------------------------------
+   PLAY
+-------------------------------- */
+
+function playLottie() {
+  if (!lottieReady || isPlaying || hasPlayed) return;
+
+  hasPlayed = true;
+  isPlaying = true;
+
+  playTween = gsap.to({ frame: 0 }, {
+    frame: lottieAnim.totalFrames - 1,
+    duration: lottieAnim.totalFrames / FPS,
+    ease: 'none',
+
+    onUpdate() {
+      lottieAnim.goToAndStop(
+        Math.round(this.targets()[0].frame),
+        true
+      );
+    },
+
+    onComplete() {
+      isPlaying = false;
+    }
+  });
+}
+
+/* -------------------------------
+   RESET (ONLY WHEN ABOVE)
+-------------------------------- */
+
+function resetLottie() {
+  if (isPlaying && playTween) {
+    playTween.kill();
+  }
+
+  hasPlayed = false;
+  isPlaying = false;
+
+  lottieAnim.goToAndStop(0, true);
+}
+
+/* -------------------------------
+   VISIBILITY TRIGGER
+-------------------------------- */
+
+ScrollTrigger.create({
+  trigger: '.lottie-section',
+
+  // ~30% блока видно
+  start: 'top 70%',
+
+  // блок полностью ушёл ВВЕРХ
+  end: 'bottom top',
+
+  onEnter: () => {
+    playLottie();
+  },
+
+  onLeaveBack: () => {
+    resetLottie();
+  }
+
+  // onLeave — НЕ НУЖЕН
+});
+
 
 </script>
 
