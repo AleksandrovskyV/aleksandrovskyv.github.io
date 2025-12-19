@@ -5,14 +5,14 @@
 
 <title>wolume</title>
 
-
 <link rel="icon" href="/content/fav/f_id.png" type="image/png">
 <link rel="apple-touch-icon" sizes="180x180" href="/content/fav/f_w_alt.png">
 
 
 
-
 <style>
+
+
 
 html, body {
   width: 100%;
@@ -45,6 +45,7 @@ position:absolute;
 .block.svg {
   position: absolute;
   pointer-events: none; 
+  z-index: -2;
 }
 
 
@@ -63,14 +64,103 @@ position:absolute;
 .block.c .head {
   font-size: 32px;
   font-weight: 300;
-  cursor: default;
+  cursor: text; /* ← вот оно */
 }
 
 .block.c .text {
   font-size: 24px;
+  cursor: text; /* ← вот оно */
+
+}
+
+.block.evcom {
+  position: absolute;
+  font-family: sans-serif;
+  user-select: text;
+  line-height: 1.4;
+  color: white;
+  padding: 5px 5px;        /* l w */
+  z-index: 99;
+}
+.block.evcom .u {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.block.evlink a {
+  position: absolute;
+  display: inline-block;
+  font-family: sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.block.evlink a:hover {
+  text-decoration: underline;
+}
+
+.block.ev {
+  position: absolute;
+  font-family: sans-serif;
+  user-select: text;
+  line-height: 1.4;
+
+  padding: 5px 5px;        /* l w */
+  box-sizing: border-box;    /* ! */
+  pointer-events: none; /* ← полностью прозрачен для кликов */
+}
+
+.block.ev .head {
+  font-size: 32px;
+  font-weight: 640;
   cursor: default;
 }
 
+.block.ev .text {
+  font-size: 24px;
+  cursor: default;
+}
+
+.block.com {
+  position: absolute;
+  font-family: sans-serif;
+  user-select: text;
+  line-height: 1.3;
+
+  padding: 5px 5px;        /* l w */
+  box-sizing: border-box;    /* ! */
+  font-style: italic;
+  pointer-events: none; /* ← полностью прозрачен для кликов */
+}
+
+.block.com .head {
+  font-size: 32px;
+  font-weight: 640;
+  cursor: default;
+}
+
+.block.com .text {
+  font-size: 24px;
+  cursor: default;
+}
+
+.block.backcode {
+  position: absolute;
+  font-family: sans-serif;
+  user-select: text;
+  line-height: 1.4;
+  font-size: 15px;
+  color: rgba(0,0,0,0.5);
+  padding: 10px 10px;        /* l w */
+  box-sizing: border-box;    /* ! */  
+  cursor: text; /* ← вот оно */
+  background: #fff;
+
+}
 
 .block.bg {
 z-index: -99;
@@ -79,6 +169,10 @@ z-index: -99;
 .image{
 user-select:none;
 pointer-events:auto;
+}
+
+.image.b{
+z-index: -90;
 }
 
 
@@ -106,12 +200,178 @@ user-select: none;
 <div class="board" id="board" >
 
 
-<div class="block image" style="left:4327px; top:676.64px;"><img src="/content/wolumes/w1.png" style="width:1067px; height:79px;"></div>
-<div class="block image" style="left:5321px; top:1772.64px;"><img src="/content/wolumes/w2.png" style="width:1073px; height:420px;"></div>
-<div class="block image" style="left:2700px; top:1288.64px;"><img src="/content/wolumes/w3.png" style="width:485px; height:150px;"></div>
-<div class="block image" style="left:5400px; top:1048.64px;"><img src="/content/wolumes/w4.png" style="width:1080px; height:592px;"></div>
-<div class="block image" style="left:2372px; top:62.64px;"><img src="/content/wolumes/w5.png" style="width:1064px; height:382px;"></div>
+<div class="block image b" style="left:4336px; top:676.64px;"><img src="/content/wolumes/w1.png" style="width:1067px; height:79px;"></div>
+<div class="block image b" style="left:5321px; top:1772.64px;"><img src="/content/wolumes/w2.png" style="width:1073px; height:420px;"></div>
+<div class="block image b" style="left:2700px; top:1288.64px;"><img src="/content/wolumes/w3.png" style="width:485px; height:150px;"></div>
+<div class="block image b" style="left:5400px; top:1048.64px;"><img src="/content/wolumes/w4.png" style="width:1080px; height:592px;"></div>
+<div class="block image b" style="left:2372px; top:62.64px;"><img src="/content/wolumes/w5.png" style="width:1064px; height:382px;"></div>
 
+
+<div class="block backcode" style="left:3860px; top:1290px; width:720px;">
+//Variable<br>
+<br>
+var thisComp = app.project.activeItem; // Переменная активной композиции<br>
+var compLayers = thisComp.layers; <br>
+var ActiveLayers = thisComp.selectedLayers; //Выделенный слой<br>
+<br>
+//Process<br>
+<br>
+ for (var i = 1; i < compLayers.length+1; i++){ // Цикл выкл<br>
+     thisComp.layer(i).shy = true;<br>
+    }<br>
+<br>
+ for (var i = 0; i < ActiveLayers.length; i++){ // Цикл включения видимости выделеных слоев<br>
+      ActiveLayers[i].shy = false; <br>
+    }<br>
+<br>
+//Final<br>
+<br>
+thisComp.hideShyLayers = true; //Скрывает все невыделенные слои<br>
+</div>
+
+
+<div class="block ev" style="left:2300px; top:1280px; width:520px;">
+  <div class="head">18 Апреля</div>
+  <div class="text" style="margin-top:4px;">
+      * Первое граф. исследование<br>
+      * Первая бессоная ночь<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:2820px; top:1030px; width:520px;">
+  <div class="head">28 Апреля</div>
+  <div class="text" style="margin-top:4px;">
+      * Переезд Д. Стерхова<br>
+      * Создание Work.Chat<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:6060px; top:1063px; width:520px;">
+  <div class="head">31 Декабря</div>
+  <div class="text" style="margin-top:4px;">
+      * Запуск вебсайта<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:3360px; top:1280px; width:520px;">
+  <div class="head">5 Мая</div>
+  <div class="text" style="margin-top:4px;">
+  * Придумали имя<br>&nbsp;&nbsp;для студии
+  </div>
+</div>
+
+<div class="block ev" style="left:6600px; top:1280px; width:520px;">
+  <div class="head">23 Марта</div>
+  <div class="text" style="margin-top:4px;">
+  * Переезд в новый офис
+  </div>
+</div>
+
+<div class="block ev" style="left:8370px; top:1280px; width:520px;">
+  <div class="head">28 Декабря</div>
+  <div class="text" style="margin-top:4px;">
+  * Первый корпоратив
+  </div>
+</div>
+
+<div class="block ev" style="left:8920px; top:1280px; width:520px;">
+  <div class="head">5 Февраля</div>
+  <div class="text" style="margin-top:4px;">
+  * Покупка оборудования
+  </div>
+</div>
+
+<div class="block ev" style="left:3788px; top:1080px; width:520px;">
+  <div class="text" style="text-align: center;">
+      DataGen & Expression<br>
+      исследование<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:4610px; top:1280px; width:520px;">
+  <div class="head">18 Июля</div>
+  <div class="text" style="margin-top:4px;">
+  * Запуск стиля
+  </div>
+</div>
+
+<div class="block ev" style="left:4920px; top:1080px; width:520px;">
+  <div class="text" style="text-align: center;">
+      Выпуск Ocean<br>
+      Сентябрь, 23<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:5380px; top:1080px; width:520px;">
+  <div class="text" style="text-align: center;">
+      Выпуск Toples<br>
+      Ноябрь, 21<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:6730px; top:1080px; width:520px;">
+  <div class="text" style="text-align: center;">
+      + Д. Кильмухамедов<br>
+      Май, 5<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:7140px; top:1080px; width:520px;">
+  <div class="text" style="text-align: center;">
+      Выпуск MTBank<br>
+      Июль, 25<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:7540px; top:1080px; width:520px;">
+  <div class="text" style="text-align: center;">
+      + А. Веремьёв<br>
+      Сентябрь, 22<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:7900px; top:1080px; width:520px;">
+  <div class="text" style="text-align: center;">
+      Выпуск KazanSummit<br>
+      Сентябрь, 27<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:9260px; top:1080px; width:520px;">
+  <div class="text" style="text-align: center;">
+      + A. Обухов<br>
+      Февраль, 18<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:9680px; top:1048px; width:520px;">
+  <div class="text" style="text-align: center;">
+    Redshift Render<br>
+    DEM Earth Plugin<br>
+    AXYZ Design<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:10120px; top:1080px; width:520px;">
+  <div class="text" style="text-align: center;">
+      + А. Клайд<br>
+      Сентябрь, 1<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:10980px; top:1080px; width:520px;">
+  <div class="text" style="text-align: center;">
+      Выпуск Rosneft<br>
+      Октябрь, 5<br>
+  </div>
+</div>
+
+<div class="block ev" style="left:11380px; top:1080px; width:520px;">
+  <div class="text" style="text-align: center;">
+      Выпуск Mosmetro<br>
+      Декабрь, 30<br>
+  </div>
+</div>
 
 <div class="block c" style="left:3242px; top:250px; width:420px;">
   <div class="head">Клиенты<br>в 2016:</div>
@@ -178,12 +438,140 @@ user-select: none;
   </div>
 </div>
 
+<div class="block com" style="left:2660px; top:500px; width:540px; text-align: right;">
+  <div class="text" style="margin-top:4px;">
+В начале пути (в 2016 году) мы сконцентрировались на улучшении навыков <br>в графическом дизайне и презентации продукта, чтобы они стали неотъемлемой частью студии<br>
+<br>
+Первой задачей стало создание брендинга и визуального облика коллектива
+
+  </div>
+</div>
+
+<div class="block com" style="left:5460px; top:564px; width:540px; text-align: right;">
+  <div class="text" style="margin-top:4px;">
+В течении года студия<br>cуществовала в апартаментах<br>Александровского<br><br>
+Всё становилось серьезно<br>и было решено переходить на<br>следующий уровень - аренда офиса<br><br>
+Виктор с Дмитрием едут искать<br>помещение и находят подходящий<br>номер в отеле Азимут
+
+  </div>
+</div>
+
+<div class="block com" style="left:5790px; top:1584px; width:540px; text-align: right;">
+  <div class="text" style="margin-top:4px;">
+Благодаря нашей кропотливой работе<br>мы смогли полностью реализовать<br>все идеи нашей цифровой площадки<br>- сайта wolume.tv
+
+  </div>
+</div>
+
+<div class="block com" style="left:7620px; top:1310px; width:540px; ">
+  <div class="text" style="margin-top:4px;">
+Штат тоже начал меняться,<br>к нам стали приходить новые люди
+
+  </div>
+</div>
+
+<div class="block com" style="left:6930px; top:1280px; width:540px; text-align: right;">
+  <div class="text" style="margin-top:4px;">
+Как росла сложность проектов<br>так и возрастало кол-во заказчиков<br>Этот период (2017 год) стал<br>максимально плодотворным<br>и коммерчески успешным
+
+  </div>
+</div>
+
+<div class="block com" style="left:9020px; top:1440px; width:540px; text-align: right;">
+  <div class="text" style="margin-top:4px;">
+За 2017 год мы успешно закрыли огромное кол-во проектов, что помогло приобрести студии мощные персональные компьютеры<br><br>
+До этого момента, все работали за своими, привизенными из дома
+
+  </div>
+</div>
+
+<div class="block com" style="left:9820px; top:1280px; width:840px; text-align: left;">
+  <div class="text" style="margin-top:4px; ">
+В течении 2018 года мы сдали пять-шесть проектов.<br>Кол-во проектов сократилось в четыре раза относительно<br>предыдущего года, при этом удалось на какое-то время<br>сохранить тот-же состав. В основном все проекты<br> были имеджевыеи для крупных компаний
 
 
-<div class="block image" style="left:5313px; top:1212.64px;"><img src="/content/wolumes/aiga.png" style="width:63px; height:115px;"></div>
-<div class="block image" style="left:5227px; top:1212.64px;"><img src="/content/wolumes/ae.png" style="width:63px; height:115px;"></div>
-<div class="block image" style="left:5142px; top:1212.64px;"><img src="/content/wolumes/mo.png" style="width:63px; height:115px;"></div>
-<div class="block image" style="left:5057px; top:1212.64px;"><img src="/content/wolumes/gr.png" style="width:63px; height:115px;"></div>
+  </div>
+</div>
+
+<div class="block com" style="left:3770px; top:830px; width:540px; text-align: right;">
+  <div class="text" style="margin-top:4px;">
+Помимо графического дизайна, мы плотно<br>сели изучать выражения, скриптоcписание<br>и средства оптимизации сцен
+
+  </div>
+</div>
+
+<div class="block com" style="left:4366px; top:830px; width:640px; ">
+  <div class="text" style="margin-top:4px;">
+Нам повезло, что все наши релизы получали награды<br>на площадке Behance. Благодаря им, мы получили уверенность в правильном направлении
+
+  </div>
+</div>
+
+<div class="block com" style="left:8686px; top:950px; width:1020px;  text-align: center;">
+  <div class="text" style="margin-top:4px;">
+    Весна 2018 - момент когда мы даже успевали выходить поиграть в мяч во дворе<br>
+    Также мы купили JBL колонку, которая задавала нам конкретный вайб 
+  </div>
+</div>
+
+<div class="block com" style="left:10840px; top:950px; width:1020px;  text-align: right;">
+  <div class="text" style="margin-top:4px;">
+    После серии удачных релизов мы продолжаем оптимизировать<br>нашу работу, чтобы сохранить позиции на рынке  
+  </div>
+</div>
+
+<div class="block com" style="left:10330px; top:1300px; width:1020px;  text-align: right;">
+  <div class="text" style="margin-top:4px; font-size: 36px; font-weight: 520;">
+    Продолжение следует... 
+  </div>
+</div>
+
+
+<div class="block com" style="left:9078px; top:1280px; width:1020px;  text-align: right;">
+  <div class="text" style="margin-top:4px; font-size: 14px; font-weight: 520;  transform: rotate(90deg);">
+    Good Keyframes... 
+  </div>
+</div>
+
+<div class="block evlink" style="left:4423px; top:682px; width:1020px;">
+  <a class="text" href="https://www.behance.net/viktorkp" target="_blank">
+    Viktor Kopeykin
+  </a>
+</div>
+
+<div class="block evlink" style="left:4685px; top:682px; width:1020px;">
+  <a class="text" href="https://www.behance.net/Otacon" target="_blank">
+    Dany Sterkhov
+  </a>
+</div>
+
+<div class="block evlink" style="left:4949px; top:682px; width:1020px;">
+  <a class="text" href="https://www.behance.net/aleksandrovsky" target="_blank">
+    Viktor Aleksandrovsky
+  </a>
+</div>
+
+<div class="block evlink" style="left:5215px; top:682px; width:1020px;">
+  <a class="text" href="https://www.behance.net/brzhd" target="_blank">
+    Dmitry Berezhnoy
+  </a>
+</div>
+
+<div class="block evcom" style="left:4060px; top:600px; width:1020px;">
+  &gt;
+  <span class="u">W</span>hite Dwarf
+  &gt;
+  <span class="u">O</span>tacon
+  &gt;
+  <span class="u">L</span>ukow
+</div>
+
+
+
+<div class="block image b" style="left:5313px; top:1212.64px;"><img src="/content/wolumes/aiga.png" style="width:63px; height:115px;"></div>
+<div class="block image b" style="left:5227px; top:1212.64px;"><img src="/content/wolumes/ae.png" style="width:63px; height:115px;"></div>
+<div class="block image b" style="left:5142px; top:1212.64px;"><img src="/content/wolumes/mo.png" style="width:63px; height:115px;"></div>
+<div class="block image b" style="left:5057px; top:1212.64px;"><img src="/content/wolumes/gr.png" style="width:63px; height:115px;"></div>
 
 <div class="block image" style="left:7751px; top:555.64px;"><img src="/content/wolumes/w6.png" style="width:207px; height:367px;"></div>
 <div class="block image" style="left:7978px; top:556.64px;"><img src="/content/wolumes/w7.png" style="width:207px; height:367px;"></div>
@@ -217,11 +605,27 @@ user-select: none;
 
 <div class="block svg" style="left:496px; top:23px;"><img src="/content/wolumes/graph_c.svg" width="13050"></div>
 
+<div class="block c" style="left:3940px; top:1790px; width:420px; color:white; background: transparent; text-align: right;">
+  <div class="head" style="font-size: 14px;">Стены<br>Шестнадцатого</div>
+  <div class="text" style="font-size: 9px; margin-top:12px; color: rgba(255,255,255,0.8);;">
+      Любезно<br>оформлены<br>
+      Лидией Климовой<br>
+  </div>
+</div>
 
 <div class="block drag" style="left:10468px; top:1299.64px;"><img src="/content/wolumes/w32.png" style="width:1454; height:1081px"></div>
 <div class="block drag" style="left:7417px; top:1362.64px;"><img src="/content/wolumes/w33.png" style="width:1513px; height:1048px"></div>
-<div class="block drag" style="left:4136px; top:1358.64px;"><img src="/content/wolumes/w34.png" style="width:1455px; height:1071px"></div>
+<div class="block drag" style="left:4117px; top:1358.64px;"><img src="/content/wolumes/w34.png" style="width:1455px; height:1071px"></div>
 <div class="block drag" style="left:10607px; top:899.64px;"><img src="/content/wolumes/w35.png" style="width:443px; height:613px"></div>
+
+<div class="block c" style="left:2380px; top:1790px; width:420px; z-index: 199px; color:white; background: transparent;">
+  <div class="head" style="font-size: 14px;">Февраль<br>Шестнадцатого</div>
+  <div class="text" style="font-size: 9px; margin-top:12px; color: rgba(255,255,255,0.8);;">
+      Витя с Димой покупают<br>
+      и изучают курс от<br>
+      Learn Squared<br>
+  </div>
+</div>
 
 
 
@@ -312,12 +716,16 @@ window.addEventListener("mouseup", () => {
   dragItem = null;
 });
 
-viewport.addEventListener("mousedown",e=>{
-if(e.target.closest(".text"))return
-dragging=true
-startX=e.clientX-offsetX
-startY=e.clientY-offsetY
-viewport.style.cursor="grabbing"
+viewport.addEventListener("mousedown", e => {
+  if (
+    e.target.closest(".text") ||
+    e.target.closest(".backcode")
+  ) return
+
+  dragging = true
+  startX = e.clientX - offsetX
+  startY = e.clientY - offsetY
+  viewport.style.cursor = "grabbing"
 })
 
 window.addEventListener("mousemove",e=>{
