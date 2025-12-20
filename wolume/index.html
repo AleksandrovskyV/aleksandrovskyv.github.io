@@ -633,136 +633,114 @@ thisComp.hideShyLayers = true; //Скрывает все невыделенны�
 </div>
 
 <script>
-const board=document.getElementById("board")
-const viewport=document.getElementById("viewport")
+const board = document.getElementById("board");
+const viewport = document.getElementById("viewport");
 
-let dragging=false
-let startX=0
-let startY=0
-let offsetX=-1540
-let offsetY=200
-let scale=.4
+let offsetX = -1540;
+let offsetY = 200;
+let scale = 0.4;
 
+/* =======================
+   CENTER
+======================= */
+function centerOnSVG() {
+  const svg = { left: 496, top: 23, width: 13050, height: 2236 };
+  const vw = viewport.clientWidth;
+  const vh = viewport.clientHeight;
+  scale = 0.42;
+  offsetX = vw / 2 - svg.left * scale - (svg.width * scale) / 2;
+  offsetY = vh / 2 - svg.top  * scale - (svg.height * scale) / 2;
+}
+centerOnSVG();
+updateBoard();
+
+/* =======================
+   BOARD TRANSFORM
+======================= */
+function updateBoard() {
+  board.style.transform = `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
+}
+
+/* =======================
+   MOUSE – BOARD PAN
+======================= */
+let mousePanning = false;
+let mouseStartX = 0;
+let mouseStartY = 0;
+
+viewport.addEventListener("mousedown", e => {
+  if (e.target.closest(".block.drag")) return;
+  mousePanning = true;
+  mouseStartX = e.clientX - offsetX;
+  mouseStartY = e.clientY - offsetY;
+});
+
+window.addEventListener("mousemove", e => {
+  if (!mousePanning) return;
+  offsetX = e.clientX - mouseStartX;
+  offsetY = e.clientY - mouseStartY;
+  updateBoard();
+});
+
+window.addEventListener("mouseup", () => {
+  mousePanning = false;
+});
+
+/* =======================
+   MOUSE – BLOCK DRAG
+======================= */
 let dragItem = null;
 let dragStartX = 0;
 let dragStartY = 0;
 let itemStartLeft = 0;
 let itemStartTop = 0;
-const rotations = new WeakMap();
-
-
-let touchDragItem = null;
-let touchDragStartX = 0;
-let touchDragStartY = 0;
-let touchItemStartLeft = 0;
-let touchItemStartTop = 0;
-
-
-
-function centerOnSVG() {
-  // ЖЁСТКО заданная геометрия SVG
-  const svg = {
-    left: 496,
-    top: 23,
-    width: 13050,
-    height: 2236
-  };
-
-  const vw = viewport.clientWidth;
-  const vh = viewport.clientHeight;
-
-  // стартовый масштаб — под мобильный
-  scale = 0.42;
-
-  offsetX = vw / 2 - svg.left * scale - (svg.width  * scale) / 2;
-  offsetY = vh / 2 - svg.top  * scale - (svg.height * scale) / 2;
-}
-
-function updateTransform(){
-board.style.transform=`translate(${offsetX}px,${offsetY}px) scale(${scale})`
-}
 
 document.querySelectorAll(".block.drag").forEach(el => {
   el.addEventListener("mousedown", e => {
-    e.stopPropagation(); // не двигаем холст
+    e.stopPropagation();
     dragItem = el;
-    dragItem.classList.add("dragging");
-
     dragStartX = e.clientX;
     dragStartY = e.clientY;
-
     itemStartLeft = parseFloat(el.style.left) || 0;
     itemStartTop  = parseFloat(el.style.top)  || 0;
   });
 });
 
-
-
-
-
 window.addEventListener("mousemove", e => {
   if (!dragItem) return;
-
   const dx = (e.clientX - dragStartX) / scale;
   const dy = (e.clientY - dragStartY) / scale;
-
   dragItem.style.left = itemStartLeft + dx + "px";
   dragItem.style.top  = itemStartTop  + dy + "px";
 });
 
 window.addEventListener("mouseup", () => {
-  if (!dragItem) return;
-  dragItem.classList.remove("dragging");
   dragItem = null;
 });
 
-viewport.addEventListener("mousedown", e => {
-  if (
-    e.target.closest(".text") ||
-    e.target.closest(".backcode")
-  ) return
-
-  dragging = true
-  startX = e.clientX - offsetX
-  startY = e.clientY - offsetY
-  viewport.style.cursor = "grabbing"
-})
-
-window.addEventListener("mousemove",e=>{
-if(!dragging)return
-offsetX=e.clientX-startX
-offsetY=e.clientY-startY
-updateTransform()
-})
-
-window.addEventListener("mouseup",()=>{
-dragging=false
-viewport.style.cursor="grab"
-})
+/* =======================
+   MOUSE – WHEEL
+======================= */
+const blockState = new WeakMap();
 
 viewport.addEventListener("wheel", e => {
-  const dragBlock = e.target.closest(".block.drag");
+  const block = e.target.closest(".block.drag");
 
-  // если колесо над перетаскиваемым объектом — вращаем его
-  if (dragBlock) {
+  if (block) {
     e.preventDefault();
-
-    const delta = e.deltaY > 0 ? 5 : -5; // шаг вращения (градусы)
-    const current = rotations.get(dragBlock) || 0;
-    const next = current + delta;
-
-    rotations.set(dragBlock, next);
-
-    dragBlock.style.transform = `rotate(${next}deg)`;
+    if (!blockState.has(block)) {
+      blockState.set(block, { scale: 1, rotation: 0 });
+    }
+    const state = blockState.get(block);
+    state.rotation += e.deltaY > 0 ? 5 : -5;
+    block.style.transform =
+      `scale(${state.scale}) rotate(${state.rotation}deg)`;
     return;
   }
 
-  // иначе — обычный зум холста
   e.preventDefault();
-
-  const delta = e.deltaY > 0 ? 0.9 : 1.1;
   const prevScale = scale;
-  scale *= delta;
+  scale *= e.deltaY > 0 ? 0.9 : 1.1;
   scale = Math.min(Math.max(scale, 0.2), 4);
 
   const rect = viewport.getBoundingClientRect();
@@ -771,11 +749,38 @@ viewport.addEventListener("wheel", e => {
 
   offsetX = cx - (cx - offsetX) * (scale / prevScale);
   offsetY = cy - (cy - offsetY) * (scale / prevScale);
-
-  updateTransform();
+  updateBoard();
 }, { passive: false });
 
-// Зумирование и перемещение на телефоне
+/* =======================
+   TOUCH HELPERS
+======================= */
+function dist(t) {
+  const dx = t[0].clientX - t[1].clientX;
+  const dy = t[0].clientY - t[1].clientY;
+  return Math.hypot(dx, dy);
+}
+
+function angle(t) {
+  return Math.atan2(
+    t[1].clientY - t[0].clientY,
+    t[1].clientX - t[0].clientX
+  ) * 180 / Math.PI;
+}
+
+/* =======================
+   TOUCH STATE
+======================= */
+let activeBlock = null;
+let blockStartDist = 0;
+let blockStartAngle = 0;
+let blockStartScale = 1;
+let blockStartRotation = 0;
+
+let touchPan = false;
+let panStartX = 0;
+let panStartY = 0;
+
 let pinchStartDist = 0;
 let pinchStartScale = 1;
 let pinchCenterX = 0;
@@ -783,129 +788,117 @@ let pinchCenterY = 0;
 let pinchBoardX = 0;
 let pinchBoardY = 0;
 
-let touchPanning = false;
-let touchStartX = 0;
-let touchStartY = 0;
-
-
-function getTouchDist(touches) {
-  const dx = touches[0].clientX - touches[1].clientX;
-  const dy = touches[0].clientY - touches[1].clientY;
-  return Math.hypot(dx, dy);
-}
-
-document.querySelectorAll(".block.drag").forEach(el => {
-  el.addEventListener("touchstart", e => {
-    if (e.touches.length !== 1) return;
-
-    e.stopPropagation();
-    e.preventDefault();
-
-    touchDragItem = el;
-    touchPanning = false;     // ВАЖНО
-
-    touchDragStartX = e.touches[0].clientX;
-    touchDragStartY = e.touches[0].clientY;
-
-    touchItemStartLeft = parseFloat(el.style.left) || 0;
-    touchItemStartTop  = parseFloat(el.style.top)  || 0;
-  }, { passive: false });
-});
-
-function getTouchCenter(touches) {
-  return {
-    x: (touches[0].clientX + touches[1].clientX) / 2,
-    y: (touches[0].clientY + touches[1].clientY) / 2
-  };
-}
-
+/* =======================
+   TOUCHSTART
+======================= */
 viewport.addEventListener("touchstart", e => {
+  const block = e.target.closest(".block.drag");
 
-  // если палец на блоке — НИЧЕГО не делаем
-  if (e.target.closest(".block.drag")) return;
+  if (block) {
+    e.preventDefault();
+    activeBlock = block;
+
+    if (!blockState.has(block)) {
+      blockState.set(block, { scale: 1, rotation: 0 });
+    }
+    const state = blockState.get(block);
+
+    if (e.touches.length === 1) {
+      dragItem = block;
+      dragStartX = e.touches[0].clientX;
+      dragStartY = e.touches[0].clientY;
+      itemStartLeft = parseFloat(block.style.left) || 0;
+      itemStartTop  = parseFloat(block.style.top)  || 0;
+    }
+
+    if (e.touches.length === 2) {
+      blockStartDist = dist(e.touches);
+      blockStartAngle = angle(e.touches);
+      blockStartScale = state.scale;
+      blockStartRotation = state.rotation;
+    }
+    return;
+  }
 
   if (e.touches.length === 1) {
-    touchPanning = true;
-    pinchStartDist = 0;
-
-    touchStartX = e.touches[0].clientX - offsetX;
-    touchStartY = e.touches[0].clientY - offsetY;
+    touchPan = true;
+    panStartX = e.touches[0].clientX - offsetX;
+    panStartY = e.touches[0].clientY - offsetY;
   }
 
   if (e.touches.length === 2) {
-    touchPanning = false;
+    touchPan = false;        //  КЛЮЧЕВО
     e.preventDefault();
 
-    pinchStartDist = getTouchDist(e.touches);
+    pinchStartDist = dist(e.touches);
     pinchStartScale = scale;
 
-    const center = getTouchCenter(e.touches);
-    pinchCenterX = center.x;
-    pinchCenterY = center.y;
+    pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
 
     pinchBoardX = (pinchCenterX - offsetX) / scale;
     pinchBoardY = (pinchCenterY - offsetY) / scale;
   }
 }, { passive: false });
 
-
+/* =======================
+   TOUCHMOVE
+======================= */
 viewport.addEventListener("touchmove", e => {
 
-// DRAG BLOCK
-  if (touchDragItem && e.touches.length === 1) {
+  if (activeBlock && e.touches.length === 2) {
     e.preventDefault();
-
-    const dx = (e.touches[0].clientX - touchDragStartX) / scale;
-    const dy = (e.touches[0].clientY - touchDragStartY) / scale;
-
-    touchDragItem.style.left = touchItemStartLeft + dx + "px";
-    touchDragItem.style.top  = touchItemStartTop  + dy + "px";
-
-    return; // важно — не даём канвасу двигаться
-  }
-
-  // PAN
-  if (touchPanning && e.touches.length === 1) {
-    e.preventDefault();
-
-    offsetX = e.touches[0].clientX - touchStartX;
-    offsetY = e.touches[0].clientY - touchStartY;
-
-    updateTransform();
+    const state = blockState.get(activeBlock);
+    state.scale = blockStartScale * (dist(e.touches) / blockStartDist);
+    state.rotation = blockStartRotation + (angle(e.touches) - blockStartAngle);
+    activeBlock.style.transform =
+      `scale(${state.scale}) rotate(${state.rotation}deg)`;
     return;
   }
 
-  // PINCH
+  if (dragItem && e.touches.length === 1) {
+    e.preventDefault();
+    const dx = (e.touches[0].clientX - dragStartX) / scale;
+    const dy = (e.touches[0].clientY - dragStartY) / scale;
+    dragItem.style.left = itemStartLeft + dx + "px";
+    dragItem.style.top  = itemStartTop  + dy + "px";
+    return;
+  }
+
+  if (touchPan && e.touches.length === 1) {
+    e.preventDefault();
+    offsetX = e.touches[0].clientX - panStartX;
+    offsetY = e.touches[0].clientY - panStartY;
+    updateBoard();
+    return;
+  }
+
   if (e.touches.length === 2 && pinchStartDist) {
     e.preventDefault();
-
-    const dist = getTouchDist(e.touches);
-    const zoom = dist / pinchStartDist;
-
-    scale = pinchStartScale * zoom;
+    scale = pinchStartScale * (dist(e.touches) / pinchStartDist);
     scale = Math.min(Math.max(scale, 0.15), 4);
+    const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
 
-    offsetX = pinchCenterX - pinchBoardX * scale;
-    offsetY = pinchCenterY - pinchBoardY * scale;
-
-    updateTransform();
+    offsetX = cx - pinchBoardX * scale;
+    offsetY = cy - pinchBoardY * scale;
+    updateBoard();
   }
 }, { passive: false });
 
+/* =======================
+   TOUCHEND
+======================= */
 viewport.addEventListener("touchend", e => {
   if (e.touches.length === 0) {
-    touchDragItem = null;
-    touchPanning = false;
+    dragItem = null;
+    activeBlock = null;
+    touchPan = false;
     pinchStartDist = 0;
   }
 }, { passive: false });
-
-window.addEventListener("load", () => {
-  centerOnSVG()
-  updateTransform()
-})
-
 </script>
+
 
 
 </body></html>
