@@ -691,6 +691,7 @@ window.addEventListener("mousemove", e => {
 
 
 window.addEventListener("mouseup", () => {
+
   mousePanning = false;
 });
 
@@ -835,7 +836,9 @@ viewport.addEventListener("touchstart", e => {
   }
 
   if (e.touches.length === 2) {
+    touchPan = false; 
     e.preventDefault();
+
     pinchStartDist = dist(e.touches);
     pinchStartScale = scale;
 
@@ -883,8 +886,11 @@ viewport.addEventListener("touchmove", e => {
     e.preventDefault();
     scale = pinchStartScale * (dist(e.touches) / pinchStartDist);
     scale = Math.min(Math.max(scale, 0.15), 4);
-    offsetX = pinchCenterX - pinchBoardX * scale;
-    offsetY = pinchCenterY - pinchBoardY * scale;
+    const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+    offsetX = cx - pinchBoardX * scale;
+    offsetY = cy - pinchBoardY * scale;
     updateBoard();
   }
 }, { passive: false });
