@@ -670,10 +670,17 @@ let mouseStartY = 0;
 
 viewport.addEventListener("mousedown", e => {
   if (e.target.closest(".block.drag")) return;
+  if (
+    e.target.closest(".text") ||
+    e.target.closest(".backcode")
+  ) return;
+
   mousePanning = true;
   mouseStartX = e.clientX - offsetX;
   mouseStartY = e.clientY - offsetY;
 });
+
+
 
 window.addEventListener("mousemove", e => {
   if (!mousePanning) return;
@@ -681,6 +688,7 @@ window.addEventListener("mousemove", e => {
   offsetY = e.clientY - mouseStartY;
   updateBoard();
 });
+
 
 window.addEventListener("mouseup", () => {
   mousePanning = false;
@@ -827,9 +835,7 @@ viewport.addEventListener("touchstart", e => {
   }
 
   if (e.touches.length === 2) {
-    touchPan = false;        //  КЛЮЧЕВО
     e.preventDefault();
-
     pinchStartDist = dist(e.touches);
     pinchStartScale = scale;
 
@@ -877,11 +883,8 @@ viewport.addEventListener("touchmove", e => {
     e.preventDefault();
     scale = pinchStartScale * (dist(e.touches) / pinchStartDist);
     scale = Math.min(Math.max(scale, 0.15), 4);
-    const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-    const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-
-    offsetX = cx - pinchBoardX * scale;
-    offsetY = cy - pinchBoardY * scale;
+    offsetX = pinchCenterX - pinchBoardX * scale;
+    offsetY = pinchCenterY - pinchBoardY * scale;
     updateBoard();
   }
 }, { passive: false });
