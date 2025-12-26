@@ -29,6 +29,7 @@
     z-index:1000;
   }
 
+  /* Контейнер: строки/строки из кнопок, но кнопки занимают только свою ширину */
   .buttonblock{
     display:flex;
     flex-wrap:wrap;           
@@ -41,6 +42,7 @@
     background:transparent;
   }
 
+  /* Кнопки:  */
   .buttonblock button{
     flex: 0 0 auto;  
     display:inline-flex;
@@ -57,11 +59,11 @@
     z-index: 99;
   }
 
-
+  /* Hover для обычных кнопок */
   .buttonblock button:not(#close):hover {
     opacity: .5;
   }
-
+  /* Опционально: визуально отключаем hover для закрытых кнопок */
   .buttonblock button#close {
     cursor: grab;
     color: rgba(70,70,70,1.0);
@@ -73,6 +75,8 @@
   }
 
 
+
+  /* класс скрытия: плавно пропадает и перестаёт принимать события */
   .hidden-btn{
     opacity: 0 !important;
     pointer-events: none !important;
@@ -96,30 +100,30 @@
 
 <div class="overlay" id="overlay">
   <div class="buttonblock" id="buttonblock"> 
-    <button data-href="/негативы" state="open">негативы</button>
-    <button data-href="/chat"     state="open">chat___</button>
-    <button data-href="/день"     state="open">день</button>
-    <button data-href="/триптих"  state="open">триптих</button>
-    <button data-href="/exegesis" state="open">.exe</button>
-    <button data-href="/wolume"   state="open">~</button>
+    <button data-href="/негативы" id="open">негативы</button>
+    <button data-href="/chat"     id="open">chat___</button>
+    <button data-href="/день"     id="open">день</button>
+    <button data-href="/триптих"  id="open">триптих</button>
+    <button data-href="/exegesis" id="open">.exe</button>
+    <button data-href="/wolume"   id="open">~</button>
 
-    <button data-href="/identity" state="close">identity</button>
+    <button data-href="/identity" id="close">identity</button>
 	
-    <button data-href="/renders"  state="close">_enders</button>
-    <button data-href="/снимки"   state="close">снимки</button>
-    <button data-href="/графика"  state="close">графика</button>
+    <button data-href="/renders"  id="close">_enders</button>
+    <button data-href="/снимки"   id="close">снимки</button>
+    <button data-href="/графика"  id="close">графика</button>
 	
-    <button data-href="/bread"    state="close">bread</button>
-    <button data-href="/haloguys" state="close">[ haloguys ]</button>
-    <button data-href="/покпокки" state="close">покпокки</button>
+    <button data-href="/bread"    id="close">bread</button>
+    <button data-href="/haloguys" id="close">[ haloguys ]</button>
+    <button data-href="/покпокки" id="close">покпокки</button>
 	
-    <button data-href="/работа"   state="close">работа</button>
-    <button data-href="/process"  state="close">_cess</button>
+    <button data-href="/работа"   id="close">работа</button>
+    <button data-href="/process"  id="close">_cess</button>
 
-    <button data-href="/const"    state="close">/</button>
-    <button data-href="/space"    state="close">—</button>
+    <button data-href="/const"    id="close">/</button>
+    <button data-href="/space"    id="close">—</button>
 	
-    <button data-href="/about"    state="close">[ ❤ ]</button>
+    <button data-href="/about"    id="close">[ ❤ ]</button>
   </div>
   <div class="background" id="background"></div>
 </div>
@@ -131,10 +135,10 @@
   const buttonBlock = document.getElementById('buttonblock');
   const buttons = Array.from(buttonBlock.querySelectorAll('button'));
 
-  document.querySelectorAll('#buttonblock button[state="open"]').forEach(btn => {
+  document.querySelectorAll('#buttonblock button[id="open"]').forEach(btn => {
       btn.addEventListener('click', () => {
           let target = btn.dataset.href;
-          if (btn.state === 'close') {
+          if (btn.id === 'close') {
             ev.preventDefault(); // блокируем переход
             return false;        // ничего не делаем
           }
@@ -222,7 +226,6 @@
   }
 
 
-
   function shuffleButtonsWithInternalRules() {
     const container = document.getElementById('buttonblock');
     const buttons = Array.from(container.querySelectorAll('button'));
@@ -230,9 +233,9 @@
     if (buttons.length <= 3) return; // слишком мало кнопок для перемешивания
 
     // находим фиксированные
-
-    const pre_a = buttons.find(b => b.dataset.href === "/space");
     const last = buttons.find(b => b.dataset.href === "/about");
+    const pre_a = buttons.find(b => b.dataset.href === "/space");
+    //const pre_b = buttons.find(b => b.dataset.href === "halo/");
 
     // кнопки, которые нельзя ставить последними перед фиксированными
     const excl = buttons.filter(b => b.dataset.href === "/wolume" || b.dataset.href === "/const");
@@ -262,12 +265,15 @@
     // вставляем перемешанные кнопки
     rest.forEach(btn => container.appendChild(btn));
 
+    // вставляем фиксированные в конец
+    //container.appendChild(pre_b); 
     container.appendChild(pre_a);
     container.appendChild(last); 
   }
 
-  // вызов при загрузке
+  // Вызов при загрузке
   shuffleButtonsWithInternalRules();
+
 
 </script>
 
