@@ -234,12 +234,12 @@
     if (buttons.length <= 2) return;
 
     // находим фиксированные
-    const last = buttons.find(b => b.dataset.href === "about/");
-    const pre_a = buttons.find(b => b.dataset.href === "space/");
-    const pre_b = buttons.find(b => b.dataset.href === "halo/");
+    const last = buttons.find(b => b.dataset.href === "/about");
+    const pre_a = buttons.find(b => b.dataset.href === "/space");
+    const pre_b = buttons.find(b => b.dataset.href === "/halo");
 
-    const pre_excl_a = buttons.find(b => b.dataset.href === "wolume/");
-    const pre_excl_b = buttons.find(b => b.dataset.href === "const/");
+    const pre_excl_a = buttons.find(b => b.dataset.href === "/wolume");
+    const pre_excl_b = buttons.find(b => b.dataset.href === "/const");
 
     // остальные кнопки
     const rest = buttons.filter(b => b !== last && b !== pre_a && b !== pre_b);
@@ -270,12 +270,12 @@
     if (buttons.length <= 3) return; // слишком мало кнопок для перемешивания
 
     // находим фиксированные
-    const last = buttons.find(b => b.dataset.href === "about/");
-    const pre_a = buttons.find(b => b.dataset.href === "space/");
+    const last = buttons.find(b => b.dataset.href === "/about");
+    const pre_a = buttons.find(b => b.dataset.href === "/space");
     //const pre_b = buttons.find(b => b.dataset.href === "halo/");
 
     // кнопки, которые нельзя ставить последними перед фиксированными
-    const excl = buttons.filter(b => b.dataset.href === "wolume/" || b.dataset.href === "const/");
+    const excl = buttons.filter(b => b.dataset.href === "/wolume" || b.dataset.href === "/const");
 
     // остальные кнопки
     const rest = buttons.filter(b => ![last, pre_a].includes(b));
