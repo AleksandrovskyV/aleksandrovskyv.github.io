@@ -29,7 +29,6 @@
     z-index:1000;
   }
 
-  /* Контейнер: строки/строки из кнопок, но кнопки занимают только свою ширину */
   .buttonblock{
     display:flex;
     flex-wrap:wrap;           
@@ -42,7 +41,7 @@
     background:transparent;
   }
 
-  /* Кнопки:  */
+
   .buttonblock button{
     flex: 0 0 auto;  
     display:inline-flex;
@@ -59,15 +58,15 @@
     z-index: 99;
   }
 
-  /* Hover для обычных кнопок */
   .buttonblock button:not(#close):hover {
     opacity: .5;
   }
-  /* Опционально: визуально отключаем hover для закрытых кнопок */
+
   .buttonblock button#close {
     cursor: grab;
     color: rgba(70,70,70,1.0);
   }
+
   .buttonblock button#close:active {
     cursor: grabbing; /* сжатая ладонь */
     transform: scale(0.99); /* чуть увеличиваем */
@@ -75,8 +74,6 @@
   }
 
 
-
-  /* класс скрытия: плавно пропадает и перестаёт принимать события */
   .hidden-btn{
     opacity: 0 !important;
     pointer-events: none !important;
@@ -94,6 +91,7 @@
     .buttonblock button{padding:10px 14px;font-size:1rem}
   }
 </style>
+
 </head>
 <body>
 
@@ -233,9 +231,8 @@
     if (buttons.length <= 3) return; // слишком мало кнопок для перемешивания
 
     // находим фиксированные
-    const last = buttons.find(b => b.dataset.href === "/about");
     const pre_a = buttons.find(b => b.dataset.href === "/space");
-    //const pre_b = buttons.find(b => b.dataset.href === "halo/");
+    const last = buttons.find(b => b.dataset.href === "/about");
 
     // кнопки, которые нельзя ставить последними перед фиксированными
     const excl = buttons.filter(b => b.dataset.href === "/wolume" || b.dataset.href === "/const");
@@ -265,8 +262,7 @@
     // вставляем перемешанные кнопки
     rest.forEach(btn => container.appendChild(btn));
 
-    // вставляем фиксированные в конец
-    //container.appendChild(pre_b); 
+    // вставляем фиксированные в конец 
     container.appendChild(pre_a);
     container.appendChild(last); 
   }
