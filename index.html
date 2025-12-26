@@ -2,17 +2,19 @@
 <html lang="ru">
 
 <head>
+
 <script>
   (function () {
     const ua = navigator.userAgent.toLowerCase();
     const isMobile = /iphone|ipad|android/.test(ua);
 
     if (isMobile) {
-      // Ранний мгновенный редирект — ещё до загрузки твоего большого Main
+      // Ранний мгновенный редирект до загрузки Main
       location.replace("ios/");
     }
   })();
 </script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta vdebugmode="ios">
@@ -128,7 +130,8 @@
 
 
 <script>
-  const debugMode = false // document.querySelector('meta[vdebugmode]').getAttribute('vdebugmode');
+
+  const debugMode = false
 
   //document.querySelectorAll('button').forEach(btn => {
   document.querySelectorAll('#buttonblock button[id="open"]').forEach(btn => {
@@ -311,10 +314,6 @@
 
   // Вызов при загрузке
   //shuffleButtonsWithInternalRules();
-
-
-
-
 
 
 </script>
