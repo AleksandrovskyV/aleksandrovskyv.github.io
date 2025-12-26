@@ -3,6 +3,10 @@
 
 <head>
 
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta vdebugmode="ios"> 
+
 <script>
   (function () {
     const ua = navigator.userAgent.toLowerCase();
@@ -15,11 +19,8 @@
   })();
 </script>
 
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta vdebugmode="ios"> 
-
 <title>вский.space</title>
+<link rel="apple-touch-icon" sizes="180x180" href="/content/apple-touch-icon.png">
 
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -98,34 +99,37 @@
 
 <div class="overlay" id="mOverlay">
   <div class="buttonblock" id="mButtonsContainer"> 
+    <!-- mobile special -->
+    <button data-href="chat/"     data-state="open">chat___</button>
+    <button data-href="день/"     data-state="open">день</button>
+    <button data-href="триптих/"  data-state="open">триптих</button>
+
+    <!-- combine between web and mobile  -->
     <button data-href="/негативы" data-state="open">негативы</button>
-    <button data-href="/chat"     data-state="open">chat___</button>
-    <button data-href="/день"     data-state="open">день</button>
-    <button data-href="/триптих"  data-state="open">триптих</button>
     <button data-href="/exegesis" data-state="open">.exe</button>
     <button data-href="/wolume"   data-state="open">~</button>
 
     <button data-href="/identity" data-state="close">identity</button>
-	
+  
+
     <button data-href="/renders"  data-state="close">_enders</button>
     <button data-href="/снимки"   data-state="close">снимки</button>
     <button data-href="/графика"  data-state="close">графика</button>
-	
+  
     <button data-href="/bread"    data-state="close">bread</button>
     <button data-href="/haloguys" data-state="close">[ haloguys ]</button>
     <button data-href="/покпокки" data-state="close">покпокки</button>
-	
+  
     <button data-href="/работа"   data-state="close">работа</button>
     <button data-href="/process"  data-state="close">_cess</button>
 
     <button data-href="/const"    data-state="close">/</button>
     <button data-href="/space"    data-state="close">—</button>
-	
+  
     <button data-href="/about"    data-state="close">[ ❤ ]</button>
   </div>
   <div class="background" id="mBackground"></div>
 </div>
-
 
 <script>
 
