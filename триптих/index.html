@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
+
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>триптих</title>
 
+<script>
+  (function () {
+    const ua = navigator.userAgent.toLowerCase();
+    const isMobile = /iphone|ipad|android/.test(ua);
+
+    if (isMobile) {
+      // Ранний мгновенный редирект до загрузки Main
+      location.replace("/ios/триптих");
+    }
+  })();
+</script>
+
+<title>триптих</title>
 <link rel="icon" href="/content/favicon-32x32.png" type="image/png">
 <link rel="preload" as="image" href="/content/trip/lock.png">
 

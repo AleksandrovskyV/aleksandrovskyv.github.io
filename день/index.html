@@ -1,7 +1,21 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+
 <meta charset="UTF-8">
+<script>
+  (function () {
+    const ua = navigator.userAgent.toLowerCase();
+    const isMobile = /iphone|ipad|android/.test(ua);
+
+    if (isMobile) {
+      // Ранний мгновенный редирект до загрузки Main
+      location.replace("/ios/день");
+      //location.replace("https://vsky.space/ios/день"); // абсолютный URL
+    }
+  })();
+</script>
+
 <title>день</title>
 
 <style>
