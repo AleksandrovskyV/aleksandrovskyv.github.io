@@ -29,6 +29,7 @@
     z-index:1000;
   }
 
+  /* Контейнер: строки/строки из кнопок, но кнопки занимают только свою ширину */
   .buttonblock{
     display:flex;
     flex-wrap:wrap;           
@@ -58,11 +59,11 @@
     z-index: 99;
   }
 
-
+  /* Hover для обычных кнопок */
   .buttonblock button:not(#close):hover {
     opacity: .5;
   }
-
+  /* Опционально: визуально отключаем hover для закрытых кнопок */
   .buttonblock button#close {
     cursor: grab;
     color: rgba(70,70,70,1.0);
@@ -74,6 +75,8 @@
   }
 
 
+
+  /* класс скрытия: плавно пропадает и перестаёт принимать события */
   .hidden-btn{
     opacity: 0 !important;
     pointer-events: none !important;
@@ -132,7 +135,7 @@
   const buttonBlock = document.getElementById('buttonblock');
   const buttons = Array.from(buttonBlock.querySelectorAll('button'));
 
-
+  //document.querySelectorAll('button').forEach(btn => {
   document.querySelectorAll('#buttonblock button[state="open"]').forEach(btn => {
       btn.addEventListener('click', () => {
           let target = btn.dataset.href;
@@ -226,14 +229,15 @@
 
 
   function shuffleButtonsWithInternalRules() {
-    const container = buttonBlock;
+    const container = document.getElementById('buttonblock');
     const buttons = Array.from(container.querySelectorAll('button'));
 
-    if (buttons.length <= 3) return; 
+    if (buttons.length <= 3) return; // слишком мало кнопок для перемешивания
 
     // находим фиксированные
-    const pre_a = buttons.find(b => b.dataset.href === "/space");
     const last = buttons.find(b => b.dataset.href === "/about");
+    const pre_a = buttons.find(b => b.dataset.href === "/space");
+    //const pre_b = buttons.find(b => b.dataset.href === "halo/");
 
     // кнопки, которые нельзя ставить последними перед фиксированными
     const excl = buttons.filter(b => b.dataset.href === "/wolume" || b.dataset.href === "/const");
@@ -264,6 +268,7 @@
     rest.forEach(btn => container.appendChild(btn));
 
     // вставляем фиксированные в конец
+    //container.appendChild(pre_b); 
     container.appendChild(pre_a);
     container.appendChild(last); 
   }
@@ -271,7 +276,8 @@
   // вызов при загрузке
   shuffleButtonsWithInternalRules();
 
-</script>
 
+
+</script>
 </body>
 </html>
