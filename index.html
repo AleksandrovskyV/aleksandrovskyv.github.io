@@ -230,9 +230,9 @@
     if (buttons.length <= 3) return; // слишком мало кнопок для перемешивания
 
     // находим фиксированные
-    const last = buttons.find(b => b.dataset.href === "/about");
+
     const pre_a = buttons.find(b => b.dataset.href === "/space");
-    //const pre_b = buttons.find(b => b.dataset.href === "halo/");
+    const last = buttons.find(b => b.dataset.href === "/about");
 
     // кнопки, которые нельзя ставить последними перед фиксированными
     const excl = buttons.filter(b => b.dataset.href === "/wolume" || b.dataset.href === "/const");
@@ -262,8 +262,6 @@
     // вставляем перемешанные кнопки
     rest.forEach(btn => container.appendChild(btn));
 
-    // вставляем фиксированные в конец
-    //container.appendChild(pre_b); 
     container.appendChild(pre_a);
     container.appendChild(last); 
   }
@@ -271,8 +269,7 @@
   // вызов при загрузке
   shuffleButtonsWithInternalRules();
 
-
-
 </script>
+
 </body>
 </html>
