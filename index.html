@@ -29,7 +29,6 @@
     z-index:1000;
   }
 
-  /* Контейнер: строки/строки из кнопок, но кнопки занимают только свою ширину */
   .buttonblock{
     display:flex;
     flex-wrap:wrap;           
@@ -42,7 +41,6 @@
     background:transparent;
   }
 
-  /* Кнопки:  */
   .buttonblock button{
     flex: 0 0 auto;  
     display:inline-flex;
@@ -59,11 +57,11 @@
     z-index: 99;
   }
 
-  /* Hover для обычных кнопок */
+
   .buttonblock button:not(#close):hover {
     opacity: .5;
   }
-  /* Опционально: визуально отключаем hover для закрытых кнопок */
+
   .buttonblock button#close {
     cursor: grab;
     color: rgba(70,70,70,1.0);
@@ -75,8 +73,6 @@
   }
 
 
-
-  /* класс скрытия: плавно пропадает и перестаёт принимать события */
   .hidden-btn{
     opacity: 0 !important;
     pointer-events: none !important;
@@ -135,7 +131,6 @@
   const buttonBlock = document.getElementById('buttonblock');
   const buttons = Array.from(buttonBlock.querySelectorAll('button'));
 
-  //document.querySelectorAll('button').forEach(btn => {
   document.querySelectorAll('#buttonblock button[state="open"]').forEach(btn => {
       btn.addEventListener('click', () => {
           let target = btn.dataset.href;
