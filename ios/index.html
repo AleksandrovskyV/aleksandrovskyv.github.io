@@ -32,7 +32,6 @@
     z-index: 1000;
   }
 
-  /* Контейнер: строки/строки из кнопок, но кнопки занимают только свою ширину */
   .buttonblock{
     padding: env(safe-area-inset-top, 12px)
              env(safe-area-inset-right, 12px)
@@ -46,7 +45,6 @@
     background:transparent;
   }
 
-  /* Кнопки: не растягиваемся (интринсивный размер) */
   .buttonblock button{
     flex: 0 0 auto;           /* НЕ растягивать */
     display:inline-flex;
@@ -63,17 +61,15 @@
     z-index: 99;
   }
 
-  /* Hover для обычных кнопок */
   .buttonblock button:not([data-state="close"]):hover {
     opacity: .5;
   }
-  /* Опционально: визуально отключаем hover для закрытых кнопок */
+
   .buttonblock button[data-state="close"] {
     cursor: default; /* сжатая ладонь */
     color: rgba(70,70,70,1.0);
   }
 
-  /* класс скрытия: плавно пропадает и перестаёт принимать события */
   .hidden-btn{
     opacity: 0 !important;
     pointer-events: none !important;
@@ -282,5 +278,6 @@
 
 
 </script>
+
 </body>
 </html>
