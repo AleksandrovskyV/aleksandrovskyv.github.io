@@ -140,7 +140,7 @@
 <script>
 
   const debugMode = false
-  
+
   const ua = navigator.userAgent.toLowerCase();
   const isMobile = /iphone|ipad|android/.test(ua);
 
@@ -152,33 +152,6 @@
     heart.textContent = '[ ❤ ]';
   }
   
-  buttons.forEach(btn => {
-      btn.addEventListener('click', () => {
-          let target = btn.dataset.href;
-
-          if (btn.dataset.state === 'close') {
-            return false; // ничего не делаем
-          }
-          
-          if (window.location.protocol === "file:") {
-              // локальная отладка: путь относительно index.html
-              if (target.startsWith("/")) target = target.slice(1);
-              target = target + ".html";
-          } else {
-              // серверная версия — просто рут
-              if (target.endsWith(".html")) {
-                  target = "/" + target.replace(".html", "");
-              }
-          }
-
-        if (debugMode === "ios") {
-            // вставляем "_ios" перед ".html"
-            target = target.replace(/\.html$/, "_ios.html");
-        }
-          window.location.href = target;
-      });
-  });
-
 
   // ВОССТАНОВЛЕНИЕ ПОСЛЕ ВОЗВРАТА НАЗАД
   window.addEventListener("pageshow", (event) => {
@@ -194,17 +167,39 @@
     }
   });
 
+
   /* ========== Автоматическая подстройка размера шрифта в зависимости от кол-ва кнопок ==========
      простая эвристика: чем больше кнопок — тем меньше шрифт (можно настроить под себя).
   */
   (function adjustFontByCount(){
     const n = buttons.length;
-    // примерная формула: 1.6rem при 1-3 кнопках, уменьшаем при большем числе
-    const base = 4.6; // rem
+
+    //web - 4.6 
+    const base = isMobile ? 4.4 : 4.6;
     const sizeRem = Math.max(0.9, base - (n - 3) * 0.12);
     buttons.forEach(b => b.style.fontSize = sizeRem + 'rem');
   })();
 
+
+  function removeOverflowingCloseButtons() {
+    const container = buttonContainer;
+    const overlay = document.getElementById('mOverlay');
+    const maxHeight = overlay.clientHeight;
+
+    // Пока контент не помещается
+    while (container.scrollHeight > maxHeight) {
+      // Берём все кнопки close, кроме исключений
+
+      const closeButtons = Array.from(container.querySelectorAll('button[data-state="close"]'))
+        .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
+
+      if (closeButtons.length === 0) break; // Больше нечего удалять
+
+      // Удаляем последнюю подходящую кнопку
+      const btnToRemove = closeButtons.pop();
+      container.removeChild(btnToRemove);
+    }
+  }
 
   function hideAllButtons() {
     return new Promise(resolve => {
@@ -290,6 +285,30 @@
   // Вызов при загрузке
   shuffleButtonsWithRules();
 
+  if (isMobile) {
+    removeOverflowingCloseButtons();
+  }
+
+  buttons.forEach(btn => {
+      btn.addEventListener('click', async (ev) => {
+          let target = btn.dataset.href;
+
+          if (btn.dataset.state === 'close') {
+            ev.preventDefault(); // блокируем переход
+            return false; // ничего не делаем
+          }
+          
+          if (window.location.protocol === "file:") {
+              // локальная отладка: путь относительно index.html
+              if (target.startsWith("/")) target = target.slice(1);
+              target = target + ".html";
+          } else {
+              // серверная версия — просто рут
+              if (target.endsWith(".html")) {
+                  target = "/" + target.replace(".html", "");
+              }
+          }
+  });
 
 </script>
 
