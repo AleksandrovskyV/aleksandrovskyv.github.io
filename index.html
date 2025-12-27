@@ -290,25 +290,29 @@
   }
 
   buttons.forEach(btn => {
-      btn.addEventListener('click', async (ev) => {
-          let target = btn.dataset.href;
+    btn.addEventListener('click', async (ev) => {
+      let target = btn.dataset.href;
 
-          if (btn.dataset.state === 'close') {
-            ev.preventDefault(); // блокируем переход
-            return false; // ничего не делаем
-          }
-          
-          if (window.location.protocol === "file:") {
-              // локальная отладка: путь относительно index.html
-              if (target.startsWith("/")) target = target.slice(1);
-              target = target + ".html";
-          } else {
-              // серверная версия — просто рут
-              if (target.endsWith(".html")) {
-                  target = "/" + target.replace(".html", "");
-              }
-          }
+      if (btn.dataset.state === 'close') {
+        ev.preventDefault();
+        return false;
+      }
+
+      if (window.location.protocol === "file:") {
+        // локальная отладка
+        if (target.startsWith("/")) target = target.slice(1);
+        target = target + ".html";
+      } else {
+        // сервер
+        if (target.endsWith(".html")) {
+          target = "/" + target.replace(".html", "");
+        }
+      }
+
+      window.location.href = target;
+    });
   });
+
 
 </script>
 
