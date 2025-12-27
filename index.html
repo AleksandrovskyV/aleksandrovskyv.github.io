@@ -32,7 +32,7 @@
 
   .overlay{
     position:fixed;
-    
+
     inset:0;
     display:flex;
     align-items:center;
@@ -184,6 +184,7 @@
 
 
   function removeOverflowingCloseButtons() {
+    // метод удаления кнопок в мобильной версии
     const container = buttonContainer;
     const overlay = document.getElementById('mOverlay');
     const maxHeight = overlay.clientHeight;
@@ -240,7 +241,6 @@
     });
   }
 
-
   function shuffleButtonsWithRules() {
     const container = buttonContainer;
 
@@ -293,12 +293,17 @@
 
   buttons.forEach(btn => {
     btn.addEventListener('click', async (ev) => {
-      let target = btn.dataset.href;
+      let target = btn.dataset.href || '#';
 
       if (btn.dataset.state === 'close') {
         ev.preventDefault();
         return false;
       }
+
+      // Для остальных кнопок
+      ev.preventDefault();
+      buttonContainer.style.pointerEvents = 'none';
+      await hideAllButtons();
 
       if (window.location.protocol === "file:") {
         // локальная отладка
@@ -312,6 +317,7 @@
       }
 
       window.location.href = target;
+
     });
   });
 
