@@ -132,7 +132,7 @@
     <button data-href="/const"    data-state="close" data-mobile="false" >/</button>
     <button data-href="/space"    data-state="close" data-mobile="false" >—</button>
   
-    <button data-href="/about"    data-state="close" data-mobile="false" >[ ❤ ]</button>
+    <button data-href="/about"    data-state="close" data-mobile="false" >[ &hearts; ]</button>
   </div>
   <div class="background" id="mBackground"></div>
 </div>
@@ -140,11 +140,18 @@
 <script>
 
   const debugMode = false
+  
+  const ua = navigator.userAgent.toLowerCase();
+  const isMobile = /iphone|ipad|android/.test(ua);
 
   const buttonContainer = document.getElementById('mButtonsContainer');
   const buttons = Array.from(buttonContainer.querySelectorAll('button'));
-
-
+  const heart = buttons.find(b => b.dataset.href === "/about");
+  
+  if (!isMobile) {
+    heart.textContent = '[ ❤ ]';
+  }
+  
   buttons.forEach(btn => {
       btn.addEventListener('click', () => {
           let target = btn.dataset.href;
