@@ -47,7 +47,8 @@
   }
 
 
-  .buttonblock button{
+  .buttonblock button,
+  .buttonblockMobile button{
     flex: 0 0 auto;  
     display:inline-flex;
     align-items:center;
@@ -109,11 +110,15 @@
     background:transparent;
   }
 
-  .buttonblockMobile button[data-state="close"]:active {
-    cursor: default;
-    transform: none;
-    color: inherit;
+  .buttonblockMobile button:not([data-state="close"]):hover {
+    opacity: .5;
   }
+
+  .buttonblockMobile button[data-state="close"] {
+    color: rgba(70,70,70,1.0);
+  }
+
+
 
   .hidden-btn{
     opacity: 0 !important;
