@@ -7,15 +7,7 @@
 <meta vdebugmode="ios">
 
 <script>
-  (function () {
-    const ua = navigator.userAgent.toLowerCase();
-    const isMobile = /iphone|ipad|android/.test(ua);
 
-    if (isMobile) {
-      // Ранний мгновенный редирект до загрузки Main
-      location.replace("ios/");
-    }
-  })();
 </script>
 
 <title>вский.space</title>
@@ -29,6 +21,8 @@
     margin: 0;
     padding: 0;
   }
+
+  /* Классы для Desktop */
 
   .overlay{
     position:fixed;
@@ -51,6 +45,7 @@
     padding:20px;
     background:transparent;
   }
+
 
   .buttonblock button{
     flex: 0 0 auto;  
@@ -77,10 +72,47 @@
     color: rgba(70,70,70,1.0);
   }
 
+  /* убрать в мобильной*/
   .buttonblock button[data-state="close"]:active {
     cursor: grabbing; /* сжатая ладонь */
     transform: scale(0.99); 
     color: rgba(50,50,50,1.0); 
+  }
+
+
+  /* Классы для мобильной */
+
+  .overlayMobile{
+    position: fixed;
+
+    top: env(safe-area-inset-top, 0);
+    left: env(safe-area-inset-left, 0);
+    right: env(safe-area-inset-right, 0);
+    bottom: env(safe-area-inset-bottom, 0);
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .buttonblockMobile{
+    padding: env(safe-area-inset-top, 12px)
+             env(safe-area-inset-right, 12px)
+             env(safe-area-inset-bottom, 12px)
+             env(safe-area-inset-left, 12px);
+
+    display:flex;
+    flex-wrap:wrap;           /* перенос строк */
+    gap:16px;
+    justify-content: space-between; /* ключ! */
+    background:transparent;
+  }
+
+  .buttonblockMobile button[data-state="close"]:active {
+    cursor: default;
+    transform: none;
+    color: inherit;
   }
 
   .hidden-btn{
@@ -96,8 +128,16 @@
 
   /* маленькие устройства — уменьшаем отступ и шрифт */
   @media (max-width:420px){
-    .buttonblock{gap:10px;padding:12px}
-    .buttonblock button{padding:10px 14px;font-size:1rem}
+    .buttonblock,
+    .buttonblockMobile {
+      gap:10px;
+      padding:12px;
+    }
+
+    .buttonblock button {
+      padding:10px 14px;
+      font-size:1rem;
+    }
   }
 </style>
 
@@ -146,15 +186,19 @@
   const ua = navigator.userAgent.toLowerCase();
   const isMobile = /iphone|ipad|android/.test(ua);
 
+  const overlay = document.getElementById('mOverlay');
   const buttonContainer = document.getElementById('mButtonsContainer');
+
   const buttons = Array.from(buttonContainer.querySelectorAll('button'));
   const heart = buttons.find(b => b.dataset.href === "/about");
   
   if (!isMobile) {
     heart.textContent = '[ ❤ ]';
+  } else {
+    overlay.classList.replace('overlay', 'overlayMobile');
+    buttonContainer.classList.replace('buttonblock', 'buttonblockMobile');
   }
   
-
   // ВОССТАНОВЛЕНИЕ ПОСЛЕ ВОЗВРАТА НАЗАД
   window.addEventListener("pageshow", (event) => {
     if (event.persisted) {
@@ -186,7 +230,6 @@
   function removeOverflowingCloseButtons() {
     // метод удаления кнопок в мобильной версии
     const container = buttonContainer;
-    const overlay = document.getElementById('mOverlay');
     const maxHeight = overlay.clientHeight;
 
     // Пока контент не помещается
@@ -293,14 +336,15 @@
 
   buttons.forEach(btn => {
     btn.addEventListener('click', async (ev) => {
-      let target = btn.dataset.href || '#';
-
+      
       if (btn.dataset.state === 'close') {
         ev.preventDefault();
         return false;
       }
 
       // Для остальных кнопок
+      let target = btn.dataset.href || '#';
+
       ev.preventDefault();
       buttonContainer.style.pointerEvents = 'none';
       await hideAllButtons();
@@ -314,6 +358,10 @@
         if (target.endsWith(".html")) {
           target = "/" + target.replace(".html", "");
         }
+      }
+
+      if (isMobile && btn.dataset.mobile === 'true') {
+        target = "/ios" + target;
       }
 
       window.location.href = target;
