@@ -327,8 +327,7 @@ function onKeyCommand(e) {
   }
 }
 
-window.addEventListener("keydown", onKeyCommand);
-document.addEventListener("keydown", onKeyCommand);
+window.addEventListener("keydown", onKeyCommand, { capture: true });
 
 // resize
 window.addEventListener("resize", checkFullsize);
