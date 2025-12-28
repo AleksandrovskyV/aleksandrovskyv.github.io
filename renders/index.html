@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Diffirent Computer-Generated Imagery..." />
+
+<meta property="og:title" content="renders">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://vsky.space/renders">
+<meta property="og:description" content="Diffirent Computer-Generated Imagery...">
+<meta property="og:image" content="https://vsky.space/content/cover/renders.jpg">
+<meta property="og:image:secure_url" content="https://vsky.space/content/cover/renders.jpg">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="renders">
+<meta name="twitter:description" content="серия графических работ в градации 255 оттенков">
+<meta name="twitter:image" content="https://vsky.space/content/cover/renders.jpg">
+<meta name="twitter:site" content="@AleksandrovskyV">
+
+<title>_enders</title>
+
+<link rel="apple-touch-icon" sizes="180x180" href="/content/apple-touch-icon.png">
+
+<style>
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{overflow:hidden; height:100%;background:#000;color:#ccc;font-family:system-ui,Segoe UI,Roboto,Arial}
+  .overlay{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    z-index:1000;
+  }
+
+  /* после завершения анимации мы дополнительно ставим visibility:hidden (JS) —
+     это защищает от :hover и от фокусировки через клавиатуру */
+  .background{
+    position:absolute;inset:0;background:#000;z-index:-100;transition:opacity 1.2s ease;
+  }
+
+  .draggable {
+    position: fixed; /* сразу исключаем их из потока */
+    visibility: hidden; /* скрываем до расчёта размеров */
+    display: none; /* элемент полностью убран из потока */
+    pointer-events: auto;
+    user-select: none;
+  }
+
+  .draggable:focus {
+      outline: none;
+  }
+  #toMainBtn{
+    position:fixed;
+    display: none;
+    top:12px; left:24px;
+    padding:24px;
+    font-size:2.0rem;
+    color: gray;
+    background: rgba(0,0,0,0.45);
+    border: 0;
+    cursor:pointer;
+    z-index: 999;
+    transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1);
+  }
+  #toMainBtn:hover{opacity:0.5;}
+
+
+</style>
+
+</head>
+
+<body>
+
+
+<img src="/content/renders/aquaphor.jpg"  class="draggable">
+<img src="/content/renders/collagen.png"  class="draggable">
+<img src="/content/renders/battery.png"  class="draggable">
+<img src="/content/renders/st_hands.jpg"  class="draggable">
+<img src="/content/renders/poperechny.png"  class="draggable">
+<img src="/content/renders/lens.png"  class="draggable">
+
+<img src="/content/renders/ring.gif"  class="draggable">
+<img src="/content/renders/poperechny_a.gif"  class="draggable">
+
+<button id="toMainBtn" data-href="/"><</button>
+
+
+
+<script>
+const toMainBtn = document.getElementById("toMainBtn");
+const body = document.getElementById("body");
+
+const targetHeight = 150;
+const globalScale = 1.2;
+
+const gifs = [
+  '/content/.',
+];
+
+const imgs = [
+  '/content/.',
+];
+
+const mergContent = [...gifs, ...imgs];
+
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+function checkFullsize() {
+  if (window.innerHeight === screen.height && window.innerWidth === screen.width) {
+    toMainBtn.style.display = "block";
+  } else {
+    toMainBtn.style.display = "none";
+  }
+}
+
+// ------------------------------------------------------------
+//  1) Собираем стартовый список DOM-элементов
+// ------------------------------------------------------------
+const baseArr = Array.from(document.querySelectorAll(".draggable"));
+const isDesk = !isMobile();
+const totalLength = baseArr.length + (isDesk ? mergContent.length : 0);
+
+// ------------------------------------------------------------
+//  2) Акценты + рандом 
+// ------------------------------------------------------------
+function chooseRandom(total, count) {
+  const set = new Set();
+  while (set.size < count) set.add(Math.floor(Math.random() * total));
+  return [...set];
+}
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+const accentIndexes = chooseRandom(totalLength, 3);
+const zIndexOrder = shuffle(Array.from({ length: totalLength }, (_, i) => i + 1));
+
+// ------------------------------------------------------------
+//  3) Общий массив всех draggables (HTML + добавленные)
+// ------------------------------------------------------------
+const draggablesList = [];
+
+// ------------------------------------------------------------
+//  4) Основная инициализация (единая для всех)
+// ------------------------------------------------------------
+function initDraggable(el, index) {
+  let scale = 1;
+
+  el.style.visibility = "hidden";
+  el.style.display = "none";
+  el.tabIndex = -1;
+  el.draggable = false;
+
+  el.onload = () => {
+    let finalScale = (targetHeight / el.naturalHeight) * globalScale;
+
+    // Акцент?
+    if (accentIndexes.includes(index)) {
+      finalScale *= 2.1;
+    }
+
+    scale = finalScale;
+
+    el.width  = el.naturalWidth * scale;
+    el.height = el.naturalHeight * scale;
+
+    el.style.position = "fixed";
+    el.style.left = Math.random() * (window.innerWidth - el.width) + "px";
+    el.style.top  = Math.random() * (window.innerHeight - el.height) + "px";
+    el.style.cursor = "grab";
+    el.style.zIndex = zIndexOrder[index];
+
+    el.style.visibility = "visible";
+    el.style.display = "block";
+  };
+
+  // Добавляем в общий список
+  draggablesList.push(el);
+
+  // --- Drag ---
+  let offsetX = 0, offsetY = 0;
+  let isDragging = false;
+  let moveHandler = null;
+
+  el.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    offsetX = e.clientX - el.offsetLeft;
+    offsetY = e.clientY - el.offsetTop;
+    el.style.cursor = "grabbing";
+
+    moveHandler = (e) => {
+      el.style.left = (e.clientX - offsetX) + "px";
+      el.style.top  = (e.clientY - offsetY) + "px";
+    };
+
+    window.addEventListener("mousemove", moveHandler);
+    e.preventDefault();
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (isDragging && moveHandler) {
+      window.removeEventListener("mousemove", moveHandler);
+    }
+    isDragging = false;
+    el.style.cursor = "grab";
+  });
+
+  // --- Wheel Zoom ---
+  el.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.1 : -0.1;
+    scale = Math.max(0.1, scale + delta);
+
+    el.width  = el.naturalWidth * scale;
+    el.height = el.naturalHeight * scale;
+  }, { passive: false });
+}
+
+// ------------------------------------------------------------
+//  5) Загрузка дополнительных изображений на ПК
+// ------------------------------------------------------------
+async function loadExtraForDesktop(list, offset) {
+  for (let i = 0; i < list.length; i++) {
+    const img = document.createElement("img");
+    img.classList.add("draggable");
+    img.src = list[i];
+
+    document.body.appendChild(img);
+    initDraggable(img, offset + i);
+  }
+}
+
+// ------------------------------------------------------------
+//  6) Инициализация HTML-элементов
+// ------------------------------------------------------------
+baseArr.forEach((el, i) => initDraggable(el, i));
+
+// ------------------------------------------------------------
+//  7) Добавление PC-only элементов после DOM load
+// ------------------------------------------------------------
+window.addEventListener("load", () => {
+  if (isDesk) loadExtraForDesktop(mergContent, baseArr.length);
+  checkFullsize();
+});
+
+// ------------------------------------------------------------
+// Кнопки
+// ------------------------------------------------------------
+document.querySelectorAll("button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    let target = btn.dataset.href;
+    
+    if (window.location.protocol === "file:") {
+      if (target.startsWith("/")) target = target.slice(1);
+      target = target + "index.html";
+    } else {
+      if (target.endsWith(".html")) target = "/" + target.replace(".html", "");
+    }
+
+    window.location.href = target;
+  });
+});
+
+// ESC
+function handleEscape(e) {
+  if (e.key === "Escape") {
+    if (window.location.protocol === "file:") {
+      window.location.href = "./index.html";
+    } else {
+      window.history.back();
+    }
+  }
+}
+
+window.addEventListener("keydown", handleEscape);
+document.addEventListener("keydown", handleEscape);
+
+// resize
+window.addEventListener("resize", checkFullsize);
+</script>
+
+
+
+
+</body>
+</html>
