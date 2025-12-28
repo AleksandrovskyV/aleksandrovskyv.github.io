@@ -397,6 +397,19 @@
     });
   });
 
+function handleTilde(e) {
+  if (e.key === "`") {
+    if (window.location.protocol === "file:") {
+      window.location.href = "./wolume.html";
+    } else {
+      window.location.href = "./wolume";
+    }
+  }
+}
+
+// Подписываем один обработчик на оба объекта
+window.addEventListener('keydown', handleTilde);
+document.addEventListener('keydown', handleTilde);
 
 </script>
 
