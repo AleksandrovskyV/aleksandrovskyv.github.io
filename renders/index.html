@@ -187,6 +187,8 @@ function initDraggable(el, index) {
     el.style.display = "block";
   };
 
+  if (el.complete) el.onload();
+  
   // Добавляем в общий список
   draggablesList.push(el);
 
