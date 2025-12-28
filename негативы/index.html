@@ -326,10 +326,22 @@ function onKeyCommand(e) {
   }
 }
 
+document.querySelectorAll("a, button, img, .draggable").forEach(el => {
+  el.tabIndex = -1;
+});
+
 window.addEventListener("keydown", onKeyCommand, { capture: true });
+
+window.addEventListener("pointerdown", () => {
+  window.focus();
+});
+
+
 
 // resize
 window.addEventListener("resize", checkFullsize);
+
+
 </script>
 
 
