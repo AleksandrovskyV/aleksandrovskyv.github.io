@@ -397,7 +397,7 @@
     });
   });
 
-function handleTilde(e) {
+function onKeyCommand(e) {
   if (e.code === "Backquote") {
     if (window.location.protocol === "file:") {
       window.location.href = "./wolume/index.html";
@@ -405,12 +405,19 @@ function handleTilde(e) {
       window.location.href = "./wolume";
     }
   }
+  if (e.code === 'KeyS') {
+    if (window.location.protocol === "file:") {
+      window.location.href = "./renders/index.html";
+    } else {
+      window.location.href = "./renders";
+    }
+  }
 }
 
 
 // Подписываем один обработчик на оба объекта
-window.addEventListener('keydown', handleTilde);
-document.addEventListener('keydown', handleTilde);
+window.addEventListener('keydown', onKeyCommand);
+document.addEventListener('keydown', onKeyCommand);
 
 </script>
 
