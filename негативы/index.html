@@ -159,8 +159,8 @@ function shuffle(array) {
   return array;
 }
 
-const accentIndexes = chooseRandom(totalLength, 3);
-const zIndexOrder = shuffle(Array.from({ length: totalLength }, (_, i) => i + 1));
+let accentIndexes = chooseRandom(totalLength, 3);
+let zIndexOrder = shuffle(Array.from({ length: totalLength }, (_, i) => i + 1));
 
 // ------------------------------------------------------------
 //  3) Общий массив всех draggables (HTML + добавленные)
@@ -200,6 +200,8 @@ function initDraggable(el, index) {
     el.style.visibility = "visible";
     el.style.display = "block";
   };
+
+  if (el.complete) el.onload();
 
   // Добавляем в общий список
   draggablesList.push(el);
@@ -260,13 +262,35 @@ async function loadExtraForDesktop(list, offset) {
 // ------------------------------------------------------------
 //  6) Инициализация HTML-элементов
 // ------------------------------------------------------------
-baseArr.forEach((el, i) => initDraggable(el, i));
+function initScene() {
+  accentIndexes = chooseRandom(totalLength, 3);
+  zIndexOrder = shuffle(Array.from({ length: totalLength }, (_, i) => i + 1));
+
+  draggablesList.length = 0;
+
+  baseArr.forEach((el, i) => initDraggable(el, i));
+
+  if (isDesk) {
+    loadExtraForDesktop(mergContent, baseArr.length);
+  }
+}
+
+
+function cleanupScene() {
+  draggablesList.forEach(el => {
+    el.style.cssText = "";
+  });
+
+  document.querySelectorAll(".draggable:not(:root)").forEach(el => {
+    if (!baseArr.includes(el)) el.remove();
+  });
+}
 
 // ------------------------------------------------------------
 //  7) Добавление PC-only элементов после DOM load
 // ------------------------------------------------------------
 window.addEventListener("load", () => {
-  if (isDesk) loadExtraForDesktop(mergContent, baseArr.length);
+  initScene();
   checkFullsize();
 });
 
@@ -296,6 +320,10 @@ function handleEscape(e) {
     } else {
       window.history.back();
     }
+  }
+  if (e.code === 'KeyH') {
+	  cleanupScene();
+      initScene();
   }
 }
 
