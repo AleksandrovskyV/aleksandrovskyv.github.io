@@ -304,12 +304,12 @@ document.querySelectorAll("button").forEach(btn => {
 });
 
 // ESC
-function handleEscape(e) {
+function onKeyCommand(e) {
   if (e.key === "Escape") {
     if (window.location.protocol === "file:") {
       window.location.href = "./index.html";
     } else {
-      window.history.back();
+      window.location.href = "https://vsky.space";
     }
   }
   if (e.code === 'KeyR') {
@@ -318,8 +318,8 @@ function handleEscape(e) {
   }
 }
 
-window.addEventListener("keydown", handleEscape);
-document.addEventListener("keydown", handleEscape);
+window.addEventListener("keydown", onKeyCommand);
+document.addEventListener("keydown", onKeyCommand);
 
 // resize
 window.addEventListener("resize", checkFullsize);
