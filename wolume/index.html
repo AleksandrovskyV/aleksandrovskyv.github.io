@@ -210,15 +210,8 @@ user-select: none;
 </head>
 
 <body>
-
-<div id="kbd-anchor" tabindex="0"
-     style="position:fixed; inset:0; outline:none; pointer-events:none;">       
-</div>
-
-
 <div class="viewport" id="viewport" style="cursor: grab;">
 <div class="board" id="board" >
-
 
 
 <div class="block image b" style="left:4336px; top:676.64px;"><img src="/content/wolumes/w1.png" style="width:1067px; height:79px;"></div>
@@ -657,19 +650,6 @@ thisComp.hideShyLayers = true; //Скрывает все невыделенны�
 const board = document.getElementById("board");
 const viewport = document.getElementById("viewport");
 
-const kbd = document.getElementById("kbd-anchor");
-
-function ensureFocus() {
-  if (document.activeElement !== kbd) {
-    kbd.focus({ preventScroll: true });
-  }
-}
-
-
-
-
-
-
 let offsetX = -1540;
 let offsetY = 200;
 let scale = 0.4;
@@ -953,20 +933,16 @@ function handleEscape(e) {
   }
 }
 
-ensureFocus();
 
-window.addEventListener("mouseup", ensureFocus);
-window.addEventListener("touchend", ensureFocus);
-window.addEventListener("pointerup", ensureFocus);
 
-window.addEventListener("wheel", () => {
-  requestAnimationFrame(ensureFocus);
-}, { passive: true });
 
 // Подписываем один обработчик на оба объекта
 window.addEventListener('keydown', handleEscape);
-document.addEventListener('keydown', handleEscape);
+//document.addEventListener('keydown', handleEscape);
 
+window.addEventListener("pointerdown", () => {
+  window.focus();
+});
 
 
 </script>
