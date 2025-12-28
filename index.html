@@ -398,7 +398,7 @@
   });
 
 function handleTilde(e) {
-  if (e.key === "`") {
+  if (e.code === "Backquote") {
     if (window.location.protocol === "file:") {
       window.location.href = "./wolume/index.html";
     } else {
@@ -406,6 +406,7 @@ function handleTilde(e) {
     }
   }
 }
+
 
 // Подписываем один обработчик на оба объекта
 window.addEventListener('keydown', handleTilde);
