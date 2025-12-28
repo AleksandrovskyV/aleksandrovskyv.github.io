@@ -920,6 +920,23 @@ viewport.addEventListener("touchend", e => {
     pinchStartDist = 0;
   }
 }, { passive: false });
+
+
+
+function handleEscape(e) {
+  if (e.key === "Escape") {
+    if (window.location.protocol === "file:") {
+      window.location.href = "../index.html";
+    } else {
+      window.location.href = "https://vsky.space";
+    }
+  }
+}
+
+// Подписываем один обработчик на оба объекта
+window.addEventListener('keydown', handleEscape);
+document.addEventListener('keydown', handleEscape);
+
 </script>
 
 
