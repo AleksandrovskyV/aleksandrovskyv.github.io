@@ -1,49 +1,68 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>exegesis</title>
-  <link rel="icon" href="/content/fav/f_ex.png" type="image/png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/content/fav/f_ex_alt.png">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    html, body {
-      width: 100%;
-      background: black;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: black;
-    }
-    .container img {
-      width:100%;
-      max-width:1600px;
-      height:auto;
-      display:block;
-      background:black;
-      pointer-events:none;
-      opacity:0;
-      transition: opacity 0.5s;
-    }
 
-    .loading_container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 10px 0; 
-      /* не fixed, чтобы двигался вниз по мере вставки img */
-    }
-    .loading_container img {
-      width: 64px; /* или любой размер gif */
-      height: 64px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="description" content="Deconstruction or Reconstruction?" />
+
+<meta property="og:title" content="exegesis">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://vsky.space/exegesis">
+<meta property="og:description" content="Deconstruction or Reconstruction?">
+<meta property="og:image" content="https://vsky.space/content/exegesis/e_4_alt.png">
+<meta property="og:image:secure_url" content="https://vsky.space/content/exegesis/e_4_alt.png">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="exegesis">
+<meta name="twitter:description" content="Deconstruction or Reconstruction?">
+<meta name="twitter:image" content="https://vsky.space/content/exegesis/e_4_alt.png">
+<meta name="twitter:site" content="@AleksandrovskyV">
+
+
+<title>exegesis</title>
+<link rel="icon" href="/content/fav/f_ex.png" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="/content/fav/f_ex_alt.png">
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  html, body {
+    width: 100%;
+    background: black;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: black;
+  }
+  .container img {
+    width:100%;
+    max-width:1600px;
+    height:auto;
+    display:block;
+    background:black;
+    pointer-events:none;
+    opacity:0;
+    transition: opacity 0.5s;
+  }
+
+  .loading_container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0; 
+    /* не fixed, чтобы двигался вниз по мере вставки img */
+  }
+  .loading_container img {
+    width: 64px; /* или любой размер gif */
+    height: 64px;
+  }
+</style>
+
 </head>
 <body>
 
