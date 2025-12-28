@@ -34,15 +34,6 @@ html, body {
   overflow: hidden;
 }
 
-*:focus {
-  outline: none;
-}
-a,
-.text,
-.backcode {
-  outline: none;
-}
-
 .viewport {
   position: fixed;
   inset: 0;
@@ -51,7 +42,11 @@ a,
   overflow: hidden;
   background:#ffffff;
   touch-action: none;
-  cursor:grab;
+  
+}
+
+.board.grabbing {
+  cursor: grabbing;
 }
 
 .board{
@@ -213,19 +208,15 @@ user-select: none;
 -webkit-user-select: none;
 -webkit-user-drag: none;
 }
-
-.viewport,
-.board,
-.block {
-  user-select: none !important;
-  -webkit-user-select: none !important;
+.drag:active {
+  cursor: grabbing;
 }
 
 </style>
 </head>
 
 <body>
-<div class="viewport" id="viewport" style="cursor: grab;">
+<div class="viewport" id="viewport">
 <div class="board" id="board" >
 
 
@@ -964,7 +955,6 @@ window.addEventListener("keydown", handleEscape, { capture: true });
 window.addEventListener("pointerdown", () => {
   window.focus();
 });
-
 
 </script>
 
