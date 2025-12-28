@@ -42,10 +42,10 @@ html, body {
   overflow: hidden;
   background:#ffffff;
   touch-action: none;
-  
+  cursor:grab;
 }
 
-.board.grabbing {
+.viewport.grabbing {
   cursor: grabbing;
 }
 
@@ -690,12 +690,11 @@ let mouseStartY = 0;
 
 viewport.addEventListener("mousedown", e => {
   if (e.target.closest(".block.drag")) return;
-  if (
-    e.target.closest(".text") ||
-    e.target.closest(".backcode")
-  ) return;
+  if (e.target.closest(".text") || e.target.closest(".backcode")) return;
 
   mousePanning = true;
+  viewport.classList.add("grabbing");
+
   mouseStartX = e.clientX - offsetX;
   mouseStartY = e.clientY - offsetY;
 });
@@ -709,10 +708,9 @@ window.addEventListener("mousemove", e => {
   updateBoard();
 });
 
-
 window.addEventListener("mouseup", () => {
-
   mousePanning = false;
+  viewport.classList.remove("grabbing");
 });
 
 /* =======================
