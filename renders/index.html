@@ -229,30 +229,7 @@ function initDraggable(el, index) {
   }, { passive: false });
 }
 
-function initScene() {
-  cleanupScene();
 
-  accentIndexes = chooseRandom(totalLength, 3);
-  zIndexOrder = shuffle(Array.from({ length: totalLength }, (_, i) => i + 1));
-
-  draggablesList.length = 0;
-
-  baseArr.forEach((el, i) => initDraggable(el, i));
-
-  if (isDesk) {
-    loadExtraForDesktop(mergContent, baseArr.length);
-  }
-}
-
-function cleanupScene() {
-  draggablesList.forEach(el => {
-    el.style.cssText = "";
-  });
-
-  document.querySelectorAll(".draggable:not(:root)").forEach(el => {
-    if (!baseArr.includes(el)) el.remove();
-  });
-}
 
 // ------------------------------------------------------------
 //  5) Загрузка дополнительных изображений на ПК
@@ -271,7 +248,30 @@ async function loadExtraForDesktop(list, offset) {
 // ------------------------------------------------------------
 //  6) Инициализация HTML-элементов
 // ------------------------------------------------------------
-baseArr.forEach((el, i) => initDraggable(el, i));
+
+function initScene() {
+  accentIndexes = chooseRandom(totalLength, 3);
+  zIndexOrder = shuffle(Array.from({ length: totalLength }, (_, i) => i + 1));
+
+  draggablesList.length = 0;
+
+  baseArr.forEach((el, i) => initDraggable(el, i));
+
+  if (isDesk) {
+    loadExtraForDesktop(mergContent, baseArr.length);
+  }
+}
+
+
+function cleanupScene() {
+  draggablesList.forEach(el => {
+    el.style.cssText = "";
+  });
+
+  document.querySelectorAll(".draggable:not(:root)").forEach(el => {
+    if (!baseArr.includes(el)) el.remove();
+  });
+}
 
 // ------------------------------------------------------------
 //  7) Добавление PC-only элементов после DOM load
@@ -311,6 +311,7 @@ function handleEscape(e) {
     }
   }
   if (e.code === 'KeyR') {
+	  cleanupScene();
       initScene();
   }
 }
