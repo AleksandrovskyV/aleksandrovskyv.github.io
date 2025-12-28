@@ -34,6 +34,15 @@ html, body {
   overflow: hidden;
 }
 
+*:focus {
+  outline: none;
+}
+a,
+.text,
+.backcode {
+  outline: none;
+}
+
 .viewport {
   position: fixed;
   inset: 0;
@@ -205,6 +214,12 @@ user-select: none;
 -webkit-user-drag: none;
 }
 
+.viewport,
+.board,
+.block {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
 
 </style>
 </head>
@@ -923,21 +938,27 @@ viewport.addEventListener("touchend", e => {
 
 
 
+// делаем все потенциальные элементы нефокусируемыми
+document.querySelectorAll("a, .text, .backcode").forEach(el => {
+  el.tabIndex = -1;
+});
+
+// ESC — как в "негативах"
 function handleEscape(e) {
-  if (e.key === "Escape") {
-    if (window.location.protocol === "file:") {
-      window.location.href = "../index.html";
-    } else {
-      window.location.href = "https://vsky.space";
-    }
+  if (e.key !== "Escape") return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (window.location.protocol === "file:") {
+    window.location.href = "../index.html";
+  } else {
+    window.location.href = "https://vsky.space";
   }
 }
 
-
-
-
 // Подписываем один обработчик на оба объекта
-window.addEventListener('keydown', handleEscape);
+window.addEventListener("keydown", handleEscape, { capture: true });
 //document.addEventListener('keydown', handleEscape);
 
 window.addEventListener("pointerdown", () => {
