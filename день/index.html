@@ -560,7 +560,7 @@ html, body { width: 100%; height: 100%; background: black; }
   
 
   function updateDayTitle() {
-    const startDate = new Date("2022-02-24"); // дата отсчёта "день 1"
+    const startDate = new Date("2022-02-24"); 
     const today = new Date();
 
     // Разница в миллисекундах
@@ -568,7 +568,7 @@ html, body { width: 100%; height: 100%; background: black; }
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
     
     //document.title = `${diffDays}`;
-    oButton.textContent = `.., ${diffDays}`;
+    oButton.textContent = ` .., ${diffDays}`;
   }
 
   updateDayTitle(); // устанавливаем заголовок при загрузке страницы
