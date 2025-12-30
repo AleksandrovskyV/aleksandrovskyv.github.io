@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
 
 <meta charset="utf-8" />
@@ -195,8 +196,8 @@ body.dragging * {
 
 <button id="toMainBtn" data-href="/"><</button>
 
-<script>
 
+<script>
 (async function preloadCritical() {
   const urls = [
     "/content/trip/lock.png"
@@ -212,7 +213,6 @@ body.dragging * {
   document.body.classList.add("ready");
 })();
 </script>
-
 
 
 <script>
@@ -391,19 +391,19 @@ curtainBlocks.forEach(block => {
   document.addEventListener("touchend", dragEnd);
 });
 
-function handleEscape(e) {
+function onKeyCommand(e) {
   if (e.key === "Escape") {
     if (window.location.protocol === "file:") {
       window.location.href = "./index.html";
     } else {
-      window.history.back();
+      window.location.href = "https://vsky.space";
     }
   }
 }
 
 // Подписываем один обработчик на оба объекта
-window.addEventListener('keydown', handleEscape);
-document.addEventListener('keydown', handleEscape);
+window.addEventListener('keydown', onKeyCommand);
+document.addEventListener('keydown', onKeyCommand);
 
 toMainBtn.addEventListener('click', () => {
   let target = toMainBtn.dataset.href;

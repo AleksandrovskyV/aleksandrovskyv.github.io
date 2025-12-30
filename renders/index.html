@@ -279,9 +279,8 @@ function cleanupScene() {
 //  7) Добавление PC-only элементов после DOM load
 // ------------------------------------------------------------
 
-
+initScene();
 window.addEventListener("load", () => {
-  initScene();
   checkFullsize();
 });
 
