@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<title>триптих</title>
 
 <script>
   (function () {
@@ -18,9 +19,12 @@
   })();
 </script>
 
-<title>триптих</title>
-<link rel="icon" href="/content/favicon-32x32.png" type="image/png">
+
 <link rel="preload" as="image" href="/content/trip/lock.png">
+<link rel="preload" as="image" href="/content/trip/open.png">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 
 <style>
 body {
@@ -39,12 +43,130 @@ body:not(.ready) .container {
 
 .container {
   display: flex;
-  gap: 20px;
+  gap: 40px;
   max-width: 1600px;
   padding: 20px;
   box-sizing: border-box;
   width: 100%;
 }
+
+.block {
+  position: relative;
+  overflow: hidden;
+  flex: 1 1 0;
+  aspect-ratio: 9 / 16;
+  background-size: cover;
+  background-position: center;
+}
+
+.block img,
+.block video {
+  width: 100.1%;
+  height: 100.1%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select:none;
+  filter: drop-shadow(0 10px 35px rgba(0, 0, 0, 0.6))
+          drop-shadow(0 5px 10px rgba(0, 0, 0, 0.35));
+}
+
+/* ===== fake-video ===== */
+.video-stub {
+  width: 100.1%;
+  height: 100.1%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+
+/* ===== curtain ===== */
+.curtain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  touch-action: none;
+  transform: translateX(0);
+  transition: transform 2.00s ;
+  
+  will-change: transform;
+}
+
+.curtain,
+.curtain * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ===== overlay ===== */
+.curtain .overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  pointer-events: none;
+  transition: opacity 1s;
+  z-index: 10;
+}
+
+.curtain .overlay.hidden {
+  opacity: 0;
+}
+
+/* ===== posters ===== */
+.lock-block,
+.open-block {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  transition: opacity 1.00s;
+  width: 100.2%;
+  height: 100.2%;
+}
+
+.lock-block {
+  background-image: url(/content/trip/lock.png);
+  z-index: 3;
+}
+
+.lock-block.hidden { opacity: 0; }
+
+.open-block {
+  background-image: url(/content/trip/open.png);
+  background-size: cover;
+  background-position: center;
+  z-index: 5;
+  opacity: 0;
+}
+
+.video-block.unlocked.paused .open-block {
+  opacity: 1;
+}
+
+
+/* конструкция за шторкой */
+.constr-lottie {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+
+  left: 50%;
+  transform: translateX(-50%);
+
+  height: 100%;
+  aspect-ratio: 846 / 1280;
+
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ===== cursors ===== */
+/* pointer как fallback, если JS не сработает */
+.video-block .curtain {
+  cursor: pointer;
+}
+
+/* ===== кнопка назад ===== */
 #toMainBtn{
   position:fixed;
   display: none;
@@ -60,139 +182,58 @@ body:not(.ready) .container {
 }
 #toMainBtn:hover{opacity:0.5;}
 
-/* Общий стиль блоков */
-.block {
-  position: relative;
-  overflow: hidden;
-  flex: 1 1 0;
-  aspect-ratio: 9/16;
-  background-size: cover;
-  background-position: center;
-}
-
-.block img,
-.block video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
-}
-
-/* overlay */
-.overlay {
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity .45s;
-  z-index: 4;
-}
-
-.overlay.hidden {
-  opacity: 0;
-}
-
-.lock-block {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url(/content/trip/lock.png);
-  background-size: cover;
-  background-position: center;
-  opacity: 1;
-  pointer-events: none;
-  transition: opacity .55s;
-  z-index: 3;
-}
-.lock-block.hidden {
-  opacity: 0;
-}
-/* ::after для постера */
-.video-block::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url(/content/trip/open.png);
-  background-size: cover;
-  background-position: center;
-  opacity: 1;
-  pointer-events: none;
-  transition: opacity .55s;
-  z-index: 2;
-}
-
-.video-block.unlocked::after {
-  opacity: 1;
-}
-
-.video-block.unlocked.hover::after {
-  opacity: 0;
-}
-
-/* шторка */
-.curt-block {
-  background-image: url(/content/trip/lock.png);
-}
-
-.curtain {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: auto;
-  cursor: grab;
-  touch-action: none;
-  transform: translateX(0);
-  transition: transform .35s ease;
-  filter: drop-shadow(0 10px 35px rgba(0, 0, 0, 0.6))
-          drop-shadow(0 5px 10px rgba(0, 0, 0, 0.35));
-}
-
-.curtain img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
-}
-
-body.dragging {
-  cursor: grabbing !important;
-}
-
-body.dragging * {
-  cursor: grabbing !important;
-}
 </style>
+
 
 </head>
 <body>
 
 <div class="container">
 
-  <!-- кастомный блок с шторкой -->
-  <div class="block curt-block">
-    <img src="/content/trip/stat.png" width="720" height="1280" alt="poster" />
+  <!-- ===== VIDEO BLOCK 1 ===== -->
+  <!-- заглушка вместо video -->
+  
+  <div class="block video-block" data-video="false">
+    <img src="/content/trip/stat_alt.png" draggable="false">
+
     <div class="curtain">
-      <img src="/content/trip/lock.png" width="720" height="1280" alt="curtain" />
+      <div class="constr-lottie"></div>
+      <img class="video-stub" src="/content/trip/lock.png" width="720" height="1280" alt="poster" />
+      <div class="lock-block"></div>
+      <div class="open-block"></div>
+      <div class="overlay"></div>
     </div>
-    <div class="overlay"></div>
   </div>
 
-  <!-- видео блоки -->
-  <div class="block video-block" style="background-image:url(/content/trip/lock.png)">
-    <video src="/content/video/Bird_Web.mp4" loop poster="/content/trip/lock.png" preload="metadata"></video>
-    <div class="lock-block"></div>  
-    <div class="overlay"></div>
+  <!-- ===== VIDEO BLOCK 2 ===== -->
+
+  <div class="block video-block">
+    <img src="/content/trip/2_bird_descr.png" draggable="false">
+
+    <div class="curtain">
+      <div class="constr-lottie"></div>
+      <video src="/content/video/Bird_Web.mp4" id="VideoB" loop poster="/content/trip/lock.png" preload="metadata"></video>
+      <div class="lock-block"></div>
+      <div class="open-block"></div>
+      <div class="overlay"></div>
+    </div>
   </div>
 
-  <div class="block video-block" style="background-image:url(/content/trip/lock.png)">
-    <video src="/content/video/Cat_Web.mp4" loop poster="/content/trip/lock.png" preload="metadata"></video>
-    <div class="lock-block"></div>
-    <div class="overlay"></div>
+  <!-- ===== VIDEO BLOCK 3 ===== -->
+
+  <div class="block video-block">
+    <img src="/content/trip/3_cat_descr.png" draggable="false">
+    <div class="curtain">
+    <div class="constr-lottie"></div>
+      <video src="/content/video/Cat_Web.mp4" id="VideoC" loop poster="/content/trip/lock.png" preload="metadata"></video>
+      <div class="lock-block"></div>
+      <div class="open-block"></div>
+      <div class="overlay"></div>
+    </div>
   </div>
 
 </div>
+
 
 <button id="toMainBtn" data-href="/"><</button>
 
@@ -216,180 +257,371 @@ body.dragging * {
 
 
 <script>
-const toMainBtn = document.getElementById("toMainBtn");
-function checkFullsize() {
-  if (window.innerHeight === screen.height && window.innerWidth === screen.width) {
-    toMainBtn.style.display = "block";
+
+//const VideoBlockA = document.getElementById('VideoA');
+const VideoBlockB = document.getElementById('VideoB');
+const VideoBlockC = document.getElementById('VideoC');
+
+let LoopCompletedA = false;
+let LoopCompletedB = false;
+let LoopCompletedC = false;
+
+/*
+VideoBlockA.addEventListener("timeupdate", () => {
+  console.log(VideoBlockA.currentTime.toFixed(2), "/", VideoBlockA.duration.toFixed(2));
+});
+
+VideoBlockB.addEventListener("timeupdate", () => {
+  console.log(VideoBlockB.currentTime.toFixed(2), "/", VideoBlockB.duration.toFixed(2));
+});
+
+VideoBlockC.addEventListener("timeupdate", () => {
+  console.log(VideoBlockC.currentTime.toFixed(2), "/", VideoBlockC.duration.toFixed(2));
+});
+*/
+
+function createFakeVideo() {
+  return {
+    play() { return Promise.resolve(); },
+    pause() {},
+    addEventListener() {},
+    removeEventListener() {},
+    muted: true,
+    currentTime: 0,
+    duration: 0
+  };
+}
+
+function trackFirstLoop(video, onComplete) {
+  let lastTime = 0;
+  let completed = false;
+
+  video.addEventListener("timeupdate", () => {
+    if (completed || !video.duration) return;
+
+    const t = video.currentTime;
+    const d = video.duration;
+
+    if (lastTime > d * 0.95 && t < lastTime) {
+      completed = true;
+      onComplete(); //  ВАЖН
+      console.log("Первый цикл завершён:");
+
+    }
+
+    lastTime = t;
+  });
+}
+
+
+/* ======================================================
+   LOTTIE LOGIC
+====================================================== */
+
+
+const FRAME_MIN = 0;
+const FRAME_MAX = 180;
+const FRAME_CENTER = 90;
+
+const BASE_BLOCK_WIDTH = 720;
+const BASE_DRAG_LIMIT = 833.3;
+
+let DRAG_LIMIT = BASE_DRAG_LIMIT;
+let lastX = 0, lastY = 0;
+
+function updateDragLimit(block) {
+  const rect = block.getBoundingClientRect();
+  DRAG_LIMIT = BASE_DRAG_LIMIT * (rect.width / BASE_BLOCK_WIDTH);
+}
+
+function mapDragToFrame(x) {
+  // clamp
+  const clamped = Math.max(-DRAG_LIMIT, Math.min(DRAG_LIMIT, x));
+
+  if (clamped >= 0) {
+    // вправо: 90 → 180
+    return FRAME_CENTER +
+      (clamped / DRAG_LIMIT) * (FRAME_MAX - FRAME_CENTER);
   } else {
-    toMainBtn.style.display = "none";
+    // влево: 90 → 0
+    return FRAME_CENTER +
+      (clamped / DRAG_LIMIT) * (FRAME_CENTER - FRAME_MIN);
   }
 }
 
-checkFullsize()
 
-// ===== Global Cursor Position Tracking =====
-let mouseX = 0, mouseY = 0;
-document.addEventListener("mousemove", e => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-});
+/* ======================================================
+   VIDEO BLOCKS
+====================================================== */
 
-// Check if cursor is over element
-function isCursorOver(el) {
-  const r = el.getBoundingClientRect();
-  return mouseX >= r.left && mouseX <= r.right &&
-         mouseY >= r.top  && mouseY <= r.bottom;
-}
+document.querySelectorAll(".video-block").forEach(block => {
+  /* drag с синхронизацией hover */
+  let dragging = false, startX = 0, offset = 0;
+  let currentX = 0;
+  const getX = e => e.touches ? e.touches[0].clientX : e.clientX;
 
-// ===== State =====
-let isDraggingCurtain = false;
+  let returnRAF = null;
+  let isReturning = false;
+  let curtainEnabled = false;
 
-// ===== Elements =====
-const videoBlocks = document.querySelectorAll(".video-block");
-const curtainBlocks = document.querySelectorAll(".curt-block");
+  let isDragging = false; // локальная переменная для курсора?
 
-// ===== Cursor Manager =====
-function updateCursor(block) {
-  if (!block) return;
+  const realVideo = block.querySelector("video");
+  const hasVideo = block.dataset.video !== "false";
 
-  // unlocked → default
-  // locked   → pointer
-  block.style.cursor = block.classList.contains("unlocked")
-    ? "default"
-    : "pointer";
-}
-
-// =======================================================
-// ===============   VIDEO BLOCK LOGIC   =================
-// =======================================================
-
-videoBlocks.forEach(block => {
-  const video   = block.querySelector("video");
-  const overlay = block.querySelector(".overlay");
-  const lockBlock = block.querySelector(".lock-block");
-
-  function handleMouseEnter() {
-    if (isDraggingCurtain) return;
-
-    overlay?.classList.add("hidden");
-    updateCursor(block);
-
-    if (!block.classList.contains("unlocked")) return;
-
-    video?.play();
-    block.classList.add("hover");
-  }
-
-  function handleMouseLeave() {
-    if (isDraggingCurtain) return;
-
-    overlay?.classList.remove("hidden");
-    updateCursor(block);
-
-    if (!block.classList.contains("unlocked")) return;
-
-    video?.pause();
-    block.classList.remove("hover");
-  }
-
-  function handleClick() {
-    if (isDraggingCurtain || !video) return;
-
-    block.classList.add("unlocked");
-    updateCursor(block);
-
-    // Remove locked poster
-    if (lockBlock) lockBlock.classList.add("hidden");
-
-    video.play();
-    video.muted = false;
-    video.removeAttribute("poster");
-
-    // Restore hover state cleanly (no hacks)
-    if (isCursorOver(block)) block.classList.add("hover");
-  }
-
-  block.addEventListener("mouseenter", handleMouseEnter);
-  block.addEventListener("mouseleave", handleMouseLeave);
-  block.addEventListener("click", handleClick);
-});
-
-// =======================================================
-// ===============    CURTAIN DRAG LOGIC   ===============
-// =======================================================
-
-curtainBlocks.forEach(block => {
   const curtain = block.querySelector(".curtain");
-  const overlay = block.querySelector(".overlay");
+  const lock = block.querySelector(".lock-block");
+  const overlay = block.querySelector(".curtain .overlay");
+  const lottieContainer = block.querySelector('.constr-lottie');
 
-  let isDragging = false;
-  let startX = 0;
-  let offsetX = 0;
-  let blockWidth = block.clientWidth;
 
-  const getX = e => (e.touches ? e.touches[0].clientX : e.clientX);
+  const video = hasVideo && realVideo
+    ? realVideo
+    : createFakeVideo();
 
-  function dragStart(e) {
-    e.preventDefault();
-    isDragging = true;
-    isDraggingCurtain = true;
+
+  if (realVideo) {
+    trackFirstLoop(realVideo, () => {
+      curtainEnabled = true;
+      block.classList.add("curtain-enabled");
+      
+      // Форсируем обновление курсора
+      updateCurtainCursor(block);
+
+    });
+  } else {
+    // если fake-video (картинка) — можно сразу разрешить
+    curtainEnabled = true;
+    block.classList.add("curtain-enabled");
+  }
+
+
+  const constrAnim = lottie.loadAnimation({
+    container: lottieContainer,
+    renderer: 'svg',
+    loop: false,
+    autoplay: false,
+    path: '/content/trip/constr.json'
+  });
+
+
+  function updateCurtainCursor() {
+
+      const enabled = block.classList.contains("curtain-enabled"); 
+      const unlocked = block.classList.contains("unlocked");
+
+      // 1. До первого клика → pointer
+      if (!unlocked) {
+          curtain.style.cursor = "pointer";
+          return;
+      }
+
+      // 2. Видео играет первый цикл → default
+      if (!enabled) {
+          curtain.style.cursor = "default";
+          return;
+      }
+
+      // 3. В процессе перетягивания → grabbing
+      if (isDragging) {
+          curtain.style.cursor = "grabbing";
+          return;
+      }
+
+      // 4. После первого цикла, когда не тянем → grab
+      curtain.style.cursor = "grab";
+  }
+
+  function animateCurtainBack(curtain) {
+    if (returnRAF) cancelAnimationFrame(returnRAF);
+
+    isReturning = true;
+
+    const startX = currentX;
+    const distance = Math.abs(startX);
+    const speed = 0.2;
+    const duration = distance / speed;
+    const start = performance.now();
+
+    function step(t) {
+      if (!isReturning) return;
+
+      const p = Math.min(1, (t - start) / duration);
+      const x = startX * (1 - p);
+
+      currentX = x;
+      curtain.style.transform = `translateX(${x}px)`;
+
+      constrAnim.goToAndStop(mapDragToFrame(x), true);
+
+      if (p < 1) {
+        returnRAF = requestAnimationFrame(step);
+      } else {
+        isReturning = false;
+        currentX = 0;
+        curtain.style.transform = "translateX(0)";
+        constrAnim.goToAndStop(FRAME_CENTER, true);
+        checkMouse();
+      }
+    }
+
+    returnRAF = requestAnimationFrame(step);
+  }
+
+
+
+  function isCurtainMoving() {
+    return isDragging || isReturning;
+  }
+
+  function cursorInside() {
+    const r = block.getBoundingClientRect();
+    return lastX >= r.left && lastX <= r.right &&
+           lastY >= r.top  && lastY <= r.bottom;
+  }
+
+  function start(e) {
+   if (!curtainEnabled) return; //  запрещаем движение
+  
+   if (isReturning) {
+    isReturning = false;
+    if (returnRAF) cancelAnimationFrame(returnRAF);
+   } 
+  
+    dragging = true;
+    updateDragLimit(block);
+
+    video.pause();
+    block.classList.add("paused");
+    overlay.classList.remove("hidden");
+
+    curtain.setPointerCapture(e.pointerId);
 
     document.body.classList.add("dragging");
-
-    blockWidth = block.clientWidth;
     startX = getX(e);
-
-    const t = window.getComputedStyle(curtain).transform;
-    offsetX = t !== "none" ? parseFloat(t.split(",")[4]) : 0;
-
+    offset = currentX;
     curtain.style.transition = "none";
   }
 
-  function dragMove(e) {
-    if (!isDragging) return;
+  function move(e) {
+    if (!dragging) return;
 
     const dx = getX(e) - startX;
-    let pos = offsetX + dx;
+    
+    currentX = offset + dx;
+    curtain.style.transform = `translateX(${currentX}px)`;
 
-    pos = Math.max(-blockWidth, Math.min(blockWidth, pos));
-    curtain.style.transform = `translateX(${pos}px)`;
+    const frame = mapDragToFrame(currentX);
+    constrAnim.goToAndStop(frame, true);
   }
 
-  function dragEnd() {
-    if (!isDragging) return;
+  function checkMouse(){
+    const rect = block.getBoundingClientRect();
+    const isOver =
+      lastX >= rect.left &&
+      lastX <= rect.right &&
+      lastY >= rect.top &&
+      lastY <= rect.bottom;
 
-    isDragging = false;
-    isDraggingCurtain = false;
+      block.dispatchEvent(
+        new Event(isOver ? "mouseenter" : "mouseleave")
+      );
+  }
 
+  function dragEnd(e) {
+    if (!dragging) return;
+
+    dragging = false;
+
+
+    curtain.releasePointerCapture(e.pointerId);
     document.body.classList.remove("dragging");
 
-    curtain.style.transition = "transform .45s ease";
-    curtain.style.transform = "translateX(0)";
-    if (isCursorOver(block)) {
-        // Курсор всё ещё над блоком – overlay должен оставаться скрытым
-        overlay.classList.add('hidden');
-    } else {
-        overlay.classList.remove('hidden');
-    }
+    animateCurtainBack(curtain);
 
+    updateCurtainCursor(block);
   }
 
+  // Обновление при перемещение шторок
+
+  curtain.addEventListener("pointerdown", start);
+  document.addEventListener("mousemove", move);
+  document.addEventListener("pointerup", dragEnd);
+
+
+  // Обновление видео и overlay
+
   block.addEventListener("mouseenter", () => {
-    if (!isDraggingCurtain) overlay?.classList.add("hidden");
+    updateCurtainCursor(block);
+    if (isCurtainMoving()) return;
+
+    overlay.classList.add("hidden");
+    if (!block.classList.contains("unlocked")) return;
+
+    // запускаем текущее видео и останавливаем другие
+    block.classList.remove("paused");
+    video.play().catch(()=>{});
   });
 
   block.addEventListener("mouseleave", () => {
-    if (!isDraggingCurtain) overlay?.classList.remove("hidden");
+    updateCurtainCursor(block);
+    if (isCurtainMoving()) return;
+
+    overlay.classList.remove("hidden");
+    if (!block.classList.contains("unlocked")) return;
+
+    // ставим текущее видео на паузу
+    video.pause();
+    block.classList.add("paused");
   });
 
-  curtain.addEventListener("mousedown", dragStart);
-  document.addEventListener("mousemove", dragMove);
-  document.addEventListener("mouseup", dragEnd);
+  block.addEventListener("click", () => {
+    if (block.classList.contains("unlocked")) return;
 
-  curtain.addEventListener("touchstart", dragStart, { passive: false });
-  document.addEventListener("touchmove", dragMove, { passive: false });
-  document.addEventListener("touchend", dragEnd);
+    block.classList.add("unlocked");
+    lock.classList.add("hidden");
+    video.muted = false;
+
+    if (cursorInside()) {
+      video.play().catch(()=>{});
+    } else {
+      block.classList.add("paused");
+    }
+
+    updateCurtainCursor(block);
+  });
+
+  // Обновление курсоров
+
+  curtain.addEventListener("pointerdown", e => {
+    if (!block.classList.contains("curtain-enabled")) return;
+    isDragging = true;
+    updateCurtainCursor();
+  });
+
+  document.addEventListener("pointerup", e => {
+    if (!isDragging) return;
+    isDragging = false;
+    updateCurtainCursor();
+  });
+
+  // block.addEventListener("mousemove", updateCurtainCursor);
+
 });
+
+
+document.addEventListener("mousemove", e => {
+  lastX = e.clientX;
+  lastY = e.clientY;
+});
+
+// 100% Защита от взятия изображения как selectable объекта
+document.addEventListener("dragstart", e => {
+  e.preventDefault();
+});
+
+
+// Второстепенные функции навигации
 
 function onKeyCommand(e) {
   if (e.key === "Escape") {
@@ -401,9 +633,24 @@ function onKeyCommand(e) {
   }
 }
 
+
 // Подписываем один обработчик на оба объекта
 window.addEventListener('keydown', onKeyCommand);
 document.addEventListener('keydown', onKeyCommand);
+
+
+// Кнопка назад в Fullscreen
+const toMainBtn = document.getElementById("toMainBtn");
+
+function checkFullsize() {
+  if (window.innerHeight === screen.height && window.innerWidth === screen.width) {
+    toMainBtn.style.display = "block";
+  } else {
+    toMainBtn.style.display = "none";
+  }
+}
+
+checkFullsize()
 
 toMainBtn.addEventListener('click', () => {
   let target = toMainBtn.dataset.href;
@@ -418,9 +665,11 @@ toMainBtn.addEventListener('click', () => {
   window.location.href = target;
 });
 
+
 // Обновление кнопки при ресайзе
 window.addEventListener('resize', () => {
   checkFullsize()
+  updateDragLimit(document.querySelector('.video-block'));
 });
 
 </script>
