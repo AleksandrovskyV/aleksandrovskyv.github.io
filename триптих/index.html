@@ -7,6 +7,9 @@
 
 <title>триптих</title>
 
+<link rel="preload" as="image" href="/content/trip/lock.png">
+<link rel="preload" as="image" href="/content/trip/open.png">
+
 <script>
   (function () {
     const ua = navigator.userAgent.toLowerCase();
@@ -18,11 +21,6 @@
     }
   })();
 </script>
-
-
-<link rel="preload" as="image" href="/content/trip/lock.png">
-<link rel="preload" as="image" href="/content/trip/open.png">
-
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 
@@ -375,6 +373,8 @@ document.querySelectorAll(".video-block").forEach(block => {
   const lottieContainer = block.querySelector('.constr-lottie');
 
 
+
+
   const video = hasVideo && realVideo
     ? realVideo
     : createFakeVideo();
@@ -404,6 +404,232 @@ document.querySelectorAll(".video-block").forEach(block => {
     path: '/content/trip/constr.json'
   });
 
+  // ---------------------- CurtainSoundController ----------------------
+  class CurtainSoundController {
+    constructor() {
+      // аудио-файлы (по одному экземпляру на блок)
+      this.gearsIn = new Audio('/content/audio/roll_gears_in.wav');
+      this.gearsIn.preload = 'auto';
+      this.gearsIn.loop = false;
+
+      this.gearsLoop = new Audio('/content/audio/roll_gears_loop.wav');
+      this.gearsLoop.preload = 'auto';
+      this.gearsLoop.loop = true;
+      this.gearsLoop.volume = 0.8;
+
+      this.curtainOut = new Audio('/content/audio/roll_gears_out.wav');
+      this.curtainOut.preload = 'auto';
+      this.curtainOut.loop = false;
+      this.curtainOut.volume = 1.0;
+
+      this.lastMoveTime = 0;
+      this.lastMoveX = 0;
+
+      // thresholds / tuning
+      this.START_SPEED_THRESHOLD = 0.6; // px/ms — для _in (намерение)
+      this.MOVE_EPSILON = 0.5; // px — для фикса движения (loop)
+      this.MOVE_SILENCE_TIMEOUT = 80; // ms — таймер «тишины» для остановки loop
+      this.LOOP_FADE_MS = 500; // ms — fade при остановке loop
+
+      // state
+      this.gearsInAllowed = true; // разрешение на _in (сбрасывается в finalize)
+      this.dragStartedForIn = false; // только для _in (ev)
+      this.hasUserMovement = false; // для loop (state)
+      this.isLoopPlaying = false;
+
+      // internal timers / raf
+      this.moveSilenceTimer = null;
+      this.loopFadeRAF = null;
+      this.loopFadeStartVol = this.gearsLoop.volume;
+      this.scheduledTimeout = null; // для curtainOut
+      this.curtainFadeInterval = null; // оставляем для curtainOut fade logic, если нужно
+    }
+
+    // отменить любые запланированные запуски return audio
+    clearScheduledCurtain() {
+      if (this.scheduledTimeout) {
+        clearTimeout(this.scheduledTimeout);
+        this.scheduledTimeout = null;
+      }
+    }
+
+    // play curtain out with offset (call from outer schedule)
+    playCurtainFrom(offsetSec = 0) {
+      this.clearScheduledCurtain();
+      try { this.curtainOut.currentTime = offsetSec; } catch (e) {}
+      this.curtainOut.play().catch(()=>{});
+    }
+
+    // schedule for return (same behaviour как раньше)
+    scheduleCurtainForReturn(delaySec, offsetIfEarly = 0) {
+      this.clearScheduledCurtain();
+      if (delaySec > 0) {
+        this.scheduledTimeout = setTimeout(() => this.playCurtainFrom(0), Math.round(delaySec * 1000));
+      } else {
+        this.playCurtainFrom(offsetIfEarly);
+      }
+    }
+
+    // fade out loop over ms (cancellation safe)
+    fadeOutLoop(durationMs = this.LOOP_FADE_MS) {
+      if (!this.isLoopPlaying) return;
+      if (this.loopFadeRAF) {
+        cancelAnimationFrame(this.loopFadeRAF);
+        this.loopFadeRAF = null;
+      }
+
+      const startVol = this.gearsLoop.volume || this.loopFadeStartVol;
+      const start = performance.now();
+
+      const step = (t) => {
+        const p = Math.min(1, (t - start) / durationMs);
+        this.gearsLoop.volume = startVol * (1 - p);
+        if (p < 1) {
+          this.loopFadeRAF = requestAnimationFrame(step);
+        } else {
+          try {
+            this.gearsLoop.pause();
+            this.gearsLoop.currentTime = 0;
+          } catch (e) {}
+          this.gearsLoop.volume = startVol;
+          this.isLoopPlaying = false;
+          this.loopFadeRAF = null;
+        }
+      };
+      this.loopFadeRAF = requestAnimationFrame(step);
+    }
+
+    // immediate stop (no fade) — use rarely
+    stopLoopNow() {
+      if (this.loopFadeRAF) { cancelAnimationFrame(this.loopFadeRAF); this.loopFadeRAF=null; }
+      try { this.gearsLoop.pause(); this.gearsLoop.currentTime = 0; } catch(e){}
+      this.isLoopPlaying = false;
+      if (this.moveSilenceTimer) { clearTimeout(this.moveSilenceTimer); this.moveSilenceTimer = null; }
+    }
+
+    // stop loop politely (fade + clear timer)
+    stopLoopPolite() {
+      if (this.moveSilenceTimer) { clearTimeout(this.moveSilenceTimer); this.moveSilenceTimer = null; }
+      this.fadeOutLoop(this.LOOP_FADE_MS);
+    }
+
+    // reset states (on pointerdown)
+    onStart() {
+      // user begins an interaction: reset movement/in flags; stop loop if it played
+      this.hasUserMovement = false;
+      this.dragStartedForIn = false;
+      this.lastMoveTime = performance.now();
+      this.lastMoveX = null;
+      if (this.isLoopPlaying) this.stopLoopNow();
+      // also cancel any scheduled curtain out
+      this.clearScheduledCurtain();
+    }
+
+    // call on every pointermove with (newX, lastX, speedPxPerMs)
+    onMove(newX) {
+      const now = performance.now();
+
+      // если это первое движение — просто инициализируем базу
+      if (this.lastMoveX === null) {
+        this.lastMoveX = newX;
+        this.lastMoveTime = now;
+        return;
+      }
+
+      const dx = Math.abs(newX - this.lastMoveX);
+      const dt = now - this.lastMoveTime;
+      const speed = dt > 0 ? dx / dt : 0; // px / ms
+
+      // 1️⃣ фиксируем факт реального движения (для loop)
+      if (!this.hasUserMovement && dx > this.MOVE_EPSILON) {
+        this.hasUserMovement = true;
+      }
+
+      // 2️⃣ стартовый звук (_in) — эвент, зависит от скорости
+      if (
+        !this.dragStartedForIn &&
+        this.gearsInAllowed &&
+        speed > this.START_SPEED_THRESHOLD
+      ) {
+        this.dragStartedForIn = true;
+        this.gearsInAllowed = false;
+
+        try { this.gearsIn.currentTime = 0; } catch (e) {}
+        this.gearsIn.play().catch(() => {});
+      }
+
+      // 3️⃣ loop — состояние, зависит ТОЛЬКО от hasUserMovement
+      if (this.hasUserMovement && !this.isLoopPlaying) {
+        // отменяем fade, если он шёл
+        if (this.loopFadeRAF) {
+          cancelAnimationFrame(this.loopFadeRAF);
+          this.loopFadeRAF = null;
+        }
+
+        this.gearsLoop.volume = this.loopFadeStartVol;
+        try { this.gearsLoop.currentTime = 0; } catch (e) {}
+        this.gearsLoop.play().catch(() => {});
+        this.isLoopPlaying = true;
+      }
+
+      // 4️⃣ таймер тишины движения → плавно глушим loop
+      if (this.moveSilenceTimer) {
+        clearTimeout(this.moveSilenceTimer);
+        this.moveSilenceTimer = null;
+      }
+
+      this.moveSilenceTimer = setTimeout(() => {
+        if (this.isLoopPlaying) {
+          this.fadeOutLoop(this.LOOP_FADE_MS);
+        }
+        this.moveSilenceTimer = null;
+      }, this.MOVE_SILENCE_TIMEOUT);
+
+      // 5️⃣ обновляем внутреннее состояние
+      this.lastMoveX = newX;
+      this.lastMoveTime = now;
+    }
+
+
+    // call when pointer released (dragEnd)
+    onEnd() {
+      // user stopped dragging — fade the loop politely
+      this.stopLoopPolite();
+      // dragStartedForIn remains false until next cycle allowed by finalize()
+    }
+
+    // call when we start returning (user released and animate starts)
+    onReturnStart() {
+      // during return stop loop and cancel its timers; also fade curtain out playback handled externally
+      this.stopLoopPolite();
+    }
+
+    // call when return animation finished (finalize)
+    onReturnEnd() {
+      // allow next _in sound
+      this.gearsInAllowed = true;
+      this.dragStartedForIn = false;
+      this.hasUserMovement = false;
+    }
+
+    // optional: external API to schedule curtain out same as previous logic
+    scheduleCurtainReturn(T_end_sec) {
+      const target = 160 / 60;
+      const s = T_end_sec - target;
+      if (s > 0) {
+        // wait s seconds, then play from 0
+        this.clearScheduledCurtain();
+        this.scheduledTimeout = setTimeout(()=> this.playCurtainFrom(0), Math.round(s*1000));
+      } else {
+        // play immediately with offset -s
+        const offset = Math.max(0, -s);
+        this.playCurtainFrom(offset);
+      }
+    }
+  }
+  // --------------------------------------------------------------------
+
+  const sound = new CurtainSoundController();
 
   function updateCurtainCursor() {
 
@@ -443,6 +669,9 @@ document.querySelectorAll(".video-block").forEach(block => {
     const duration = distance / speed;
     const start = performance.now();
 
+    sound.onReturnStart();
+    sound.scheduleCurtainReturn(duration / 1000);
+
     function step(t) {
       if (!isReturning) return;
 
@@ -462,6 +691,9 @@ document.querySelectorAll(".video-block").forEach(block => {
         curtain.style.transform = "translateX(0)";
         constrAnim.goToAndStop(FRAME_CENTER, true);
         checkMouse();
+
+        sound.onReturnEnd();
+
       }
     }
 
@@ -497,6 +729,8 @@ document.querySelectorAll(".video-block").forEach(block => {
 
     curtain.setPointerCapture(e.pointerId);
 
+    sound.onStart();
+
     document.body.classList.add("dragging");
     startX = getX(e);
     offset = currentX;
@@ -504,16 +738,22 @@ document.querySelectorAll(".video-block").forEach(block => {
   }
 
   function move(e) {
-    if (!dragging) return;
+    if (!dragging || isReturning) return;
 
-    const dx = getX(e) - startX;
-    
-    currentX = offset + dx;
+    const x = getX(e);
+    const dx = x - startX;
+    const newX = offset + dx;
+
+    sound.onMove(newX);
+
+    currentX = newX;
     curtain.style.transform = `translateX(${currentX}px)`;
 
     const frame = mapDragToFrame(currentX);
     constrAnim.goToAndStop(frame, true);
   }
+
+
 
   function checkMouse(){
     const rect = block.getBoundingClientRect();
@@ -536,6 +776,8 @@ document.querySelectorAll(".video-block").forEach(block => {
 
     curtain.releasePointerCapture(e.pointerId);
     document.body.classList.remove("dragging");
+
+    sound.onEnd();
 
     animateCurtainBack(curtain);
 
