@@ -578,20 +578,20 @@ thisComp.hideShyLayers = true; //Скрывает все невыделенны�
 </div>
 
 <!-- secrets imgs  -->
-<div class="block drag" data-state="secret" style="left: 10400px;   top: 1504.49px; transform: rotate(890deg); "><img src="/content/wolumes/v6.png" style="width:356px; height:auto" ></div>
-<div class="block drag" data-state="secret" style="left: 10173px;   top: 652.125px; transform: rotate(10deg);  "><img src="/content/wolumes/v5.png" style="width:359px; height:auto" ></div>
-<div class="block drag" data-state="secret" style="left: 4689.74px; top: 1684.67px; transform: rotate(68deg);  "><img src="/content/wolumes/v4.png" style="width:526px; height:auto" ></div>
-<div class="block drag" data-state="secret" style="left: 10690px;   top: 1899.57px;                            "><img src="/content/wolumes/v3.png" style="width:500px; height:auto" ></div>
-<div class="block drag" data-state="secret" style="left: 7059.69px; top: 1504.8px;  transform: rotate(195deg); "><img src="/content/wolumes/v2.png" style="width:412px; height:auto" ></div>
-<div class="block drag" data-state="secret" style="left: 10957.3px; top: 1944.34px;                            "><img src="/content/wolumes/v1.png" style="width:310px; height:auto" ></div>
+<div class="block drag" data-state="secret" style="left: 10400px;   top: 1504.49px; transform: rotate(890deg); "><img src="/content/wolumes/v6.png" style="width:356px; height:auto; display: none; " ></div>
+<div class="block drag" data-state="secret" style="left: 10173px;   top: 652.125px; transform: rotate(10deg);  "><img src="/content/wolumes/v5.png" style="width:359px; height:auto; display: none; " ></div>
+<div class="block drag" data-state="secret" style="left: 4689.74px; top: 1684.67px; transform: rotate(68deg);  "><img src="/content/wolumes/v4.png" style="width:526px; height:auto; display: none; " ></div>
+<div class="block drag" data-state="secret" style="left: 10690px;   top: 1899.57px;                            "><img src="/content/wolumes/v3.png" style="width:500px; height:auto; display: none; " ></div>
+<div class="block drag" data-state="secret" style="left: 7059.69px; top: 1504.8px;  transform: rotate(195deg); "><img src="/content/wolumes/v2.png" style="width:412px; height:auto; display: none; " ></div>
+<div class="block drag" data-state="secret" style="left: 10957.3px; top: 1944.34px;                            "><img src="/content/wolumes/v1.png" style="width:310px; height:auto; display: none; " ></div>
 
 <div class="block image b" style="left:5313px; top:1212.64px;"><img src="/content/wolumes/aiga.png" style="width:63px; height:115px;"></div>
-<div class="block image b" style="left:5227px; top:1212.64px;"><img src="/content/wolumes/ae.png" style="width:63px; height:115px;"></div>
-<div class="block image b" style="left:5142px; top:1212.64px;"><img src="/content/wolumes/mo.png" style="width:63px; height:115px;"></div>
-<div class="block image b" style="left:5057px; top:1212.64px;"><img src="/content/wolumes/gr.png" style="width:63px; height:115px;"></div>
+<div class="block image b" style="left:5227px; top:1212.64px;"><img src="/content/wolumes/ae.png"   style="width:63px; height:115px;"></div>
+<div class="block image b" style="left:5142px; top:1212.64px;"><img src="/content/wolumes/mo.png"   style="width:63px; height:115px;"></div>
+<div class="block image b" style="left:5057px; top:1212.64px;"><img src="/content/wolumes/gr.png"   style="width:63px; height:115px;"></div>
 
-<div class="block image" style="left:10872px; top:1502.64px;"><img src="/content/wolumes/w39.png" style="width:960px; height:auto;"></div>
-<div class="block image" style="left:4590px; top:1700px;"><img src="/content/wolumes/w40.png" style="width:638px; height:auto;"></div>
+<div class="block image" style="left:10872px; top:1502.64px;" ><img src="/content/wolumes/w39.png"  style="width:960px; height:auto;"></div>
+<div class="block image" style="left:4590px;  top:1700px;"    ><img src="/content/wolumes/w40.png"  style="width:638px; height:auto;"></div>
 
 <div class="block image" style="left:7751px; top:555.64px;"><img src="/content/wolumes/w6.png" style="width:207px; height:367px;"></div>
 <div class="block image" style="left:7978px; top:556.64px;"><img src="/content/wolumes/w7.png" style="width:207px; height:367px;"></div>
@@ -658,6 +658,7 @@ thisComp.hideShyLayers = true; //Скрывает все невыделенны�
 <script>
 const board = document.getElementById("board");
 const viewport = document.getElementById("viewport");
+const secretElements = document.querySelectorAll('[data-state="secret"]');
 
 let offsetX = -1540;
 let offsetY = 200;
