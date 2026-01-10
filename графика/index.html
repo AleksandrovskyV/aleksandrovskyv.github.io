@@ -19,373 +19,248 @@
 
 <title>графика</title>
 
-
 <style>
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.viewport {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background:#eaeaea;
-  touch-action: none;
-  cursor:grab;
-}
-
-.viewport.grabbing {
-  cursor: grabbing;
-}
-
-.board{
-position:absolute;
-width:5000px;
-height:5000px;
-transform-origin:0 0;
-isolation: auto; /* Позволяет смешиваться с тем, что под ним */
-}
-
-.block{
-position:absolute;
-mix-blend-mode: multiply; 
-}
-
-.image{
-user-select:none;
-pointer-events:auto;
-}
-
-.image img{
-display:block;
-width: 100%;
-border-radius:0px;
-user-select: none;
--webkit-user-select: none;
--webkit-user-drag: none;
-}
-
-.drag img{
-user-select: none;
--webkit-user-select: none;
--webkit-user-drag: none;
-}
-.drag:active {
-  cursor: grabbing;
-}
-
+  html,body { width:100%;height:100%;margin:0;background:#dbd5d7; }
+  #canvas { width:100%; height:100%; display:block; touch-action: none; cursor: grab; }
+  #canvas.grabbing { cursor: grabbing; }
 </style>
 </head>
-
 <body>
-<div class="viewport" id="viewport">
-<div class="board" id="board" >
-
-
-<div class="block drag" style="left:7751px;  top:555.64px;"  ><img  src="/content/graphics/g1.png" style="width:207px; height:auto; "></div>
-<div class="block drag" style="left:7978px;  top:556.64px;"  ><img  src="/content/graphics/g2.png" style="width:207px; height:auto; "></div>
-
-
-</div>
-</div>
+<canvas id="canvas"></canvas>
 
 <script>
-const board = document.getElementById("board");
-const viewport = document.getElementById("viewport");
-const secretElements = document.querySelectorAll('[data-state="secret"]');
+(() => {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d', { alpha: false }); // alpha false slightly faster
+  let dpr = Math.max(1, window.devicePixelRatio || 1);
 
-let offsetX = -1540;
-let offsetY = 200;
-let scale = 0.4;
+  // === сцена / карточки (замени src на свои) ===
+  const layersData = [
+    { src: '/content/graphics/g1.png', x: 600, y: 150,  w: 600, h: null },
+    { src: '/content/graphics/g2.png', x: 202, y: -50,    w: 600, h: null }
+  ];
 
+  // board/world размер — можно установить большой:
+  const WORLD_W = 14000;
+  const WORLD_H = 5000;
 
-/* =======================
-   BOARD TRANSFORM
-======================= */
-function updateBoard() {
-  board.style.transform = `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
-}
+  // камера (в screen-пикселях)
+  const camera = { x: 0, y: 0, scale: 1.0 };
 
-updateBoard();
+  // загруженные изображения
+  const layers = []; // {img, x,y,w,h,src}
+  let imagesToLoad = layersData.length;
+  let isReady = false;
 
-/* =======================
-   MOUSE – BOARD PAN
-======================= */
-let mousePanning = false;
-let mouseStartX = 0;
-let mouseStartY = 0;
+  // хит-тест: будем проверять по прямоугольнику слоя
+  function worldToScreen(wx, wy) {
+    return {
+      sx: wx * camera.scale + camera.x,
+      sy: wy * camera.scale + camera.y
+    };
+  }
+  function screenToWorld(sx, sy) {
+    return {
+      wx: (sx - camera.x) / camera.scale,
+      wy: (sy - camera.y) / camera.scale
+    };
+  }
 
-viewport.addEventListener("mousedown", e => {
-  if (e.target.closest(".block.drag")) return;
-  if (e.target.closest(".text") || e.target.closest(".backcode")) return;
+  // resize canvas
+  function resize() {
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+    const cssW = canvas.clientWidth || innerWidth;
+    const cssH = canvas.clientHeight || innerHeight;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // scale for high DPI
+    draw();
+  }
+  window.addEventListener('resize', resize);
 
-  mousePanning = true;
-  viewport.classList.add("grabbing");
-
-  mouseStartX = e.clientX - offsetX;
-  mouseStartY = e.clientY - offsetY;
-});
-
-
-
-window.addEventListener("mousemove", e => {
-  if (!mousePanning) return;
-  offsetX = e.clientX - mouseStartX;
-  offsetY = e.clientY - mouseStartY;
-  updateBoard();
-});
-
-window.addEventListener("mouseup", () => {
-  mousePanning = false;
-  viewport.classList.remove("grabbing");
-});
-
-/* =======================
-   MOUSE – BLOCK DRAG
-======================= */
-let dragItem = null;
-let dragStartX = 0;
-let dragStartY = 0;
-let itemStartLeft = 0;
-let itemStartTop = 0;
-
-document.querySelectorAll(".block.drag").forEach(el => {
-  el.addEventListener("mousedown", e => {
-    e.stopPropagation();
-    dragItem = el;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    itemStartLeft = parseFloat(el.style.left) || 0;
-    itemStartTop  = parseFloat(el.style.top)  || 0;
+  // load images
+  layersData.forEach(ld => {
+    const img = new Image();
+    img.src = ld.src;
+    img.onload = () => {
+      // determine size: keep aspect ratio, if height null use natural
+      const w = ld.w || img.naturalWidth;
+      const h = ld.h || Math.round(img.naturalHeight * (w / img.naturalWidth));
+      layers.push({ img, x: ld.x, y: ld.y, w, h, src: ld.src });
+      imagesToLoad--;
+      if (imagesToLoad === 0) {
+        isReady = true;
+        resize();
+      }
+    };
+    img.onerror = () => {
+      console.warn('img load error', ld.src);
+      imagesToLoad--;
+      if (imagesToLoad === 0) {
+        isReady = true;
+        resize();
+      }
+    };
   });
-});
 
-window.addEventListener("mousemove", e => {
-  if (!dragItem) return;
-  const dx = (e.clientX - dragStartX) / scale;
-  const dy = (e.clientY - dragStartY) / scale;
-  dragItem.style.left = itemStartLeft + dx + "px";
-  dragItem.style.top  = itemStartTop  + dy + "px";
-});
+  // drawing loop (immediate draw)
+  function draw() {
+    // clear full canvas (in CSS px)
+    ctx.save();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // ensure device scaling
+    ctx.fillStyle = '#dbd5d7'; // default base to avoid artifacts
+    ctx.fillRect(0,0, canvas.width / dpr, canvas.height / dpr);
 
-window.addEventListener("mouseup", () => {
-  dragItem = null;
-});
-
-/* =======================
-   MOUSE – WHEEL
-======================= */
-const blockState = new WeakMap();
-
-viewport.addEventListener("wheel", e => {
-  const block = e.target.closest(".block.drag");
-
-  if (block) {
-    e.preventDefault();
-    if (!blockState.has(block)) {
-      blockState.set(block, { scale: 1, rotation: 0 });
-    }
-    const state = blockState.get(block);
-    state.rotation += e.deltaY > 0 ? 5 : -5;
-    block.style.transform =
-      `scale(${state.scale}) rotate(${state.rotation}deg)`;
-    return;
-  }
-
-  e.preventDefault();
-  const prevScale = scale;
-  scale *= e.deltaY > 0 ? 0.9 : 1.1;
-  scale = Math.min(Math.max(scale, 0.2), 4);
-
-  const rect = viewport.getBoundingClientRect();
-  const cx = e.clientX - rect.left;
-  const cy = e.clientY - rect.top;
-
-  offsetX = cx - (cx - offsetX) * (scale / prevScale);
-  offsetY = cy - (cy - offsetY) * (scale / prevScale);
-  updateBoard();
-}, { passive: false });
-
-/* =======================
-   TOUCH HELPERS
-======================= */
-function dist(t) {
-  const dx = t[0].clientX - t[1].clientX;
-  const dy = t[0].clientY - t[1].clientY;
-  return Math.hypot(dx, dy);
-}
-
-function angle(t) {
-  return Math.atan2(
-    t[1].clientY - t[0].clientY,
-    t[1].clientX - t[0].clientX
-  ) * 180 / Math.PI;
-}
-
-/* =======================
-   TOUCH STATE
-======================= */
-let activeBlock = null;
-let blockStartDist = 0;
-let blockStartAngle = 0;
-let blockStartScale = 1;
-let blockStartRotation = 0;
-
-let touchPan = false;
-let panStartX = 0;
-let panStartY = 0;
-
-let pinchStartDist = 0;
-let pinchStartScale = 1;
-let pinchCenterX = 0;
-let pinchCenterY = 0;
-let pinchBoardX = 0;
-let pinchBoardY = 0;
-
-/* =======================
-   TOUCHSTART
-======================= */
-viewport.addEventListener("touchstart", e => {
-  const block = e.target.closest(".block.drag");
-
-  if (block) {
-    e.preventDefault();
-    activeBlock = block;
-
-    if (!blockState.has(block)) {
-      blockState.set(block, { scale: 1, rotation: 0 });
-    }
-    const state = blockState.get(block);
-
-    if (e.touches.length === 1) {
-      dragItem = block;
-      dragStartX = e.touches[0].clientX;
-      dragStartY = e.touches[0].clientY;
-      itemStartLeft = parseFloat(block.style.left) || 0;
-      itemStartTop  = parseFloat(block.style.top)  || 0;
+    if (!isReady) {
+      // loading placeholder
+      ctx.fillStyle = '#aaa';
+      ctx.fillRect(0,0, canvas.width / dpr, canvas.height / dpr);
+      ctx.fillStyle = '#000';
+      ctx.fillText('Loading...', 20, 30);
+      ctx.restore();
+      return;
     }
 
-    if (e.touches.length === 2) {
-      blockStartDist = dist(e.touches);
-      blockStartAngle = angle(e.touches);
-      blockStartScale = state.scale;
-      blockStartRotation = state.rotation;
+    // apply camera transform (in CSS pixels)
+    ctx.setTransform(camera.scale * dpr, 0, 0, camera.scale * dpr, camera.x * dpr, camera.y * dpr);
+
+    // draw background of the world (this is the backdrop for multiply)
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#dbd5d7';
+    // Draw a large rect covering world coords
+    ctx.fillRect(-1000, -1000, WORLD_W + 3000, WORLD_H + 3000);
+
+    // now draw layers with multiply
+    ctx.globalCompositeOperation = 'multiply';
+    for (let i = 0; i < layers.length; i++) {
+      const L = layers[i];
+      ctx.drawImage(L.img, L.x, L.y, L.w, L.h);
     }
-    return;
+
+    // restore to default
+    ctx.globalCompositeOperation = 'source-over';
+
+    // optionally draw outlines for debugging (screen-space)
+    ctx.setTransform(1 * dpr, 0, 0, 1 * dpr, 0, 0);
+    // draw camera debug rect
+    // ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    // ctx.strokeRect(0,0, canvas.width/dpr, canvas.height/dpr);
+
+    ctx.restore();
   }
 
-  if (e.touches.length === 1) {
-    touchPan = true;
-    panStartX = e.touches[0].clientX - offsetX;
-    panStartY = e.touches[0].clientY - offsetY;
+  // Interaction: pan whole world vs drag layers
+  let pointerDown = false;
+  let lastPointer = { x: 0, y: 0 };
+  let activeDrag = null; // {layer, offsetWx, offsetWy}
+  let panning = false;
+
+  function getTopLayerAtScreen(sx, sy) {
+    const { wx, wy } = screenToWorld(sx, sy);
+    // iterate from top (last drawn) to bottom
+    for (let i = layers.length - 1; i >= 0; i--) {
+      const L = layers[i];
+      if (wx >= L.x && wx <= L.x + L.w && wy >= L.y && wy <= L.y + L.h) {
+        return { L, idx: i };
+      }
+    }
+    return null;
   }
 
-  if (e.touches.length === 2) {
-    touchPan = false; 
+  canvas.addEventListener('pointerdown', e => {
     e.preventDefault();
+    canvas.setPointerCapture(e.pointerId);
+    canvas.classList.add('grabbing');
+    pointerDown = true;
+    lastPointer.x = e.clientX;
+    lastPointer.y = e.clientY;
 
-    pinchStartDist = dist(e.touches);
-    pinchStartScale = scale;
+    // determine if pointer hits a layer
+    const hit = getTopLayerAtScreen(e.clientX, e.clientY);
+    if (hit) {
+      // start layer drag
+      const { wx, wy } = screenToWorld(e.clientX, e.clientY);
+      activeDrag = {
+        layerIndex: hit.idx,
+        offsetWx: wx - hit.L.x,
+        offsetWy: wy - hit.L.y
+      };
+      panning = false;
+    } else {
+      // start panning
+      panning = true;
+      activeDrag = null;
+    }
+  });
 
-    pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-    pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+  canvas.addEventListener('pointermove', e => {
+    if (!pointerDown) return;
+    const dx = e.clientX - lastPointer.x;
+    const dy = e.clientY - lastPointer.y;
+    lastPointer.x = e.clientX;
+    lastPointer.y = e.clientY;
 
-    pinchBoardX = (pinchCenterX - offsetX) / scale;
-    pinchBoardY = (pinchCenterY - offsetY) / scale;
-  }
-}, { passive: false });
+    if (activeDrag) {
+      // move layer in world coords
+      const { wx, wy } = screenToWorld(e.clientX, e.clientY);
+      const L = layers[activeDrag.layerIndex];
+      L.x = wx - activeDrag.offsetWx;
+      L.y = wy - activeDrag.offsetWy;
+      draw();
+      return;
+    }
 
-/* =======================
-   TOUCHMOVE
-======================= */
-viewport.addEventListener("touchmove", e => {
+    if (panning) {
+      // update camera translation in screen pixels
+      camera.x += dx;
+      camera.y += dy;
+      draw();
+      return;
+    }
+  });
 
-  if (activeBlock && e.touches.length === 2) {
+  canvas.addEventListener('pointerup', e => {
+    pointerDown = false;
+    activeDrag = null;
+    panning = false;
+    canvas.releasePointerCapture(e.pointerId);
+    canvas.classList.remove('grabbing');
+  });
+
+  // wheel -> zoom (centered on cursor)
+  canvas.addEventListener('wheel', e => {
     e.preventDefault();
-    const state = blockState.get(activeBlock);
-    state.scale = blockStartScale * (dist(e.touches) / blockStartDist);
-    state.rotation = blockStartRotation + (angle(e.touches) - blockStartAngle);
-    activeBlock.style.transform =
-      `scale(${state.scale}) rotate(${state.rotation}deg)`;
-    return;
-  }
+    if (!isReady) return;
 
-  if (dragItem && e.touches.length === 1) {
-    e.preventDefault();
-    const dx = (e.touches[0].clientX - dragStartX) / scale;
-    const dy = (e.touches[0].clientY - dragStartY) / scale;
-    dragItem.style.left = itemStartLeft + dx + "px";
-    dragItem.style.top  = itemStartTop  + dy + "px";
-    return;
-  }
+    const wheel = e.deltaY;
+    const zoomFactor = wheel > 0 ? 0.92 : 1.08;
+    // screen point
+    const sx = e.clientX;
+    const sy = e.clientY;
+    // world point under cursor before zoom
+    const before = screenToWorld(sx, sy);
 
-  if (touchPan && e.touches.length === 1) {
-    e.preventDefault();
-    offsetX = e.touches[0].clientX - panStartX;
-    offsetY = e.touches[0].clientY - panStartY;
-    updateBoard();
-    return;
-  }
+    // apply zoom
+    const newScale = Math.min(Math.max(camera.scale * zoomFactor, 0.15), 4);
 
-  if (e.touches.length === 2 && pinchStartDist) {
-    e.preventDefault();
-    scale = pinchStartScale * (dist(e.touches) / pinchStartDist);
-    scale = Math.min(Math.max(scale, 0.15), 4);
-    const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-    const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    camera.scale = newScale;
 
-    offsetX = cx - pinchBoardX * scale;
-    offsetY = cy - pinchBoardY * scale;
-    updateBoard();
-  }
-}, { passive: false });
+    // recompute camera.x,y so that before world point remains under cursor
+    camera.x = sx - before.wx * camera.scale;
+    camera.y = sy - before.wy * camera.scale;
 
-/* =======================
-   TOUCHEND
-======================= */
-viewport.addEventListener("touchend", e => {
-  if (e.touches.length === 0) {
-    dragItem = null;
-    activeBlock = null;
-    touchPan = false;
-    pinchStartDist = 0;
-  }
-}, { passive: false });
+    draw();
+  }, { passive: false });
 
+  // touch pinch could be added — omitted for brevity
 
+  // initial camera placement (optional)
+  camera.x = window.innerWidth / 2 - 700 * camera.scale; // center-ish
+  camera.y = window.innerHeight / 2 - 300 * camera.scale;
 
-// делаем все потенциальные элементы нефокусируемыми
-document.querySelectorAll("a, .text, .backcode").forEach(el => {
-  el.tabIndex = -1;
-});
-
-// ESC — как в "негативах"
-function onKeyCommand(e) {
-  if (e.key !== "Escape") return;
-
-  e.preventDefault();
-  e.stopPropagation();
-
-  if (window.location.protocol === "file:") {
-    window.location.href = "../index.html";
-  } else {
-    window.location.href = "https://vsky.space";
-  }
-}
-
-window.addEventListener("keydown", onKeyCommand, { capture: true });
-
-window.addEventListener("pointerdown", () => {
-  window.focus();
-});
-
+  // kickoff
+  resize();
+})();
 </script>
-
-
-
-
-</body></html>
+</body>
+</html>
