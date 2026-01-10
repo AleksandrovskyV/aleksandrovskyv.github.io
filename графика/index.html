@@ -261,6 +261,29 @@
   // kickoff
   resize();
 })();
+
+
+
+// ESC — как в "негативах"
+function onKeyCommand(e) {
+  if (e.key !== "Escape") return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (window.location.protocol === "file:") {
+    window.location.href = "../index.html";
+  } else {
+    window.location.href = "https://vsky.space";
+  }
+}
+
+window.addEventListener("keydown", onKeyCommand, { capture: true });
+
+window.addEventListener("pointerdown", () => {
+  window.focus();
+});
+
 </script>
 </body>
 </html>

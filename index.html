@@ -412,6 +412,13 @@ function onKeyCommand(e) {
       window.location.href = "./renders";
     }
   }
+  if (e.code === 'KeyG') {
+    if (window.location.protocol === "file:") {
+      window.location.href = "./графика/index.html";
+    } else {
+      window.location.href = "./графика";
+    }
+  }
   if (e.code === 'KeyH') {
     if (window.location.protocol === "file:") {
       window.location.href = "./негативы/index.html";
