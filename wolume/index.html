@@ -959,6 +959,52 @@ window.addEventListener("pointerdown", () => {
 
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // 1. все img, КРОМЕ secret
+  const mainImages = Array.from(document.images).filter(img =>
+    !img.closest('[data-state="secret"]')
+  );
+
+  // 2. все secret img
+  const secretImages = document.querySelectorAll('[data-state="secret"] img');
+
+  let loadedCount = 0;
+  const total = mainImages.length;
+
+  function onMainImageDone() {
+    loadedCount++;
+
+    if (loadedCount === total) {
+      revealSecrets();
+    }
+  }
+
+  function revealSecrets() {
+    secretImages.forEach(img => {
+      img.style.display = "block";
+      img.classList.add("visible");
+    });
+  }
+
+  // 3. отслеживание загрузки
+  if (total === 0) {
+    revealSecrets();
+    return;
+  }
+
+  mainImages.forEach(img => {
+    if (img.complete && img.naturalWidth !== 0) {
+      onMainImageDone();
+    } else {
+      img.addEventListener("load", onMainImageDone, { once: true });
+      img.addEventListener("error", onMainImageDone, { once: true });
+    }
+  });
+
+});
+</script>
 
 
 </body></html>
