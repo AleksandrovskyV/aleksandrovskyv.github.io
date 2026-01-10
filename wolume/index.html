@@ -64,6 +64,8 @@ position:absolute;
   position: absolute;
   pointer-events: none; 
   z-index: -2;
+  overflow: hidden;
+  user-select: none;
 }
 
 
@@ -937,6 +939,10 @@ document.querySelectorAll("a, .text, .backcode").forEach(el => {
   el.tabIndex = -1;
 });
 
+document.addEventListener("dragstart", e => {
+  e.preventDefault();
+});
+
 // ESC — как в "негативах"
 function onKeyCommand(e) {
   if (e.key !== "Escape") return;
@@ -956,6 +962,7 @@ window.addEventListener("keydown", onKeyCommand, { capture: true });
 window.addEventListener("pointerdown", () => {
   window.focus();
 });
+
 
 </script>
 
