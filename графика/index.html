@@ -33,7 +33,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background:#ffffff;
+  background:#eaeaea;
   touch-action: none;
   cursor:grab;
 }
@@ -48,6 +48,7 @@ width:5000px;
 height:5000px;
 transform-origin:0 0;
 }
+
 .block{
 position:absolute;
 }
@@ -62,9 +63,11 @@ display:block;
 width: 100%;
 height: auto;
 border-radius:0px;
+background-blend-mode: multiply;
 user-select: none;
 -webkit-user-select: none;
 -webkit-user-drag: none;
+
 }
 
 .drag img{
