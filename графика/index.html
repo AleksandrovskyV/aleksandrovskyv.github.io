@@ -264,19 +264,30 @@
 
 
 
-// ESC — как в "негативах"
+// ESC — на главную 
 function onKeyCommand(e) {
   if (e.key !== "Escape") return;
 
   e.preventDefault();
   e.stopPropagation();
 
-  if (window.location.protocol === "file:") {
+  // 1. Проверяем протокол (file:)
+  // 2. Проверяем hostname на соответствие локальным адресам
+  // 3. Проверяем, начинается ли адрес с 127. (для всей подсети loopback)
+  const isLocal = window.location.protocol === "file:" || 
+                  window.location.hostname === "localhost" || 
+                  window.location.hostname === "127.0.0.1" ||
+                  window.location.hostname === "[::1]"; // IPv6 адрес для localhost
+
+  if (isLocal) {
+    // Если мы на 127.0.0.1
+    // то ../index.html корректно поднимет на уровень выше к корню сервера
     window.location.href = "../index.html";
   } else {
     window.location.href = "https://vsky.space";
   }
 }
+
 
 window.addEventListener("keydown", onKeyCommand, { capture: true });
 
