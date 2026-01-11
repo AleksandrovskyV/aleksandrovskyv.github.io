@@ -387,11 +387,14 @@
           target = "/" + target.replace(".html", "");
         }
       }
-		
+	
       if (isMobile && btn.dataset.mobile === 'true') {
-        // target = "/ios" + target;
+        target = "/ios" + target;
       }
-
+      if (isMobile && btn.dataset.mobile === 'false') {
+        target = target + "/";
+      }
+	  
       window.location.href = target;
 
     });
