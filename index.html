@@ -389,9 +389,9 @@
       }
 	
       if (isMobile && btn.dataset.mobile === 'true') {
-        target = "/ios" + target;
+        target = "/ios" + target + "/";
       }
-      if (isMobile && btn.dataset.mobile === 'false') {
+      if (isMobile) {
         target = target + "/";
       }
 	  
