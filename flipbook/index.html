@@ -59,13 +59,14 @@
 
 </head>
 <body>
-  <div id="root">
-    <canvas id="uiCanvas"></canvas>
-    <div id="mobileOverlay">Only for Desktop..</div>
-  </div>
 
+<div id="root">
+  <canvas id="uiCanvas"></canvas>
+  <div id="mobileOverlay">Only for Desktop..</div>
+</div>
 
-  <input id="fileInput" type="file" accept="application/json" />
+<input id="fileInput" type="file" accept="application/json" />
+
 <script>
 
 // flipbook.. flippook...
@@ -688,10 +689,12 @@ let topToolbarArea, editorArea, objectArea, timelineArea, rightToolbarArea;
 
 const loadButton     = new UIButton("□", ()=>fileInput.click(), { S:3 }); // LOAD
 const spacerA        = new UISpacer();
+
 const mLeft  = new UIButton("\u{25C0}\u{FE0E}",  () => shiftPixels(-1, 0)); // ◀
 const mUp    = new UIButton("\u{25B2}\u{FE0E}",  () => shiftPixels(0, -1)); // ▲
 const mDown  = new UIButton("\u{25BC}\u{FE0E}",  () => shiftPixels(0, 1));  // ▼
 const mRight = new UIButton("\u{25B6}\u{FE0E}",  () => shiftPixels(1, 0));  // ▶
+
 const spacerB        = new UISpacer();
 const saveButton     = new UIButton("■", exportJSON, { S:3 }); // SAVE
 
@@ -1462,6 +1465,7 @@ fileInput.addEventListener('change', (ev)=>{
       const data = JSON.parse(e.target.result);
       config = data.config; graphicStates = data.graphicStates;
       isInitialized = false; isPlaying = false; curGfx = 0; curAnim = 0; fIdx = 0;
+      unlockAllButtons();
       buildUI();
     } catch(err){ alert("Ошибка при чтении JSON файла"); }
   };
@@ -1469,6 +1473,19 @@ fileInput.addEventListener('change', (ev)=>{
 });
 
 function unlockAllButtons(){
+
+  currentAppState = AppStates.FIRST_PLAY;
+  currentGameState = GameStates.OPEN_GAME;
+
+  lockinitAreaTut = true;
+  tutorialOffset = true;
+  tutorialResize = true;
+  tutorialAFrObj = true;
+  tutorialOffsetLock = false;
+  completeAreaTutorial = true;
+  unlockPlus = true;
+  unlockObjectButtons = true;
+
   mLeft.status = 1;
   mUp.status = 1;
   mDown.status = 1; 
@@ -1484,8 +1501,9 @@ function unlockAllButtons(){
     gameButton.status = 1;
   }
 
- currentAppState = AppStates.FIRST_PLAY;
- currentGameState = GameStates.OPEN_GAME;
+  saveButton.status = 1;
+  
+  baseButton.setText("\u25B6\uFE0E"); // ▶︎
 }
 
 // ОСНОВНОЙ ЦИКЛ
