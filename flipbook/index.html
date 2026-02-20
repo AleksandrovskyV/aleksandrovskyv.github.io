@@ -29,12 +29,43 @@
     #root { width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; }
     canvas { image-rendering: pixelated; background:#000; display:block; }
     input[type=file] { display:none; }
-  </style>
+  
+    #mobileOverlay {
+      display: none;
+    }
+
+    /* Только телефоны */
+    @media (max-width: 768px) {
+      #mobileOverlay {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 18px;
+        z-index: 9999;
+        padding: 20px;
+      }
+
+      body {
+        overflow: hidden;
+      }
+    }
+</style>
+
+
 </head>
 <body>
   <div id="root">
     <canvas id="uiCanvas"></canvas>
+    <div id="mobileOverlay">Only for Desktop..</div>
   </div>
+
+
   <input id="fileInput" type="file" accept="application/json" />
 <script>
 
@@ -693,7 +724,8 @@ aCols.status = 4; sCols.status = 4;
 sRows.status = 4; aRows.status = 4;
 
 
-const baseButton = new UIButton("✖", baseButtonAction, { S:4 });
+//const baseButton = new UIButton("✖", baseButtonAction, { S:4 });
+const baseButton = new UIButton("\u{2716}\u{FE0E}", baseButtonAction, { S:4 });
 baseButton.status = 1;
 
 let gameButton = null;
