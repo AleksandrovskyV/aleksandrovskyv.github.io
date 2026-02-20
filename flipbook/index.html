@@ -34,7 +34,6 @@
       display: none;
     }
 
-    /* Только телефоны */
     @media (max-width: 768px) {
       #mobileOverlay {
         position: fixed;
@@ -706,7 +705,7 @@ const topButtonsGroup = [
 
 const aCols = new UIButton("+", () => resizeGrid({ dc: 1 }));
 const sCols = new UIButton("-", () => resizeGrid({ dc: -1 }));
-const spacerR = new UISpacer(); // сам считаешь сколько нужно
+const spacerR = new UISpacer();
 const sRows = new UIButton("-", () => resizeGrid({ dr: -1 }));
 const aRows = new UIButton("+", () => resizeGrid({ dr: 1 }));
 
@@ -833,7 +832,6 @@ function clear() {
 }
 
 
-
 function renderEntities(ctx){
   pb = POSITION_BASED; //1-based
 
@@ -921,13 +919,13 @@ function buildUI() {
 }
 
 
-
 function toggle(pos) {
   if (pos.x < 0 || pos.x >= config.cols || pos.y < 0 || pos.y >= config.rows) return;
   const key = `${pos.x},${pos.y}`, cells = graphicStates[curGfx].animStates[curAnim].activeCells, idx = cells.indexOf(key);
   if (drawMode && idx === -1) cells.push(key); else if (!drawMode && idx !== -1) cells.splice(idx, 1);
   renderAll();
 }
+
 
 function shiftPixels(dx, dy) {
   if(isPlaying && player){
