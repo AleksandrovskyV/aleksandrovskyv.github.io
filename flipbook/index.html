@@ -709,7 +709,6 @@ const spacerR = new UISpacer();
 const sRows = new UIButton("-", () => resizeGrid({ dr: -1 }));
 const aRows = new UIButton("+", () => resizeGrid({ dr: 1 }));
 
-
 const rightButtonsGroup = [
   aCols, sCols,
   spacerR,
@@ -722,9 +721,7 @@ mDown.status = 4; mRight.status = 4;
 aCols.status = 4; sCols.status = 4;
 sRows.status = 4; aRows.status = 4;
 
-
-//const baseButton = new UIButton("✖", baseButtonAction, { S:4 });
-const baseButton = new UIButton("\u{2716}\u{FE0E}", baseButtonAction, { S:4 });
+const baseButton = new UIButton("\u{2716}\u{FE0E}", baseButtonAction, { S:4 }); // ✖ RESET
 baseButton.status = 1;
 
 let gameButton = null;
@@ -1292,7 +1289,7 @@ function gameButtonAction() {
     if(isFrameGame){ 
       isPlaying = false; 
       baseButton.status = 0;
-      baseButton.setText("▶")
+      baseButton.setText("\u25B6\uFE0E"); // ▶︎
       spawnGameEntities();
     }else{ 
       deSpawnGameEntities();
