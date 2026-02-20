@@ -658,10 +658,10 @@ let topToolbarArea, editorArea, objectArea, timelineArea, rightToolbarArea;
 
 const loadButton     = new UIButton("□", ()=>fileInput.click(), { S:3 }); // LOAD
 const spacerA        = new UISpacer();
-const mLeft          = new UIButton("◀", ()=>shiftPixels(-1,0));
-const mUp            = new UIButton("▲", ()=>shiftPixels(0,-1));
-const mDown          = new UIButton("▼", ()=>shiftPixels(0,1));
-const mRight         = new UIButton("▶", ()=>shiftPixels(1,0));
+const mLeft  = new UIButton("\u{25C0}\u{FE0E}",  () => shiftPixels(-1, 0)); // ◀
+const mUp    = new UIButton("\u{25B2}\u{FE0E}",  () => shiftPixels(0, -1)); // ▲
+const mDown  = new UIButton("\u{25BC}\u{FE0E}",  () => shiftPixels(0, 1));  // ▼
+const mRight = new UIButton("\u{25B6}\u{FE0E}",  () => shiftPixels(1, 0));  // ▶
 const spacerB        = new UISpacer();
 const saveButton     = new UIButton("■", exportJSON, { S:3 }); // SAVE
 
