@@ -48,8 +48,8 @@
 
 // UserFlags
 
-let Introduction = false;
-let Tutorial = false;
+let Introduction = true;
+let Tutorial = true;
 
 // System Variables 
 let _rafId = null;
@@ -71,6 +71,8 @@ let currentGameState = GameStates.FIRST_SPAWN;
 
 
 // Frame Area setup : Default
+let CURRENT_SETUP = null;
+
 const DEFAULTS_SETUP = {
     config: { rows: 7, cols: 10, size: 40 },
     states: [{ offsetX: 0, offsetY: 0, animStates: [{ activeCells: [], delay: 80 }] }]
@@ -645,6 +647,7 @@ const rightButtonsGroup = [
   sRows, aRows
 ];
 
+// This button diffirent from Start - Logic initialization below
 let baseButton = null;
 let gameButton = null;
 
@@ -754,7 +757,7 @@ class TutorialClass {
       Introduction = false;
       loadButton.status = 4;
       this.currentTutState = this.TutStates.FIRST_RESET;
-      resetAction();
+      resetToBaseArea();
       return
     }
 
@@ -807,7 +810,7 @@ class TutorialClass {
       saveButton.status = 4;
     }
 
-    resetAction();
+    resetToBaseArea();
   }
 
 
@@ -873,7 +876,7 @@ class TutorialClass {
   }
 }
 
-// Init 
+// Init flags on Startup
 
 if(!Tutorial && !Introduction){
   currentGameState = GameStates.OPEN_GAME;
@@ -892,14 +895,8 @@ if(!Tutorial && !Introduction){
     sRows.status = 4; aRows.status = 4;
 
     baseButton.status = 1;
-
-    if(Tutorial){
-      EditorTutorial = new TutorialClass;
-    }
   }
-
 }
-
 
 
 function rebuildLayout() {
@@ -1402,38 +1399,44 @@ function GameOver(status) {
   //curAnim = 0;
 }
 
+function unlockAll(){
+  Introduction = false;
+  currentGameState = GameStates.OPEN_GAME;
 
+  objectArea.unlockButtons = true;
+  timelineArea.plusBtn.status = 1;
+
+  mLeft.status = 1; mUp.status = 1;
+  mDown.status = 1; mRight.status = 1;
+
+  aCols.status = 1; aRows.status = 1;
+  //sRows.status = 1; sCols.status = 1;
+
+  saveButton.status = 1;
+
+  if(!gameButton){
+    gameButton = new UIButton("⏯\u{FE0E}", gameButtonAction, { S:4 })
+    gameButton.status = 1;
+  }
+
+  baseButton.setText("\u25B6\uFE0E"); // ▶︎
+}
 
 function baseButtonAction() {
   // Логика центральной кнопки 
   // Три состояния RESET пока не скипнули Introduction, потом PLAY\PAUSE
 
+  if(!EditorTutorial && Tutorial){
+    EditorTutorial = new TutorialClass;
+  }
+
   if(EditorTutorial){
     EditorTutorial.tutorialButtonLogic();
   }else{
     if(Introduction){
-      Introduction = false;
-      currentGameState = GameStates.OPEN_GAME;
 
-      objectArea.unlockButtons = true;
-      timelineArea.plusBtn.status = 1;
-
-      mLeft.status = 1; mUp.status = 1;
-      mDown.status = 1; mRight.status = 1;
-
-      aCols.status = 1; aRows.status = 1;
-      //sRows.status = 1; sCols.status = 1;
-
-      saveButton.status = 1;
-
-      if(!gameButton){
-        gameButton = new UIButton("⏯\u{FE0E}", gameButtonAction, { S:4 })
-        gameButton.status = 1;
-      }
-
-      baseButton.setText("\u25B6\uFE0E"); // ▶︎
-
-      resetAction()
+      unlockAll();
+      resetToBaseArea()
 
     }else{
       isPlaying = !isPlaying; 
@@ -1472,9 +1475,28 @@ function gameButtonAction() {
 }
 
 
-function resetAction() {
+function resetToBaseArea() {
   config = JSON.parse(JSON.stringify(DEFAULTS_SETUP.config));
   graphicStates = JSON.parse(JSON.stringify(DEFAULTS_SETUP.states));
+  curGfx = 0; curAnim = 0; fIdx = 0; isPlaying = false; isInitialized = false;
+
+  buildUI();
+}
+
+function resetCurrentArea() {
+  if(!CURRENT_SETUP && Introduction){
+    // First Reset from Introduction > Open All
+    Tutorial = false;
+    unlockAll();
+  }
+
+  CURRENT_SETUP = {
+      config: { rows: config.rows, cols: config.cols, size: 40 },
+      states: [{ offsetX: 0, offsetY: 0, animStates: [{ activeCells: [], delay: 80 }] }]
+  };
+
+  config = JSON.parse(JSON.stringify(CURRENT_SETUP.config));
+  graphicStates = JSON.parse(JSON.stringify(CURRENT_SETUP.states));
   curGfx = 0; curAnim = 0; fIdx = 0; isPlaying = false; isInitialized = false;
 
   buildUI();
@@ -1567,25 +1589,32 @@ window.addEventListener('mouseup', (e)=>{
 });
 
 /* Keyboard handling — reuse previous mapping */
-window.addEventListener('keydown', (e)=>{
+function onKeyCommand(e) {
+  const cod = e.code;
+  const key = e.key;
+  
+  if (cod === "KeyR") resetCurrentArea();
+
   if (isDrawing) return;
   if (isPlaying){
-    switch(e.key) {
+    switch(key) {
       case 'ArrowLeft':  movePlayer(-1, 0); break;
       case 'ArrowRight': movePlayer(1, 0);  break;
       case 'ArrowUp':    movePlayer(0, -1); break;
       case 'ArrowDown':  movePlayer(0, 1);  break;
     }
   } else {
-    switch(e.key) {
+    switch(key) {
       case 'ArrowLeft':  shiftPixels(-1, 0); break;
       case 'ArrowRight': shiftPixels(1, 0);  break;
       case 'ArrowUp':    shiftPixels(0, -1); break;
       case 'ArrowDown':  shiftPixels(0, 1);  break;
     }
   }
-});
 
+}
+
+window.addEventListener("keydown", onKeyCommand);
 
 // LOAD / SAVE USER DATA
 
