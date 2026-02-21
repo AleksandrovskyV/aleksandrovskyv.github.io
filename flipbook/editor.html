@@ -510,7 +510,9 @@ class TimelineArea {
     list.push(this.minusBtn);
 
     const frames = graphicStates[curGfx].animStates;
-    const frameCount = frames.length;
+    let frameCount = frames.length;
+    frameCount = Math.max(1, Math.min(frameCount, Math.max(1, config.cols - 2)));
+
     const frameAreaW = this.cols * this.cellSize - this.cellSize * 2;
     const per = frameAreaW / frameCount;
 
@@ -558,12 +560,15 @@ class TimelineArea {
     this.minusBtn.h = this.cellSize;
 
     const frames = graphicStates[curGfx].animStates;
-    const frameCount = frames.length;
+    let frameCount = frames.length;
+    frameCount = Math.max(1, Math.min(frameCount, Math.max(1, config.cols - 2)));
+
     const frameAreaW = this.cols * this.cellSize - this.cellSize * 2;
     const per = frameAreaW / frameCount;
 
     // 2. Фреймы (их кол-во меняется, поэтому пересоздаем только этот список)
     const frameButtons = [];
+
     for (let i = 0; i < frameCount; i++) {
       const btn = new UIButton("", () => { 
         curAnim = i; fIdx = i; isPlaying = false; 
@@ -993,7 +998,11 @@ function rebuildLayout() {
 
   if (timelineArea) {
     timelineArea._lastGfxIndex = curGfx;
-    timelineArea._lastFrameCount = graphicStates[curGfx]?.animStates?.length || 0;
+
+    frameCount = graphicStates[curGfx]?.animStates?.length;
+    frameCount = Math.max(1, Math.min(frameCount, Math.max(1, config.cols - 2)));
+
+    timelineArea._lastFrameCount = frameCount || 0;
   }
 
   updateUIState();
@@ -1136,14 +1145,13 @@ function resizeGrid({ dc = 0, dr = 0 }) { // dc (delta cols), dr (delta rows)
 
 
 function addAnim() {
-  if (graphicStates[curGfx].animStates.length >= config.cols-2) return;
+  const maxFrames = Math.max(1, config.cols - 2);
+  if (graphicStates[curGfx].animStates.length >= maxFrames) return;
   const curState = graphicStates[curGfx].animStates[curAnim];
-  let newCells = [...curState.activeCells];
+  let newCells = Array.isArray(curState.activeCells) ? [...curState.activeCells] : [];
 
-  if(EditorTutorial){
-    if(!EditorTutorial.completeAreaTutorial){
-      if (newCells.length > 0) newCells.pop(); 
-    }
+  if (EditorTutorial && !EditorTutorial.completeAreaTutorial) {
+    if (newCells.length > 0) newCells.pop();
   }
 
   graphicStates[curGfx].animStates.push({ activeCells: newCells, delay: curState.delay || 80 });
@@ -1262,8 +1270,9 @@ function movePlayer(dx, dy) {
 
   if (isFrameGame) {
       const anims = graphicStates[curGfx].animStates;
-      const max = anims.length;
-
+      let max = anims.length;
+      if(max>=config.cols-2) max=config.cols-2;
+      
       // dx отвечает за горизонтальное движение
       if (dx > 0) {
           fIdx++;
@@ -1405,6 +1414,7 @@ function unlockAll(){
 
   objectArea.unlockButtons = true;
   timelineArea.plusBtn.status = 1;
+  timelineArea.minusBtn.status = 1;
 
   mLeft.status = 1; mUp.status = 1;
   mDown.status = 1; mRight.status = 1;
@@ -1420,6 +1430,31 @@ function unlockAll(){
   }
 
   baseButton.setText("\u25B6\uFE0E"); // ▶︎
+}
+
+function playPauseLogic(){
+
+  if(!CURRENT_SETUP && Introduction){
+    // First Reset from Introduction > Open All
+    Tutorial = false;
+    unlockAll();
+  }
+
+  isPlaying = !isPlaying; 
+
+  if(isPlaying) lastT = 0;
+  
+  if(baseButton){ 
+    if(isPlaying){
+      baseButton.setText("\u23F8\uFE0E"); // ⏸︎ PAUSE
+    }else{
+      baseButton.setText("\u25B6\uFE0E"); // ▶︎ 
+    }
+  }
+
+  //console.log("PLAYING STATUS", isPlaying);
+  
+  buildUI();
 }
 
 function baseButtonAction() {
@@ -1439,18 +1474,9 @@ function baseButtonAction() {
       resetToBaseArea()
 
     }else{
-      isPlaying = !isPlaying; 
 
-      if(isPlaying){ 
-        lastT = 0;
-        baseButton.setText("\u23F8\uFE0E"); //⏸︎ PAUSE
-      }else{
-        baseButton.setText("\u25B6\uFE0E"); // ▶︎ 
-      }
-
-      //console.log("PLAYING STATUS", isPlaying);
-      
-      buildUI();
+      playPauseLogic();
+    
     }
     
   }
@@ -1488,6 +1514,11 @@ function resetCurrentArea() {
     // First Reset from Introduction > Open All
     Tutorial = false;
     unlockAll();
+  }
+
+  if(EditorTutorial && !EditorTutorial.completeAreaTutorial){
+    // блокировка сброса если tutorial
+    return
   }
 
   CURRENT_SETUP = {
@@ -1592,8 +1623,19 @@ window.addEventListener('mouseup', (e)=>{
 function onKeyCommand(e) {
   const cod = e.code;
   const key = e.key;
-  
+
   if (cod === "KeyR") resetCurrentArea();
+  else if (cod === "Space"){
+
+    if(EditorTutorial){
+      if(baseButton.status == 1){
+        EditorTutorial.tutorialButtonLogic();
+      }
+    }else{
+      playPauseLogic();
+    }
+  }
+  
 
   if (isDrawing) return;
   if (isPlaying){
@@ -1633,9 +1675,21 @@ fileInput.addEventListener('change', (ev)=>{
     try {
       const data = JSON.parse(e.target.result);
       config = data.config; graphicStates = data.graphicStates;
+
+      // синхронизируем глобальную «ячейковую» величину
+      CELL = config.size;
+
       isInitialized = false; isPlaying = false; curGfx = 0; curAnim = 0; fIdx = 0;
+      
       if(EditorTutorial) EditorTutorial.unlockAllButtons();
+
+      if(Introduction){
+        unlockAll();
+        Tutorial = false;
+      }
+      
       buildUI();
+
     } catch(err){ alert("Ошибка при чтении JSON файла"); }
   };
   reader.readAsText(f);
@@ -1671,7 +1725,7 @@ function loop(t) {
     if (gfx) {
       const anims = gfx.animStates;
       const currentDelay = anims[fIdx] ? anims[fIdx].delay : 80;
-
+      let frameCount = anims.length; // Объявляем заранее
       //console.log("currentDelay:", currentDelay);
 
       if(!isFrameGame){
@@ -1682,9 +1736,10 @@ function loop(t) {
           curAnim = fIdx;
 
           // если сменился текущий графический объект или изменилось кол-во кадров — обновим timeline
-          // (анимы уже доступны как `anims`)
           if (timelineArea) {
-            const frameCount = anims.length;
+            
+            frameCount = Math.max(1, Math.min(frameCount, Math.max(1, config.cols - 2)));
+            
             if (timelineArea._lastGfxIndex !== curGfx || timelineArea._lastFrameCount !== frameCount) {
               timelineArea.refresh();
               timelineArea._lastGfxIndex = curGfx;
@@ -1710,7 +1765,7 @@ function loop(t) {
           renderAll();
 
           fIdx++;
-          if (fIdx >= anims.length) {
+          if (fIdx >= frameCount) { //anims.length
             fIdx = 0;
             curGfx = (curGfx + 1) % graphicStates.length;
             curAnim = 0;

@@ -72,7 +72,12 @@
 // flipbook.. flippook...
 // Type? Flip? Flip & Type !
 
-// Variables 
+// UserFlags
+
+let Introduction = true;
+let Tutorial = true;
+
+// System Variables 
 let _rafId = null;
 let _loopPausedByVisibility = false;
 
@@ -84,16 +89,16 @@ let curGfx = 0, curAnim = 0, isDrawing = false, drawMode = true, isPlaying = tru
 let lastT = 0, fIdx = 0;
 let mouseDown = false;
 
-const AppStates = { INTRO: 0, FIRST_RESET: 1, FIRST_DRAW: 2, FIRST_PLAY: 3
-};
 
 const GameStates = { FIRST_SPAWN: 0, GOAL_SPAWN: 1, OPEN_GAME: 2,
 };
 
-let currentAppState = AppStates.INTRO;
 let currentGameState = GameStates.FIRST_SPAWN;
 
+
 // Frame Area setup : Default
+let CURRENT_SETUP = null;
+
 const DEFAULTS_SETUP = {
     config: { rows: 7, cols: 10, size: 40 },
     states: [{ offsetX: 0, offsetY: 0, animStates: [{ activeCells: [], delay: 80 }] }]
@@ -176,56 +181,6 @@ function sizeCanvas() {
   canvas.style.height = canvas.height + "px";
 }
 sizeCanvas();
-
-
-let lockinitAreaTut = false;
-let tutorialOffset = false;
-let tutorialResize = false;
-let tutorialAFrObj = false;
-let tutorialOffsetLock = false;
-let completeAreaTutorial = false;
-
-function initAreaTutorial(){
-  tutorialOffset = false;
-  tutorialResize = false;
-  tutorialAFrObj = false;
-  lockinitAreaTut = true;
-}
-
-function checkTutorial(){
-  //console.log("TUTORIAL",tutorialOffset,tutorialResize,tutorialAFrObj);
-
-  if(completeAreaTutorial){
-    timelineArea.plusBtn.status = 1;
-    timelineArea.minusBtn.status = 1;
-    return
-  }
-
-  if(tutorialOffset ){
-    //unlockObjectButtons = true;
-      aCols.status = 1;
-      //aRows.status = 1;
-  }
-
-  if(tutorialResize){
-    unlockObjectButtons = true;
-    aCols.status = 4;
-    aRows.status = 4;
-  }
-
-  if(tutorialOffset && tutorialResize && tutorialAFrObj){
-    completeAreaTutorial = true;
-    tutorialOffsetLock = true;    
-    baseButton.status = 1;
-    return
-  }
-
-  if(!completeAreaTutorial && !lockinitAreaTut){
-    
-    baseButton.status = 4;
-    initAreaTutorial();
-  }  
-}
 
 /* Generic Base classes on cell grid */
 
@@ -393,7 +348,7 @@ class ButtonGroup {
 
 
 /* Special Wrappers */
-let unlockObjectButtons = false;
+
 class ObjectArea {
   constructor(cellX, cellY, rows) {
     this.cx = cellX;
@@ -402,6 +357,7 @@ class ObjectArea {
     this.group = null;
     this.spacer = new UISpacer();
     this.plusBtn = new UIButton("+", addGfx, { S:1, D:1 })
+    this.unlockButtons = false;
   }
 
   rebuild() {
@@ -464,7 +420,7 @@ class ObjectArea {
   render(ctx) {
       for (const b of this.group.items) {
 
-        if(unlockObjectButtons){
+        if(this.unlockButtons){
           b.status = 1;   // кнопка + или −
         }else{
           b.status = 4;  // блоикируем без подсветки
@@ -580,7 +536,9 @@ class TimelineArea {
     list.push(this.minusBtn);
 
     const frames = graphicStates[curGfx].animStates;
-    const frameCount = frames.length;
+    let frameCount = frames.length;
+    frameCount = Math.max(1, Math.min(frameCount, Math.max(1, config.cols - 2)));
+
     const frameAreaW = this.cols * this.cellSize - this.cellSize * 2;
     const per = frameAreaW / frameCount;
 
@@ -628,12 +586,15 @@ class TimelineArea {
     this.minusBtn.h = this.cellSize;
 
     const frames = graphicStates[curGfx].animStates;
-    const frameCount = frames.length;
+    let frameCount = frames.length;
+    frameCount = Math.max(1, Math.min(frameCount, Math.max(1, config.cols - 2)));
+
     const frameAreaW = this.cols * this.cellSize - this.cellSize * 2;
     const per = frameAreaW / frameCount;
 
     // 2. Фреймы (их кол-во меняется, поэтому пересоздаем только этот список)
     const frameButtons = [];
+
     for (let i = 0; i < frameCount; i++) {
       const btn = new UIButton("", () => { 
         curAnim = i; fIdx = i; isPlaying = false; 
@@ -684,6 +645,7 @@ class TimelineArea {
   }
 }
 
+
 //Build UI areas & buttons
 let topToolbarArea, editorArea, objectArea, timelineArea, rightToolbarArea;
 
@@ -697,8 +659,6 @@ const mRight = new UIButton("\u{25B6}\u{FE0E}",  () => shiftPixels(1, 0));  // �
 
 const spacerB        = new UISpacer();
 const saveButton     = new UIButton("■", exportJSON, { S:3 }); // SAVE
-
-saveButton.status = 4;
 
 const topButtonsGroup = [
   loadButton, // spacerA, - для добавления нужно реализовать логику при нечетной разницы
@@ -718,18 +678,255 @@ const rightButtonsGroup = [
   sRows, aRows
 ];
 
-mLeft.status = 4; mUp.status = 4;
-mDown.status = 4; mRight.status = 4;
-
-aCols.status = 4; sCols.status = 4;
-sRows.status = 4; aRows.status = 4;
-
-const baseButton = new UIButton("\u{2716}\u{FE0E}", baseButtonAction, { S:4 }); // ✖ RESET
-baseButton.status = 1;
-
+// This button diffirent from Start - Logic initialization below
+let baseButton = null;
 let gameButton = null;
-if(currentGameState === GameStates.OPEN_GAME){
+
+// TutorialLogic
+
+let EditorTutorial = null;
+
+class TutorialClass {
+  constructor() {
+    
+    this.TutStates = { INTRO: 0, FIRST_RESET: 1, FIRST_DRAW: 2, FIRST_PLAY: 3
+    };
+    this.currentTutState = this.TutStates.INTRO;
+
+    this.lockinitAreaTut = false;
+    this.tutorialOffset = false;
+    this.tutorialResize = false;
+    this.tutorialAFrObj = false;
+    this.tutorialOffsetLock = false;
+    this.completeAreaTutorial = false;
+    this.unlockPlus = false;
+
+  }
+
+  init(){
+    
+    baseButton.status = 4;
+
+    this.lockinitAreaTut = true;
+    this.tutorialOffset = false;
+    this.tutorialResize = false;
+    this.tutorialAFrObj = false;
+    this.unlockPlus = false;
+
+
+  }
+
+  complete(state){
+
+    if(state==="resize"){
+  
+      this.tutorialResize = true;
+  
+    } else if (state==="AddObject"){
+  
+      this.tutorialAFrObj = true;
+  
+    } else if (state==="offset"){
+      
+      if(this.lockinitAreaTut){
+        this.tutorialOffset = true;
+      }
+
+    }
+
+    this.check();
+
+  }
+
+
+  buildOnTutorial(){
+
+    this.testDrawingUser();
+
+    if(this.currentTutState == this.TutStates.FIRST_PLAY  ){
+      if(config.cols == 10){
+        sCols.status = 4;
+      }else if(this.completeAreaTutorial  && !this.tutorialOffsetLock){
+        sCols.status = 1;
+      }
+
+      if(config.rows == 7){
+        sRows.status = 4;
+      }else if(this.completeAreaTutorial && !this.tutorialOffsetLock){
+        sRows.status = 1;
+      }
+    }
+  }
+
+   testDrawingUser(){    
+      if (this.currentTutState != this.TutStates.FIRST_RESET) return;
+
+      const currentGfx = graphicStates[curGfx];
+      const hasPixels = currentGfx.animStates.some(a => a.activeCells.length > 2);
+
+      if(hasPixels && !this.unlockPlus){
+        timelineArea.plusBtn.status = 1;
+        this.unlockPlus = true;
+        //console.log("UNLOCK TIMELINE PLUS", timelineArea.plusBtn.status);
+      }
+
+      const hasMultipleFrames = currentGfx.animStates.length > 1;
+
+      // Кнопка PLAY появляется ТОЛЬКО если кадров больше двух и больше двух активных ячеек
+      if (!isInitialized && hasPixels && hasMultipleFrames) {
+          baseButton.setText("\u25B6\uFE0E"); // ▶︎
+          this.currentTutState = this.TutStates.FIRST_DRAW;
+          console.log("FIRST_DRAW");
+          return;
+      }
+  }
+
+
+  tutorialButtonLogic(){   
+
+    if (this.currentTutState === this.TutStates.INTRO){
+      Introduction = false;
+      loadButton.status = 4;
+      this.currentTutState = this.TutStates.FIRST_RESET;
+      resetToBaseArea();
+      return
+    }
+
+    if (this.currentTutState === this.TutStates.FIRST_DRAW){ 
+      isPlaying = true;
+      this.currentTutState = this.TutStates.FIRST_PLAY;
+      baseButton.setText("\u23F8\uFE0E"); //⏸︎ PAUSE
+      
+      console.log("FIRST_PLAY");
+      return
+    }
+
+    if (this.currentTutState === this.TutStates.FIRST_PLAY){ 
+      
+      if(!EditorTutorial.completeAreaTutorial){
+        mLeft.status = 1;
+        mUp.status = 1;
+        mDown.status = 1; 
+        mRight.status = 1;
+        timelineArea.plusBtn.status = 4;
+      }
+
+
+      isPlaying = !isPlaying; 
+
+      if(isPlaying){ 
+        lastT = 0;
+
+        // Зная, что игрок уже воспроизводил и ставил на паузу > открываем игровую логику
+        if(currentGameState != GameStates.OPEN_GAME){spawnGameEntities();}
+        baseButton.setText("\u23F8\uFE0E"); //⏸︎ PAUSE
+
+      }else{
+
+        EditorTutorial.check();
+
+        if(currentGameState != GameStates.OPEN_GAME){deSpawnGameEntities();}  
+        baseButton.setText("\u25B6\uFE0E"); // ▶︎ 
+      }
+
+      console.log("PLAYING STATUS", isPlaying);
+      
+      buildUI();
+      return
+    }
+
+    // Очищаем поле, блокируем кнопки LOAD и SAVE
+    if(!this.completeAreaTutorial){
+      loadButton.status = 4;
+      saveButton.status = 4;
+    }
+
+    resetToBaseArea();
+  }
+
+
+
+  check(){
+    if(this.completeAreaTutorial){
+      timelineArea.plusBtn.status = 1;
+      timelineArea.minusBtn.status = 1;
+      return
+    }
+
+    if(this.tutorialOffset ){
+        aCols.status = 1;
+    }
+
+    if(this.tutorialResize){
+      objectArea.unlockButtons = true;
+      aCols.status = 4;
+      aRows.status = 4;
+    }
+
+    if(this.tutorialOffset && this.tutorialResize && this.tutorialAFrObj){
+      this.completeAreaTutorial = true;
+      this.tutorialOffsetLock = true;    
+      baseButton.status = 1;
+      return
+    }
+
+    if(!this.completeAreaTutorial && !this.lockinitAreaTut){
+      this.init();
+    }  
+  }
+
+  unlockAllButtons(){
+
+    this.currentTutState = this.TutStates.FIRST_PLAY;
+    this.lockinitAreaTut = true;
+    this.tutorialOffset = true;
+    this.tutorialResize = true;
+    this.tutorialAFrObj = true;
+    this.tutorialOffsetLock = false;
+    this.completeAreaTutorial = true;
+    this.unlockPlus = true;
+
+    currentGameState = GameStates.OPEN_GAME;
+    objectArea.unlockButtons = true;
+    timelineArea.plusBtn.status = 1;
+
+    mLeft.status = 1; mUp.status = 1;
+    mDown.status = 1; mRight.status = 1;
+
+    aCols.status = 1; sCols.status = 1;
+    sRows.status = 1; aRows.status = 1;
+
+    if(!gameButton){
+      gameButton = new UIButton("⏯\u{FE0E}", gameButtonAction, { S:4 })
+      gameButton.status = 1;
+    }
+
+    saveButton.status = 1;
+    
+    baseButton.setText("\u25B6\uFE0E"); // ▶︎
+  }
+}
+
+// Init flags on Startup
+
+if(!Tutorial && !Introduction){
+  currentGameState = GameStates.OPEN_GAME;
+  baseButton = new UIButton("\u23F8\uFE0E", baseButtonAction, { S:4 }); // PAUSE
   gameButton = new UIButton("⏯\u{FE0E}", gameButtonAction, { S:4 })
+}else{
+  baseButton = new UIButton("\u{2716}\u{FE0E}", baseButtonAction, { S:4 }); // ✖ RESET
+
+  if(Introduction){
+    saveButton.status = 4;
+
+    mLeft.status = 4; mUp.status = 4;
+    mDown.status = 4; mRight.status = 4;
+
+    aCols.status = 4; sCols.status = 4;
+    sRows.status = 4; aRows.status = 4;
+
+    baseButton.status = 1;
+  }
 }
 
 
@@ -755,6 +952,11 @@ function rebuildLayout() {
   // Левая панель (Objects Selector) 
   if(!objectArea){
     objectArea = new ObjectArea(1,editorY,rows);
+
+    if(!Introduction && !Tutorial){
+      objectArea.unlockButtons = true;
+    }
+
   }else{
     //objectArea.rebuild();
     objectArea.update(1,editorY,rows);
@@ -771,6 +973,12 @@ function rebuildLayout() {
       cols,
       size
     );
+
+    if(!Introduction && !Tutorial){
+      timelineArea.plusBtn.status = 1;
+      timelineArea.minusBtn.status = 1;
+    }
+
   }else{
     // если просто пытаюсь обратиться через timelineArea.rebuild() - не высчитывает размер;
     timelineArea.update(
@@ -816,7 +1024,11 @@ function rebuildLayout() {
 
   if (timelineArea) {
     timelineArea._lastGfxIndex = curGfx;
-    timelineArea._lastFrameCount = graphicStates[curGfx]?.animStates?.length || 0;
+
+    frameCount = graphicStates[curGfx]?.animStates?.length;
+    frameCount = Math.max(1, Math.min(frameCount, Math.max(1, config.cols - 2)));
+
+    timelineArea._lastFrameCount = frameCount || 0;
   }
 
   updateUIState();
@@ -895,24 +1107,17 @@ function clipGraphicStatesToViewport() {
 function buildUI() {
   if (config.cols < 10) config.cols = 10;
   if (config.rows < 7) config.rows = 7;
+  if(removeAfterResize) clipGraphicStatesToViewport();
+  
+  if(EditorTutorial){ EditorTutorial.buildOnTutorial(); 
+  }else{
+    if( !Introduction ){
+      if(config.cols == 10){ sCols.status = 4; }else{ sCols.status = 1; }
 
-  if(currentAppState == AppStates.FIRST_PLAY  ){
-    if(config.cols == 10){
-      sCols.status = 4;
-    }else if(completeAreaTutorial  && !tutorialOffsetLock){
-      sCols.status = 1;
+      if(config.rows == 7){  sRows.status = 4; }else{ sRows.status = 1; }
     }
-
-    if(config.rows == 7){
-      sRows.status = 4;
-    }else if(completeAreaTutorial && !tutorialOffsetLock){
-      sRows.status = 1;
-    }
-
   }
 
-  if(removeAfterResize) clipGraphicStatesToViewport();
-  testDrawingUser();
   sizeCanvas();
   rebuildLayout(); 
   renderAll();
@@ -941,10 +1146,9 @@ function shiftPixels(dx, dy) {
   const gfx = graphicStates[curGfx];
   const state = gfx.animStates[curAnim];
   if (!state) return;
-  if(lockinitAreaTut){
-    tutorialOffset = true;
-    checkTutorial();
-  }
+
+  if(EditorTutorial){ EditorTutorial.complete("offset"); }
+
   state.activeCells = state.activeCells.map(key => {
     const [x, y] = key.split(',').map(Number);
     let newX = (x + dx + config.cols) % config.cols;
@@ -956,8 +1160,8 @@ function shiftPixels(dx, dy) {
 
 
 function resizeGrid({ dc = 0, dr = 0 }) { // dc (delta cols), dr (delta rows)
-  tutorialResize = true;
-  checkTutorial();
+  
+  if(EditorTutorial){ EditorTutorial.complete("resize"); }
 
   if (dc !== 0) config.cols += dc;
   if (dr !== 0) config.rows += dr;
@@ -967,13 +1171,15 @@ function resizeGrid({ dc = 0, dr = 0 }) { // dc (delta cols), dr (delta rows)
 
 
 function addAnim() {
-  if (graphicStates[curGfx].animStates.length >= config.cols-2) return;
+  const maxFrames = Math.max(1, config.cols - 2);
+  if (graphicStates[curGfx].animStates.length >= maxFrames) return;
   const curState = graphicStates[curGfx].animStates[curAnim];
-  let newCells = [...curState.activeCells];
-  if(!completeAreaTutorial){
-    if (newCells.length > 0) newCells.pop(); 
+  let newCells = Array.isArray(curState.activeCells) ? [...curState.activeCells] : [];
+
+  if (EditorTutorial && !EditorTutorial.completeAreaTutorial) {
+    if (newCells.length > 0) newCells.pop();
   }
-  
+
   graphicStates[curGfx].animStates.push({ activeCells: newCells, delay: curState.delay || 80 });
   curAnim = graphicStates[curGfx].animStates.length - 1;
   fIdx = curAnim;
@@ -990,8 +1196,9 @@ function popAnim() {
 
 function addGfx() {
   if (graphicStates.length >=  config.rows - 1) return;
-  tutorialAFrObj = true;
-  checkTutorial();
+  
+  if(EditorTutorial){  EditorTutorial.complete("AddObject"); }
+
   graphicStates.push({ offsetX: 0, offsetY: 0, animStates: [{ activeCells: [], delay: 80 }] });
   curGfx = graphicStates.length - 1; curAnim = 0; fIdx = 0; buildUI();
 }
@@ -1089,8 +1296,9 @@ function movePlayer(dx, dy) {
 
   if (isFrameGame) {
       const anims = graphicStates[curGfx].animStates;
-      const max = anims.length;
-
+      let max = anims.length;
+      if(max>=config.cols-2) max=config.cols-2;
+      
       // dx отвечает за горизонтальное движение
       if (dx > 0) {
           fIdx++;
@@ -1226,63 +1434,79 @@ function GameOver(status) {
   //curAnim = 0;
 }
 
+function unlockAll(){
+  Introduction = false;
+  currentGameState = GameStates.OPEN_GAME;
 
+  objectArea.unlockButtons = true;
+  timelineArea.plusBtn.status = 1;
+  timelineArea.minusBtn.status = 1;
 
+  mLeft.status = 1; mUp.status = 1;
+  mDown.status = 1; mRight.status = 1;
+
+  aCols.status = 1; aRows.status = 1;
+  //sRows.status = 1; sCols.status = 1;
+
+  saveButton.status = 1;
+
+  if(!gameButton){
+    gameButton = new UIButton("⏯\u{FE0E}", gameButtonAction, { S:4 })
+    gameButton.status = 1;
+  }
+
+  baseButton.setText("\u25B6\uFE0E"); // ▶︎
+}
+
+function playPauseLogic(){
+
+  if(!CURRENT_SETUP && Introduction){
+    // First Reset from Introduction > Open All
+    Tutorial = false;
+    unlockAll();
+  }
+
+  isPlaying = !isPlaying; 
+
+  if(isPlaying) lastT = 0;
+  
+  if(baseButton){ 
+    if(isPlaying){
+      baseButton.setText("\u23F8\uFE0E"); // ⏸︎ PAUSE
+    }else{
+      baseButton.setText("\u25B6\uFE0E"); // ▶︎ 
+    }
+  }
+
+  //console.log("PLAYING STATUS", isPlaying);
+  
+  buildUI();
+}
 
 function baseButtonAction() {
-  // Три состояния RESET\PLAY\PAUSE
+  // Логика центральной кнопки 
+  // Три состояния RESET пока не скипнули Introduction, потом PLAY\PAUSE
 
-  if (currentAppState === AppStates.INTRO){
-    currentAppState = AppStates.FIRST_RESET;
-    resetAction();
-    return
+  if(!EditorTutorial && Tutorial){
+    EditorTutorial = new TutorialClass;
   }
 
-  if (currentAppState === AppStates.FIRST_DRAW){ 
-    isPlaying = true;
-    currentAppState = AppStates.FIRST_PLAY;
-    baseButton.setText("\u23F8\uFE0E"); //⏸︎ PAUSE
-    
-    console.log("FIRST_PLAY");
-    return
-  }
+  if(EditorTutorial){
+    EditorTutorial.tutorialButtonLogic();
+  }else{
+    if(Introduction){
 
-  if (currentAppState === AppStates.FIRST_PLAY){ 
-    
-    if(!completeAreaTutorial){
-      mLeft.status = 1;
-      mUp.status = 1;
-      mDown.status = 1; 
-      mRight.status = 1;
-      timelineArea.plusBtn.status = 4;
-    }
-
-
-    isPlaying = !isPlaying; 
-
-    if(isPlaying){ 
-      lastT = 0;
-
-      // Зная, что игрок уже воспроизводил и ставил на паузу > открываем игровую логику
-      if(currentGameState != GameStates.OPEN_GAME){spawnGameEntities();}
-      baseButton.setText("\u23F8\uFE0E"); //⏸︎ PAUSE
+      unlockAll();
+      resetToBaseArea()
 
     }else{
 
-      checkTutorial(); 
-
-      if(currentGameState != GameStates.OPEN_GAME){deSpawnGameEntities();}  
-      baseButton.setText("\u25B6\uFE0E"); // ▶︎ 
-    }
-
-    console.log("PLAYING STATUS", isPlaying);
+      playPauseLogic();
     
-    buildUI();
-    return
+    }
+    
   }
 
-  // Обычная логика reset кнопки (лучше потом обернуть в условие)
-  resetAction();
 }
 
 function gameButtonAction() {
@@ -1303,42 +1527,40 @@ function gameButtonAction() {
 }
 
 
-function resetAction() {
+function resetToBaseArea() {
   config = JSON.parse(JSON.stringify(DEFAULTS_SETUP.config));
   graphicStates = JSON.parse(JSON.stringify(DEFAULTS_SETUP.states));
   curGfx = 0; curAnim = 0; fIdx = 0; isPlaying = false; isInitialized = false;
 
-  if(!completeAreaTutorial){
-    loadButton.status = 4;
-    saveButton.status = 4;
+  buildUI();
+}
+
+function resetCurrentArea() {
+  if(!CURRENT_SETUP && Introduction){
+    // First Reset from Introduction > Open All
+    Tutorial = false;
+    unlockAll();
   }
+
+  if(EditorTutorial && !EditorTutorial.completeAreaTutorial){
+    // блокировка сброса если tutorial
+    return
+  }
+
+  CURRENT_SETUP = {
+      config: { rows: config.rows, cols: config.cols, size: 40 },
+      states: [{ offsetX: 0, offsetY: 0, animStates: [{ activeCells: [], delay: 80 }] }]
+  };
+
+  config = JSON.parse(JSON.stringify(CURRENT_SETUP.config));
+  graphicStates = JSON.parse(JSON.stringify(CURRENT_SETUP.states));
+  curGfx = 0; curAnim = 0; fIdx = 0; isPlaying = false; isInitialized = false;
 
   buildUI();
 }
 
-let unlockPlus = false;
-function testDrawingUser(){    
-    if (currentAppState != AppStates.FIRST_RESET) return;
 
-    const currentGfx = graphicStates[curGfx];
-    const hasPixels = currentGfx.animStates.some(a => a.activeCells.length > 2);
 
-    if(hasPixels && !unlockPlus){
-      timelineArea.plusBtn.status = 1;
-      unlockPlus = true;
-      console.log("UNLOCK TIMELINE PLUS", timelineArea.plusBtn.status);
-    }
-
-    const hasMultipleFrames = currentGfx.animStates.length > 1;
-
-    // Кнопка PLAY появляется ТОЛЬКО если кадров больше двух и больше двух активных ячеек
-    if (!isInitialized && hasPixels && hasMultipleFrames) {
-        baseButton.setText("\u25B6\uFE0E"); // ▶︎
-        currentAppState = AppStates.FIRST_DRAW;
-        console.log("FIRST_DRAW");
-        return;
-    }
-}
 
 
 // Listeners and Controls
@@ -1353,7 +1575,7 @@ canvas.addEventListener('mousedown', (e)=>{
     baseButton.onClick();
   }
 
-  if(currentAppState == AppStates.INTRO){
+  if(Introduction){
     let btn = topToolbarArea.find(px,py);
     if (btn && btn.onClick && btn.status !== 0 && btn.status !== 4) {
       btn.onClick();
@@ -1392,14 +1614,11 @@ canvas.addEventListener('mousedown', (e)=>{
     }
   }
 
-
-
   if(gameButton){
     if(gameButton.contains(px,py) && gameButton.onClick && gameButton.status !== 0 && baseButton.status !== 4) {
       gameButton.onClick();
     }
   }
-
 
   // if click inside editor area -> start drawing
   if (editorArea.contains(px,py)) {
@@ -1427,25 +1646,43 @@ window.addEventListener('mouseup', (e)=>{
 });
 
 /* Keyboard handling — reuse previous mapping */
-window.addEventListener('keydown', (e)=>{
+function onKeyCommand(e) {
+  const cod = e.code;
+  const key = e.key;
+
+  if (cod === "KeyR") resetCurrentArea();
+  else if (cod === "Space"){
+
+    if(EditorTutorial){
+      if(baseButton.status == 1){
+        EditorTutorial.tutorialButtonLogic();
+      }
+    }else{
+      playPauseLogic();
+    }
+  }
+  
+
   if (isDrawing) return;
   if (isPlaying){
-    switch(e.key) {
+    switch(key) {
       case 'ArrowLeft':  movePlayer(-1, 0); break;
       case 'ArrowRight': movePlayer(1, 0);  break;
       case 'ArrowUp':    movePlayer(0, -1); break;
       case 'ArrowDown':  movePlayer(0, 1);  break;
     }
   } else {
-    switch(e.key) {
+    switch(key) {
       case 'ArrowLeft':  shiftPixels(-1, 0); break;
       case 'ArrowRight': shiftPixels(1, 0);  break;
       case 'ArrowUp':    shiftPixels(0, -1); break;
       case 'ArrowDown':  shiftPixels(0, 1);  break;
     }
   }
-});
 
+}
+
+window.addEventListener("keydown", onKeyCommand);
 
 // LOAD / SAVE USER DATA
 
@@ -1464,47 +1701,27 @@ fileInput.addEventListener('change', (ev)=>{
     try {
       const data = JSON.parse(e.target.result);
       config = data.config; graphicStates = data.graphicStates;
+
+      // синхронизируем глобальную «ячейковую» величину
+      CELL = config.size;
+
       isInitialized = false; isPlaying = false; curGfx = 0; curAnim = 0; fIdx = 0;
-      unlockAllButtons();
+      
+      if(EditorTutorial) EditorTutorial.unlockAllButtons();
+
+      if(Introduction){
+        unlockAll();
+        Tutorial = false;
+      }
+      
       buildUI();
+
     } catch(err){ alert("Ошибка при чтении JSON файла"); }
   };
   reader.readAsText(f);
 });
 
-function unlockAllButtons(){
 
-  currentAppState = AppStates.FIRST_PLAY;
-  currentGameState = GameStates.OPEN_GAME;
-
-  lockinitAreaTut = true;
-  tutorialOffset = true;
-  tutorialResize = true;
-  tutorialAFrObj = true;
-  tutorialOffsetLock = false;
-  completeAreaTutorial = true;
-  unlockPlus = true;
-  unlockObjectButtons = true;
-
-  mLeft.status = 1;
-  mUp.status = 1;
-  mDown.status = 1; 
-  mRight.status = 1;
-
-  aCols.status = 1;
-  sCols.status = 1;
-  sRows.status = 1; 
-  aRows.status = 1;
-
-  if(!gameButton){
-    gameButton = new UIButton("⏯\u{FE0E}", gameButtonAction, { S:4 })
-    gameButton.status = 1;
-  }
-
-  saveButton.status = 1;
-  
-  baseButton.setText("\u25B6\uFE0E"); // ▶︎
-}
 
 // ОСНОВНОЙ ЦИКЛ
 function startLoop() {
@@ -1534,7 +1751,7 @@ function loop(t) {
     if (gfx) {
       const anims = gfx.animStates;
       const currentDelay = anims[fIdx] ? anims[fIdx].delay : 80;
-
+      let frameCount = anims.length; // Объявляем заранее
       //console.log("currentDelay:", currentDelay);
 
       if(!isFrameGame){
@@ -1545,9 +1762,10 @@ function loop(t) {
           curAnim = fIdx;
 
           // если сменился текущий графический объект или изменилось кол-во кадров — обновим timeline
-          // (анимы уже доступны как `anims`)
           if (timelineArea) {
-            const frameCount = anims.length;
+            
+            frameCount = Math.max(1, Math.min(frameCount, Math.max(1, config.cols - 2)));
+            
             if (timelineArea._lastGfxIndex !== curGfx || timelineArea._lastFrameCount !== frameCount) {
               timelineArea.refresh();
               timelineArea._lastGfxIndex = curGfx;
@@ -1573,7 +1791,7 @@ function loop(t) {
           renderAll();
 
           fIdx++;
-          if (fIdx >= anims.length) {
+          if (fIdx >= frameCount) { //anims.length
             fIdx = 0;
             curGfx = (curGfx + 1) % graphicStates.length;
             curAnim = 0;
