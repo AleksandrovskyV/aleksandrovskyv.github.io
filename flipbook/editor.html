@@ -61,10 +61,10 @@ let lastT = 0, fIdx = 0;
 let mouseDown = false;
 
 
-const GameStates = { FIRST_SPAWN: 0, GOAL_SPAWN: 1, OPEN_GAME: 2,
+const GameStates = { T_FPL_SPAWN: 0, T_FGOAL_SPAWN: 1, FRAME_GAME: 2,
 };
 
-let currentGameState = GameStates.OPEN_GAME;
+let currentGameState = GameStates.FRAME_GAME;
 
 
 // Frame Area setup : Default
@@ -725,7 +725,7 @@ function rebuildLayout() {
 
   // подкнопка
 
-  if(currentGameState !=  GameStates.OPEN_GAME){
+  if(currentGameState !=  GameStates.FRAME_GAME){
     if(cols%2==1){
       baseButton.setLength(3);
       baseButton.setCellPos(1.5+cols/2, timelineY+2); 
@@ -808,7 +808,7 @@ function renderAll() {
   timelineArea.render(ctx);
 
   baseButton.render(ctx);
-  if(currentGameState ===  GameStates.OPEN_GAME){
+  if(currentGameState ===  GameStates.FRAME_GAME){
     if(gameButton)gameButton.render(ctx);
   }
 
@@ -1045,17 +1045,17 @@ function movePlayer(dx, dy) {
   if (goal && player.x === goal.x && player.y === goal.y) {
     isPlaying = false;
     //alert("Цель достигнута!");
-    if(currentGameState ===  GameStates.GOAL_SPAWN){
-      currentGameState = GameStates.OPEN_GAME;
+    if(currentGameState ===  GameStates.T_FGOAL_SPAWN){
+      currentGameState = GameStates.FRAME_GAME;
       gameButton = new UIButton("⏯\u{FE0E}", gameButtonAction, { S:4 })
     }
 
-    if(currentGameState === GameStates.OPEN_GAME && isFrameGame){
+    if(currentGameState === GameStates.FRAME_GAME && isFrameGame){
       saveButton.status = 1;
       console.log("COMPLETE FRAME GAME");
     }
 
-    if(currentGameState ===  GameStates.OPEN_GAME){
+    if(currentGameState ===  GameStates.FRAME_GAME){
       isFrameGame = false;
       baseButton.status = 1;
     }
@@ -1078,17 +1078,17 @@ function spawnGameEntities() {
     var shiftAreaY = editorArea.cy+1; 
   }
 
-  if(currentGameState === GameStates.FIRST_SPAWN){
+  if(currentGameState === GameStates.T_FPL_SPAWN){
         // первое появление игрока
         newy = Math.floor(Math.random() * config.rows);
         //player = { x: shiftAreaX,                   y: shiftAreaY + newy };
         player = { x: 10,                   y: 1 };
-    }else if(currentGameState === GameStates.GOAL_SPAWN) {
+    }else if(currentGameState === GameStates.T_FGOAL_SPAWN) {
         // появляется цель + игрок
         newy = Math.floor(Math.random() * config.rows);
         player = { x: shiftAreaX,                   y: shiftAreaY + newy };
         goal   = { x: shiftAreaX + config.cols + 1, y: (shiftAreaY-1) + config.rows - newy };
-    }else if(currentGameState === GameStates.OPEN_GAME){
+    }else if(currentGameState === GameStates.FRAME_GAME){
         // полная логика случайного спауна (требуется дописать)
         newy = Math.floor(Math.random() * config.rows);
         player = { x: shiftAreaX,                   y: shiftAreaY + newy };
@@ -1121,8 +1121,8 @@ function GameOver(status) {
 
   baseButton.setText("\u25B6\uFE0E"); // ▶︎
 
-  if(currentGameState === GameStates.FIRST_SPAWN){
-    currentGameState = GameStates.GOAL_SPAWN;
+  if(currentGameState === GameStates.T_FPL_SPAWN){
+    currentGameState = GameStates.T_FGOAL_SPAWN;
     aCols.status = 1;
     aRows.status = 1;
     sCols.status = 1;
@@ -1131,7 +1131,7 @@ function GameOver(status) {
     console.log("Добавляем активную цель");
   }
 
-  if(currentGameState === GameStates.OPEN_GAME){
+  if(currentGameState === GameStates.FRAME_GAME){
     isFrameGame = false;
     baseButton.status = 1;
   }
@@ -1147,7 +1147,7 @@ function GameOver(status) {
 }
 
 function unlockAll(){
-  currentGameState = GameStates.OPEN_GAME;
+  currentGameState = GameStates.FRAME_GAME;
 
   objectArea.unlockButtons = true;
   timelineArea.plusBtn.status = 1;
