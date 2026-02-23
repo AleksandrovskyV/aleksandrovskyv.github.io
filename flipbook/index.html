@@ -149,7 +149,11 @@ const INITIAL_SETUP = {
 
 let config = JSON.parse(JSON.stringify(INITIAL_SETUP.config));
 let graphicStates = JSON.parse(JSON.stringify(INITIAL_SETUP.graphicStates));
+
 let CELL = config.size;
+
+//config.size += 2; 
+//config.size -= 2; 
 
 //   Canvas UI primitives
 const canvas = document.getElementById('uiCanvas');
@@ -1613,25 +1617,6 @@ canvas.addEventListener('mousedown', (e)=>{
     btn.onClick();
     rebuildLayout(); renderAll();
     return;
-  }
-
-  const L = canvas._layout;
-  const rightX = L.leftW + L.editorW;
-  if (px >= rightX && px < rightX + L.rightW) {
-    const idx = Math.floor((py - L.topH) / config.size);
-    if (idx >= 0 && idx <= 5) {
-      // map
-      switch(idx){
-        case 0: config.cols++; break;
-        case 1: config.cols--; break;
-        case 2: config.size += 2; break;
-        case 3: config.size -= 2; break;
-        case 4: config.rows--; break;
-        case 5: config.rows++; break;
-      }
-      buildUI();
-      return;
-    }
   }
 
   if(gameButton){
