@@ -85,9 +85,8 @@ let player = null, goal = null, isGameOver = false;
 let isFrameGame = false;
 let debug = false;
 
-let curGfx = 0, curAnim = 0, isDrawing = false, drawMode = true, isPlaying = true, isInitialized = true;
-let lastT = 0, fIdx = 0;
-let mouseDown = false;
+let curGfx = 0, curAnim = 0, lastT = 0, fIdx = 0;
+let mouseDown = false, isDrawing = false, drawMode = true, isPlaying = true, isInitialized = true;
 
 
 const GameStates = { T_FPL_SPAWN: 0, T_FGOAL_SPAWN: 1, FRAME_GAME: 2,
@@ -356,7 +355,7 @@ class ObjectArea {
     this.rows = rows;
     this.group = null;
     this.spacer = new UISpacer();
-    this.plusBtn = new UIButton("+", addGfx, { S:1, D:1 })
+    this.plusBtn = new UIButton("+", addOBJ, { S:1, D:1 })
     this.unlockButtons = false;
   }
 
@@ -513,7 +512,7 @@ class TimelineArea {
     this.group = { items: [] };
 
     // вынес т.к. нужны ссылки (хранить состояние)
-    this.minusBtn = new UIButton("−", popAnim);
+    this.minusBtn = new UIButton("−", delAnim);
     this.plusBtn = new UIButton("+", addAnim);
     
     // на инициализации - неактивны
@@ -1169,32 +1168,7 @@ function resizeGrid({ dc = 0, dr = 0 }) { // dc (delta cols), dr (delta rows)
   buildUI();
 }
 
-
-function addAnim() {
-  const maxFrames = Math.max(1, config.cols - 2);
-  if (graphicStates[curGfx].animStates.length >= maxFrames) return;
-  const curState = graphicStates[curGfx].animStates[curAnim];
-  let newCells = Array.isArray(curState.activeCells) ? [...curState.activeCells] : [];
-
-  if (EditorTutorial && !EditorTutorial.completeAreaTutorial) {
-    if (newCells.length > 0) newCells.pop();
-  }
-
-  graphicStates[curGfx].animStates.push({ activeCells: newCells, delay: curState.delay || 80 });
-  curAnim = graphicStates[curGfx].animStates.length - 1;
-  fIdx = curAnim;
-  buildUI();
-}
-
-function popAnim() {
-  if (graphicStates[curGfx].animStates.length > 1) {
-    graphicStates[curGfx].animStates.pop();
-    curAnim = Math.min(curAnim, graphicStates[curGfx].animStates.length - 1);
-    fIdx = curAnim; buildUI();
-  }
-}
-
-function addGfx() {
+function addOBJ() {
   if (graphicStates.length >=  config.rows - 1) return;
   
   if(EditorTutorial){  EditorTutorial.complete("AddObject"); }
@@ -1202,6 +1176,45 @@ function addGfx() {
   graphicStates.push({ offsetX: 0, offsetY: 0, animStates: [{ activeCells: [], delay: 80 }] });
   curGfx = graphicStates.length - 1; curAnim = 0; fIdx = 0; buildUI();
 }
+
+function delOBJ() {
+  console.log("delOBJ")
+
+  if (graphicStates.length <= 1) return;
+  graphicStates.splice(curGfx, 1);
+  
+  curGfx = graphicStates.length - 1; 
+  curAnim = 0; fIdx = 0; buildUI();
+}
+
+function addAnim() {
+  const maxFrames = Math.max(1, config.cols - 2);
+  if (graphicStates[curGfx].animStates.length >= maxFrames) return;
+  const curState = graphicStates[curGfx].animStates[curAnim];
+  let newCells = Array.isArray(curState.activeCells) ? [...curState.activeCells] : [];
+
+
+  //if (EditorTutorial && !EditorTutorial.completeAreaTutorial) {  }
+  if (newCells.length > 0) newCells.pop();
+
+  graphicStates[curGfx].animStates.push({ activeCells: newCells, delay: curState.delay || 80 });
+  curAnim = graphicStates[curGfx].animStates.length - 1;
+  fIdx = curAnim;
+  buildUI();
+}
+
+function delAnim() {
+  console.log("delAnim")
+  if (graphicStates[curGfx].animStates.length > 1) {
+    graphicStates[curGfx].animStates.pop();
+    curAnim = Math.min(curAnim, graphicStates[curGfx].animStates.length - 1);
+    fIdx = curAnim; buildUI();
+  }else{
+    delOBJ();
+  }
+}
+
+
 
 let playerInsideEditor =false;
 let goalTriedEnterEditor = false;
