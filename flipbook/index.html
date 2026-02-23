@@ -160,30 +160,16 @@ const canvas = document.getElementById('uiCanvas');
 const ctx = canvas.getContext('2d');
 const fileInput = document.getElementById('fileInput');
 
-function sizeCanvas() {
-  const S = config.size;
-  const leftW = S; 
-  const rightW = S;
-  const topH = S; 
-  const timelineH = S; 
-  const playH = S;
-
-  const editorW = config.cols * S;
-  const editorH = config.rows * S;
-
-  canvas._layout = {
-    leftW,rightW,
-    topH,timelineH,playH,editorW,editorH,
-    width: leftW + S + editorW +S + rightW,
-    height: topH + S + editorH +S + timelineH + S + playH 
-  };
-
-  canvas.width = canvas._layout.width;
-  canvas.height = canvas._layout.height;
-  canvas.style.width = canvas.width + "px";
-  canvas.style.height = canvas.height + "px";
+function sizeCanvas(inCanvas,x,y,s) {
+  const thisWidth = x*s;
+  const thisHeight = y*s;
+  inCanvas.width = thisWidth;
+  inCanvas.height = thisHeight;
+  inCanvas.style.width = inCanvas.width + "px";
+  inCanvas.style.height = inCanvas.height + "px";
 }
-sizeCanvas();
+
+sizeCanvas(canvas, config.cols + 4, config.rows + 6, config.size);
 
 /* Generic Base classes on cell grid */
 
@@ -1125,7 +1111,7 @@ function buildUI() {
     }
   }
 
-  sizeCanvas();
+  sizeCanvas(canvas, config.cols + 4, config.rows + 6, config.size);
   rebuildLayout(); 
   renderAll();
 }
