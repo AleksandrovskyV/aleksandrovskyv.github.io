@@ -716,6 +716,10 @@ class TutorialClass {
 
   complete(state){
 
+    if(this.currentTutState == this.TutStates.FIRST_RESET){
+      return
+    }
+
     if(state==="resize"){
   
       this.tutorialResize = true;
@@ -1146,7 +1150,9 @@ function shiftPixels(dx, dy) {
   const state = gfx.animStates[curAnim];
   if (!state) return;
 
-  if(EditorTutorial){ EditorTutorial.complete("offset"); }
+  if(EditorTutorial){ 
+    EditorTutorial.complete("offset"); 
+  }
 
   state.activeCells = state.activeCells.map(key => {
     const [x, y] = key.split(',').map(Number);
