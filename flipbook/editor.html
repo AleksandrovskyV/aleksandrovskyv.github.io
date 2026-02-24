@@ -27,7 +27,7 @@
   html,body { height:100%; margin:0; }
   body { background:var(--bg); color:#fff; font-family:system-ui, -apple-system, sans-serif; display:flex; align-items:center; justify-content:center; user-select:none; overflow:hidden; }
   #root { width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; }
-  canvas { image-rendering: pixelated; background:#000; display:block; }
+  canvas { image-rendering: pixelated; background:#000; display:block; margin: 25px}
   input[type=file] { display:none; }
 </style>
 
@@ -36,7 +36,8 @@
 <body>
 
 <div id="root">
-  <canvas id="uiCanvas"></canvas>
+  <canvas id="BaseCanvas"></canvas>
+  <canvas id="PatternCanvas"></canvas>
 </div>
 
 <input id="fileInput" type="file" accept="application/json" />
@@ -127,34 +128,25 @@ let CELL = config.size;
 //config.size -= 2; 
 
 //   Canvas UI primitives
-const canvas = document.getElementById('uiCanvas');
+const canvas = document.getElementById('BaseCanvas');
 const ctx = canvas.getContext('2d');
 const fileInput = document.getElementById('fileInput');
 
-function sizeCanvas() {
-  const S = config.size;
-  const leftW = S; 
-  const rightW = S;
-  const topH = S; 
-  const timelineH = S; 
-  const playH = S;
+const canvasPattern = document.getElementById('PatternCanvas');
+const ctxPattern = canvasPattern.getContext('2d');
 
-  const editorW = config.cols * S;
-  const editorH = config.rows * S;
-
-  canvas._layout = {
-    leftW,rightW,
-    topH,timelineH,playH,editorW,editorH,
-    width: leftW + S + editorW +S + rightW,
-    height: topH + S + editorH +S + timelineH + S + playH 
-  };
-
-  canvas.width = canvas._layout.width;
-  canvas.height = canvas._layout.height;
-  canvas.style.width = canvas.width + "px";
-  canvas.style.height = canvas.height + "px";
+function sizeCanvas(inCanvas, x, y, s) {
+  const w = x * s;
+  const h = y * s;
+  
+  inCanvas.width = w;
+  inCanvas.height = h;
+  inCanvas.style.width = `${w}px`;
+  inCanvas.style.height = `${h}px`;
 }
-sizeCanvas();
+
+sizeCanvas(canvas, config.cols + 4, config.rows + 6, config.size);
+sizeCanvas(canvasPattern, 3, 6, config.size);
 
 /* Generic Base classes on cell grid */
 
@@ -659,6 +651,11 @@ gameButton = new UIButton("⏯\u{FE0E}", gameButtonAction, { S:4 })
 
 
 
+let editorAreaB = new EditorArea(0, 0);
+
+
+
+
 function rebuildLayout() {
   const cols = config.cols;   // ширина редактора в ячейках
   const rows = config.rows;   // высота редактора в ячейках
@@ -804,6 +801,8 @@ function renderAll() {
 
   objectArea.render(ctx);
   editorArea.render(ctx);
+
+  editorAreaB.render(ctxPattern);
   
   topToolbarArea.render(ctx);
   rightToolbarArea.render(ctx);
@@ -838,7 +837,8 @@ function buildUI() {
   if(config.cols == 10){ sCols.status = 4; }else{ sCols.status = 1; }
   if(config.rows == 7){  sRows.status = 4; }else{ sRows.status = 1; }
 
-  sizeCanvas();
+  //sizeCanvas();
+  sizeCanvas(canvas, config.cols + 4, config.rows + 6, config.size);
   rebuildLayout(); 
   renderAll();
 }
@@ -1247,8 +1247,6 @@ function resetCurrentArea() {
 
   buildUI();
 }
-
-
 
 
 
