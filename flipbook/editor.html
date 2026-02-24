@@ -146,7 +146,7 @@ function sizeCanvas(inCanvas, x, y, s) {
 }
 
 sizeCanvas(canvas, config.cols + 4, config.rows + 6, config.size);
-sizeCanvas(canvasPattern, 3, 6, config.size);
+sizeCanvas(canvasPattern, 7, 6, config.size);
 
 /* Generic Base classes on cell grid */
 
@@ -404,19 +404,53 @@ class ObjectArea {
 }
 
 
-class EditorArea {
-  constructor(cellX, cellY) {
-    this.cx = cellX-1; 
-    this.cy = cellY-1;
-    this.updateSize();
+class PatternSearchClass {
+  constructor(areaA, areaB) {
+    this.areaA = areaA ? areaA : null;
+    this.areaB = areaB ? areaB : null;
+    this.pattern = null;
+
+    if(areaA && areaB){
+      this.setFramesPattern()
+    }
+
   }
 
-  updateSize() {
+  setFramesPattern(){
+    const startFrame = this.areaA.getCells();
+    const endFrame = this.areaB.getCells();
+    this.pattern = [startFrame, endFrame];
+    //this.debug();
+  }
+
+  debug(){
+    console.log(this.pattern)
+  }
+
+}
+
+class EditorArea {
+  constructor(cellX, cellY, renderStates = false, wc, hc) {
+    this.cx = cellX-1; 
+    this.cy = cellY-1;
+    
+    this.renderStates = renderStates;
+    // если renderStates == false здесь будем хранить список активных ячеек пользователем
+    this.activeCells = renderStates ? null : new Set(); 
+
+    this.wc = renderStates ? config.cols : wc;
+    this.hc = renderStates ? config.rows : hc;
+
+    this.setSize(this.wc, this.hc);
+
+  }
+
+  setSize(w,h) {
     this.S = CELL;
     this.x = this.cx * this.S;
     this.y = this.cy * this.S;
-    this.w = config.cols * this.S;
-    this.h = config.rows * this.S;
+    this.w = w * this.S;
+    this.h = h * this.S;
   }
 
   contains(px, py) {
@@ -428,43 +462,81 @@ class EditorArea {
     const localX = Math.floor((px - this.x) / this.S);
     const localY = Math.floor((py - this.y) / this.S);
     // clamp to [0..cols-1] / [0..rows-1]
-    const cx = Math.max(0, Math.min(config.cols - 1, localX));
-    const cy = Math.max(0, Math.min(config.rows - 1, localY));
+    const cx = Math.max(0, Math.min(this.wc - 1, localX));
+    const cy = Math.max(0, Math.min(this.hc - 1, localY));
     return { x: cx, y: cy };
   }
 
-  // рендерим ТОЛЬКО клетки, которые внутри editor (фильтруем graphicStates)
+  renderCellsAnimFromAnimStates(ctx){
+    // draw cells current frame (clip) from userConfig 
+    const gfx = graphicStates[curGfx];
+    if (!gfx || !gfx.animStates[curAnim]) return;
+    ctx.fillStyle = "#fff";
+    gfx.animStates[curAnim].activeCells.forEach(key => {
+      const [cx, cy] = key.split(',').map(Number); // these are 0-based in your data
+      if (cx >= 0 && cx < this.wc && cy >= 0 && cy < this.hc) {
+        ctx.fillRect(this.x + cx * this.S, this.y + cy * this.S, this.S, this.S);
+      }
+    });
+  }
+
+  toggleCells(px, py) { //??? Этот метод должен добавить активную ячейку в activeCells
+    const pos = this.getPosFromCanvas(px, py);
+    if (!pos) return;
+    const key = `${pos.x},${pos.y}`;
+    if (this.activeCells.has(key)) {
+        this.activeCells.delete(key);
+    } else {
+        this.activeCells.add(key);
+    }
+    patternSearch.setFramesPattern();
+  }
+
+  getCells() {
+    return this.activeCells;
+  }
+
+  renderCells(ctx) { //??? Этот метод должен отрендерить ячейки из activeCells
+    if (!this.activeCells) return;
+
+    ctx.fillStyle = "#fff"; // Или любой другой цвет для EditorAreaB
+    this.activeCells.forEach(key => {
+        const [cx, cy] = key.split(',').map(Number);
+        ctx.fillRect(
+            this.x + cx * this.S, 
+            this.y + cy * this.S, 
+            this.S, 
+            this.S
+        );
+    });
+  }
+
   render(ctx) {
     ctx.fillStyle = "#000";
     ctx.fillRect(this.x, this.y, this.w, this.h);
     ctx.strokeStyle = "#222";
     ctx.strokeRect(this.x + 0.5, this.y + 0.5, this.w - 1, this.h - 1);
 
-    // grid
+    // grid layout
     ctx.strokeStyle = "#222";
-    for (let i = 0; i <= config.cols; i++) {
+    for (let i = 0; i <= this.wc; i++) {
       ctx.beginPath();
       ctx.moveTo(this.x + i * this.S, this.y);
-      ctx.lineTo(this.x + i * this.S, this.y + config.rows * this.S);
+      ctx.lineTo(this.x + i * this.S, this.y + this.hc * this.S);
       ctx.stroke();
     }
-    for (let j = 0; j <= config.rows; j++) {
+    for (let j = 0; j <= this.hc; j++) {
       ctx.beginPath();
       ctx.moveTo(this.x, this.y + j * this.S);
-      ctx.lineTo(this.x + config.cols * this.S, this.y + j * this.S);
+      ctx.lineTo(this.x + this.wc * this.S, this.y + j * this.S);
       ctx.stroke();
     }
 
-    // draw only visible cells from current frame (clip)
-    const gfx = graphicStates[curGfx];
-    if (!gfx || !gfx.animStates[curAnim]) return;
-    ctx.fillStyle = "#fff";
-    gfx.animStates[curAnim].activeCells.forEach(key => {
-      const [cx, cy] = key.split(',').map(Number); // these are 0-based in your data
-      if (cx >= 0 && cx < config.cols && cy >= 0 && cy < config.rows) {
-        ctx.fillRect(this.x + cx * this.S, this.y + cy * this.S, this.S, this.S);
-      }
-    });
+    if(this.renderStates){
+      this.renderCellsAnimFromAnimStates(ctx);
+    }else{
+      this.renderCells(ctx);
+    }
   }
 }
 
@@ -651,10 +723,10 @@ gameButton = new UIButton("⏯\u{FE0E}", gameButtonAction, { S:4 })
 
 
 
-let editorAreaB = new EditorArea(0, 0);
+let editorAreaB = new EditorArea(1, 0, false, 3,6); //For InFrame Pattern
+let editorAreaC = new EditorArea(5, 0, false, 3,6); //For OutFrame Pattern
 
-
-
+const patternSearch = new PatternSearchClass(editorAreaB,editorAreaC);
 
 function rebuildLayout() {
   const cols = config.cols;   // ширина редактора в ячейках
@@ -663,7 +735,7 @@ function rebuildLayout() {
 
   //// EditorArea:
   editorX = 3; editorY = 3;
-  editorArea = new EditorArea(editorX, editorY);
+  editorArea = new EditorArea(editorX, editorY, true);
 
   endEditorX = editorX + cols;
   endEditorY = editorY + rows;
@@ -803,6 +875,7 @@ function renderAll() {
   editorArea.render(ctx);
 
   editorAreaB.render(ctxPattern);
+  editorAreaC.render(ctxPattern);
   
   topToolbarArea.render(ctx);
   rightToolbarArea.render(ctx);
@@ -1252,6 +1325,7 @@ function resetCurrentArea() {
 
 // Listeners and Controls
 
+// Source Canvas
 canvas.addEventListener('mousedown', (e)=>{
   const rect = canvas.getBoundingClientRect();
   const px = Math.floor(e.clientX - rect.left);
@@ -1284,6 +1358,27 @@ canvas.addEventListener('mousedown', (e)=>{
     drawMode = !graphicStates[curGfx].animStates[curAnim].activeCells.includes(`${pos.x},${pos.y}`);
     toggle(pos);
   }
+
+
+});
+
+// Secondary Canvas
+canvasPattern.addEventListener('mousedown', (e)=>{
+  const rect = canvasPattern.getBoundingClientRect();
+  const px = Math.floor(e.clientX - rect.left);
+  const py = Math.floor(e.clientY - rect.top);
+  mouseDown = true;
+
+  if (editorAreaB.contains(px,py)) {
+    isDrawing = true; isInitialized = false; isPlaying = false;
+    editorAreaB.toggleCells(px,py);
+  }
+
+  if (editorAreaC.contains(px,py)) {
+    isDrawing = true; isInitialized = false; isPlaying = false;
+    editorAreaC.toggleCells(px,py);
+  }
+
 });
 
 window.addEventListener('mousemove', (e)=>{
