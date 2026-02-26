@@ -123,6 +123,8 @@ let config = JSON.parse(JSON.stringify(INITIAL_SETUP.config));
 let graphicStates = JSON.parse(JSON.stringify(INITIAL_SETUP.graphicStates));
 
 let CELL = config.size;
+let CSIZEX = config.cols + 4;
+let CSIZEY =  config.rows + 6;
 
 //config.size += 2; 
 //config.size -= 2; 
@@ -135,18 +137,34 @@ const fileInput = document.getElementById('fileInput');
 const canvasPattern = document.getElementById('PatternCanvas');
 const ctxPattern = canvasPattern.getContext('2d');
 
-function sizeCanvas(inCanvas, x, y, s) {
-  const w = x * s;
-  const h = y * s;
-  
-  inCanvas.width = w;
-  inCanvas.height = h;
-  inCanvas.style.width = `${w}px`;
-  inCanvas.style.height = `${h}px`;
+function updateCSIZE(x,y){
+  CSIZEX = x ? x : config.cols + 4;
+  CSIZEY = y ? y : config.rows + 6;
 }
 
-sizeCanvas(canvas, config.cols + 4, config.rows + 6, config.size);
-sizeCanvas(canvasPattern, 7, 6, config.size);
+function updateSizeCanvas(canvas,x,y) {
+  let w,h;
+
+  if(!x && !y){
+    CSIZEX = config.cols + 4;
+    CSIZEY = config.rows + 6;
+    w = CSIZEX * CELL;
+    h = CSIZEY * CELL;
+  }else{
+    w = x * CELL;
+    h = y * CELL;
+  }
+  
+  console.log("size",w/CELL,h/CELL);
+  canvas.width = w;
+  canvas.height = h;
+  canvas.style.width = `${w}px`;
+  canvas.style.height = `${h}px`;
+}
+
+
+updateSizeCanvas(canvas);
+updateSizeCanvas(canvasPattern, 7, 6);
 
 /* Generic Base classes on cell grid */
 
@@ -941,8 +959,8 @@ function buildUI() {
   if(config.cols == 10){ sCols.status = 4; }else{ sCols.status = 1; }
   if(config.rows == 7){  sRows.status = 4; }else{ sRows.status = 1; }
 
-  //sizeCanvas();
-  sizeCanvas(canvas, config.cols + 4, config.rows + 6, config.size);
+  //updateSizeCanvas();
+  updateSizeCanvas(canvas);
   rebuildLayout(); 
   renderAll();
 }

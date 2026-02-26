@@ -151,6 +151,8 @@ let config = JSON.parse(JSON.stringify(INITIAL_SETUP.config));
 let graphicStates = JSON.parse(JSON.stringify(INITIAL_SETUP.graphicStates));
 
 let CELL = config.size;
+let CSIZEX = config.cols + 4;
+let CSIZEY =  config.rows + 6;
 
 //config.size += 2; 
 //config.size -= 2; 
@@ -160,17 +162,27 @@ const canvas = document.getElementById('uiCanvas');
 const ctx = canvas.getContext('2d');
 const fileInput = document.getElementById('fileInput');
 
-function sizeCanvas(inCanvas, x, y, s) {
-  const w = x * s;
-  const h = y * s;
+function updateSizeCanvas(canvas,x,y) {
+  let w,h;
+
+  if(!x && !y){
+    CSIZEX = config.cols + 4;
+    CSIZEY = config.rows + 6;
+    w = CSIZEX * CELL;
+    h = CSIZEY * CELL;
+  }else{
+    w = x * CELL;
+    h = y * CELL;
+  }
   
-  inCanvas.width = w;
-  inCanvas.height = h;
-  inCanvas.style.width = `${w}px`;
-  inCanvas.style.height = `${h}px`;
+  //console.log("size",w/CELL,h/CELL);
+  canvas.width = w;
+  canvas.height = h;
+  canvas.style.width = `${w}px`;
+  canvas.style.height = `${h}px`;
 }
 
-sizeCanvas(canvas, config.cols + 4, config.rows + 6, config.size);
+updateSizeCanvas(canvas);
 
 /* Generic Base classes on cell grid */
 
@@ -1047,7 +1059,7 @@ function rebuildLayout() {
     );
     //console.log("UPDATE_TIMELINE");
   }
-  
+
 
   // Правая панель // справа от редактора через ячейку, сверху на 3-й ячейке
   rightToolbarArea = new ButtonGroup( endEditorX + 1, editorY, 
@@ -1174,7 +1186,7 @@ function buildUI() {
     }
   }
 
-  sizeCanvas(canvas, config.cols + 4, config.rows + 6, config.size);
+  updateSizeCanvas(canvas);
   rebuildLayout(); 
   renderAll();
 }
