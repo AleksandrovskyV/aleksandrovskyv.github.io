@@ -1039,8 +1039,6 @@ function rebuildLayout() {
   }
   
   // Нижняя панель
-
-  // Нижняя панель
   timelineY = endEditorY + 1;
 
   if(!timelineArea){
@@ -1087,9 +1085,6 @@ function rebuildLayout() {
       baseButton.setCellPos(endEditorX-3, timelineY+2); 
   }
 
-  topToolbarArea.rebuild();
-  rightToolbarArea.rebuild();
-
   if (timelineArea) {
     timelineArea._lastGfxIndex = curGfx;
 
@@ -1098,6 +1093,9 @@ function rebuildLayout() {
 
     timelineArea._lastFrameCount = frameCount || 0;
   }
+
+  topToolbarArea.rebuild();
+  rightToolbarArea.rebuild();
 
   updateUIState();
 }
