@@ -1486,8 +1486,8 @@ function onKeyCommand(e) {
   const key = e.key;
 
   if (cod === "KeyR") resetCurrentArea();
-  else if (cod === "Space"){playPauseLogic();}
-  
+  else if (cod === "KeyV") toggleVisualState();
+  else if (cod === "Space") playPauseLogic();
 
   if (isDrawing) return;
   if (isPlaying){
