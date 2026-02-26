@@ -84,9 +84,12 @@ function toggleVisualState() {
   let index = states.indexOf(currentVisualState);
   index = (index + 1) % states.length;
   currentVisualState = states[index];
+
   if(currentVisualState!=VisualStates.AV){
     обновиТекстуры(currentVisualState);
   }
+
+  console.log("toggleVisualState",currentVisualState);
   renderAll();
 }
 
@@ -951,6 +954,8 @@ function renderAll() {
 
     if (bgimg && bgimg.complete && bgimg.naturalWidth > 0 && currentVisualState!=VisualStates.av) {
       ctx.drawImage(bgimg, 0, 0);
+    }else{
+      console.log("сюда попали");
     }
 
   }
