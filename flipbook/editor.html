@@ -60,11 +60,34 @@ let debug = false;
 let curGfx = 0, curAnim = 0, lastT = 0, fIdx = 0;
 let mouseDown = false, isDrawing = false, drawMode = true, isPlaying = true, isInitialized = true;
 
-const VisualStates = { AV: 0, VA: 1};
+const VisualStates = { AV: 'av', VA: 'va' };
 let currentVisualState = VisualStates.AV;
 
+const climg = new Image();
 const bgimg = new Image();
-bgimg.src = '/content/fb/va/bg.png'; // Путь к вашей картинке
+
+// cl - cell / pl - player / ed - editor / bg - background
+function loadTextures(state) {
+  if (state) {
+    currentVisualState = state;
+  }
+
+  const path = `content/fb/${currentVisualState}/`; 
+  const format = ".png";
+
+  bgimg.src = path + "bg" + format; 
+  climg.src = path + "cl" + format;
+}
+
+function toggleVisualState() {
+  const states = Object.values(VisualStates);
+  let index = states.indexOf(currentVisualState);
+  index = (index + 1) % states.length;
+  currentVisualState = states[index];
+  if(currentVisualState!=VisualStates.AV){
+    loadTextures(currentVisualState);
+  }
+}
 
 const GameStates = { T_FPL_SPAWN: 0, T_FGOAL_SPAWN: 1, FRAME_GAME: 2,
 };
@@ -919,14 +942,18 @@ function renderAll() {
 
   if(debug){
     ctx.fillStyle = "#111"; // fill full bg
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
   }else{
     ctx.fillStyle = "#000"; // fill full bg
-  }
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  if (bgimg && bgimg.complete && bgimg.naturalWidth > 0 && currentVisualState!=VisualStates.AV) {
-    ctx.drawImage(bgimg, 0, 0);
+    if (bgimg && bgimg.complete && bgimg.naturalWidth > 0 && currentVisualState!=VisualStates.av) {
+      ctx.drawImage(bgimg, 0, 0);
+    }
+
   }
+
 
   objectArea.render(ctx);
   editorArea.render(ctx);
@@ -1009,7 +1036,6 @@ function shiftPixels(dx, dy) {
 
 function resizeGrid({ dc = 0, dr = 0 }) { // dc (delta cols), dr (delta rows)
   
-
   if (dc !== 0) config.cols += dc;
   if (dr !== 0) config.rows += dr;
 
