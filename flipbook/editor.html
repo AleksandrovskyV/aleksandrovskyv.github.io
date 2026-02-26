@@ -67,7 +67,7 @@ const climg = new Image();
 const bgimg = new Image();
 
 // cl - cell / pl - player / ed - editor / bg - background
-function loadTextures(state) {
+function обновиТекстуры(state) {
   if (state) {
     currentVisualState = state;
   }
@@ -85,7 +85,7 @@ function toggleVisualState() {
   index = (index + 1) % states.length;
   currentVisualState = states[index];
   if(currentVisualState!=VisualStates.AV){
-    loadTextures(currentVisualState);
+    обновиТекстуры(currentVisualState);
   }
   renderAll();
 }
