@@ -87,6 +87,7 @@ function toggleVisualState() {
   if(currentVisualState!=VisualStates.AV){
     loadTextures(currentVisualState);
   }
+  renderAll();
 }
 
 const GameStates = { T_FPL_SPAWN: 0, T_FGOAL_SPAWN: 1, FRAME_GAME: 2,
