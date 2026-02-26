@@ -952,7 +952,7 @@ function renderAll() {
     ctx.fillStyle = "#000"; // fill full bg
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    if (bgimg && bgimg.complete && bgimg.naturalWidth > 0 && currentVisualState!==VisualStates.av) {
+    if (bgimg && bgimg.complete && bgimg.naturalWidth > 0 && currentVisualState!=VisualStates.AV) {
       ctx.drawImage(bgimg, 0, 0);
     }else{
       console.log("сюда попали");
