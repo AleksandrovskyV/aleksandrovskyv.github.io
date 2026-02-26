@@ -122,9 +122,9 @@ const INITIAL_SETUP = {
 let config = JSON.parse(JSON.stringify(INITIAL_SETUP.config));
 let graphicStates = JSON.parse(JSON.stringify(INITIAL_SETUP.graphicStates));
 
-let CELL = config.size;
-let CSIZEX = config.cols + 4;
-let CSIZEY =  config.rows + 6;
+let CELL   = config.size; // Размер ячейки
+let CSIZEX = config.cols + 4; // Размер поля X
+let CSIZEY = config.rows + 6; // Размер поля Y
 
 //config.size += 2; 
 //config.size -= 2; 
@@ -137,10 +137,6 @@ const fileInput = document.getElementById('fileInput');
 const canvasPattern = document.getElementById('PatternCanvas');
 const ctxPattern = canvasPattern.getContext('2d');
 
-function updateCSIZE(x,y){
-  CSIZEX = x ? x : config.cols + 4;
-  CSIZEY = y ? y : config.rows + 6;
-}
 
 function updateSizeCanvas(canvas,x,y) {
   let w,h;
@@ -155,9 +151,8 @@ function updateSizeCanvas(canvas,x,y) {
     h = y * CELL;
   }
   
-  console.log("size",w/CELL,h/CELL);
-  canvas.width = w;
-  canvas.height = h;
+  //console.log("size",w/CELL,h/CELL);
+  canvas.width = w; canvas.height = h;
   canvas.style.width = `${w}px`;
   canvas.style.height = `${h}px`;
 }
