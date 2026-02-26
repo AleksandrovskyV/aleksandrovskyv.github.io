@@ -417,20 +417,46 @@ class PatternSearchClass {
   }
 
   setFramesPattern(){
+    // Set Pattern Cells from User (call after user input)
     const startFrame = this.areaA.getCells();
     const endFrame = this.areaB.getCells();
     this.pattern = [startFrame, endFrame];
-    //this.debug();
+    this.debug();
+  }
+
+  findPattern(){
+    // Find areaA to areaB between between two frames
+    // call every change frames
+    // if pattern find - console logging
+
+    const gfx = graphicStates[curGfx];
+    if (!gfx || !gfx.animStates[curAnim]) return;
+
+    const curState = gfx.animStates[curAnim];
+    const nextState = gfx.animStates[curAnim+1];
+
+    // What Logic Search?
+    curState.activeCells.forEach(key => {
+
+    });
+
+    nextState.activeCells.forEach(key => {
+      
+    });
+
   }
 
   debug(){
-    console.log(this.pattern)
+    console.log("PatternSelected", this.pattern)
   }
 
 }
 
 class EditorArea {
   constructor(cellX, cellY, renderStates = false, wc, hc) {
+
+    this.S = CELL;
+
     this.cx = cellX-1; 
     this.cy = cellY-1;
     
@@ -445,8 +471,16 @@ class EditorArea {
 
   }
 
+  update(x,y,wc,hc) {
+    this.cx = x-1; 
+    this.cy = y-1;
+    this.wc = this.renderStates ? config.cols : wc;
+    this.hc = this.renderStates ? config.rows : hc;
+
+    this.setSize(this.wc, this.hc);
+  }
+
   setSize(w,h) {
-    this.S = CELL;
     this.x = this.cx * this.S;
     this.y = this.cy * this.S;
     this.w = w * this.S;
@@ -489,7 +523,10 @@ class EditorArea {
     } else {
         this.activeCells.add(key);
     }
-    patternSearch.setFramesPattern();
+    if(patternSearch){
+      patternSearch.setFramesPattern();
+    }
+    
   }
 
   getCells() {
@@ -543,11 +580,14 @@ class EditorArea {
 
 class TimelineArea {
    // не используем группу для позиционирования, вручную задаем параметры для начальной и конечной кнопки 
-  constructor(cellX, cellY, cols, cellSize) {
-    this.cx = (cellX-1)*cellSize;
-    this.cy = (cellY-1)*cellSize;
+  constructor(cellX, cellY, cols, ) {
+
+    this.cellSize = CELL; 
+
+    this.cx = (cellX-1)*this.cellSize;
+    this.cy = (cellY-1)*this.cellSize;
     this.cols = cols;
-    this.cellSize = cellSize; 
+    
     this.group = { items: [] };
 
     // вынес т.к. нужны ссылки (хранить состояние)
@@ -606,11 +646,12 @@ class TimelineArea {
   }
 
   // Метод для обновления координат и размеров
-  update(cellX, cellY, cols, cellSize) {
-    this.cx = (cellX - 1) * cellSize;
-    this.cy = (cellY - 1) * cellSize;
+  update(cellX, cellY, cols) {
+    this.cellSize = CELL;
+    this.cx = (cellX - 1) * this.cellSize;
+    this.cy = (cellY - 1) * this.cellSize;
     this.cols = cols;
-    this.cellSize = cellSize;
+
     this.refresh(); // Обновляем только параметры
   }
 
@@ -729,13 +770,17 @@ let editorAreaC = new EditorArea(5, 0, false, 3,6); //For OutFrame Pattern
 const patternSearch = new PatternSearchClass(editorAreaB,editorAreaC);
 
 function rebuildLayout() {
-  const cols = config.cols;   // ширина редактора в ячейках
-  const rows = config.rows;   // высота редактора в ячейках
-  const size = config.size; // CELL SIZE
+  const cols = config.cols;   // ширина User поля (EditorArea)
+  const rows = config.rows;   // высота User поля (EditorArea)
 
   //// EditorArea:
   editorX = 3; editorY = 3;
-  editorArea = new EditorArea(editorX, editorY, true);
+
+  if(!editorArea){
+    editorArea = new EditorArea(editorX, editorY, true);
+  }else{
+    editorArea.update(editorX, editorY);
+  }
 
   endEditorX = editorX + cols;
   endEditorY = editorY + rows;
@@ -752,51 +797,37 @@ function rebuildLayout() {
     objectArea = new ObjectArea(1,editorY,rows);
     objectArea.unlockButtons = true;
 
-
   }else{
-    //objectArea.rebuild();
     objectArea.update(1,editorY,rows);
-    console.log("UPDATE_OBJECTLINE");
+    //console.log("UPDATE_OBJECTLINE");
   }
   
   // Нижняя панель
   timelineY = endEditorY + 1;
 
   if(!timelineArea){
-    timelineArea = new TimelineArea(
-      editorX,
-      timelineY,   // y под редактором
-      cols,
-      size
+    timelineArea = new TimelineArea(editorX, timelineY, // y под редактором
+      cols
     );
 
     timelineArea.plusBtn.status = 1;
     timelineArea.minusBtn.status = 1;
 
-
   }else{
-    // если просто пытаюсь обратиться через timelineArea.rebuild() - не высчитывает размер;
-    timelineArea.update(
-      editorX,
-      timelineY,   // y под редактором
-      cols,
-      size
+    timelineArea.update(editorX, timelineY, // y под редактором
+    cols
     );
-
-    console.log("UPDATE_TIMELINE");
+    //console.log("UPDATE_TIMELINE");
   }
 
-  // Правая панель
-  rightToolbarArea = new ButtonGroup(
-    endEditorX + 1,  // справа от редактора через ячейку
-    editorY,         // сверху на 3-й ячейке
-    rows,            // высота панели
+  // Правая панель // справа от редактора через ячейку, сверху на 3-й ячейке
+  rightToolbarArea = new ButtonGroup( endEditorX + 1, editorY, 
+    rows, // высота панели
     rightButtonsGroup,
-    1              // вертикаль
+    1 // вертикаль
   );
 
   // подкнопка
-
   if(currentGameState !=  GameStates.FRAME_GAME){
     if(cols%2==1){
       baseButton.setLength(3);
@@ -814,9 +845,6 @@ function rebuildLayout() {
       baseButton.setCellPos(endEditorX-3, timelineY+2); 
   }
 
-  topToolbarArea.rebuild();
-  rightToolbarArea.rebuild();
-
   if (timelineArea) {
     timelineArea._lastGfxIndex = curGfx;
 
@@ -825,6 +853,9 @@ function rebuildLayout() {
 
     timelineArea._lastFrameCount = frameCount || 0;
   }
+
+  topToolbarArea.rebuild();
+  rightToolbarArea.rebuild();
 
   updateUIState();
 }

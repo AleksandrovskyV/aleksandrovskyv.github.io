@@ -160,13 +160,14 @@ const canvas = document.getElementById('uiCanvas');
 const ctx = canvas.getContext('2d');
 const fileInput = document.getElementById('fileInput');
 
-function sizeCanvas(inCanvas,x,y,s) {
-  const thisWidth = x*s;
-  const thisHeight = y*s;
-  inCanvas.width = thisWidth;
-  inCanvas.height = thisHeight;
-  inCanvas.style.width = inCanvas.width + "px";
-  inCanvas.style.height = inCanvas.height + "px";
+function sizeCanvas(inCanvas, x, y, s) {
+  const w = x * s;
+  const h = y * s;
+  
+  inCanvas.width = w;
+  inCanvas.height = h;
+  inCanvas.style.width = `${w}px`;
+  inCanvas.style.height = `${h}px`;
 }
 
 sizeCanvas(canvas, config.cols + 4, config.rows + 6, config.size);
@@ -428,18 +429,38 @@ class ObjectArea {
 
 
 class EditorArea {
-  constructor(cellX, cellY) {
+  constructor(cellX, cellY, renderStates = false, wc, hc) {
+
+    this.S = CELL;
+
     this.cx = cellX-1; 
     this.cy = cellY-1;
-    this.updateSize();
+    
+    this.renderStates = renderStates;
+    // если renderStates == false здесь будем хранить список активных ячеек пользователем
+    this.activeCells = renderStates ? null : new Set(); 
+
+    this.wc = renderStates ? config.cols : wc;
+    this.hc = renderStates ? config.rows : hc;
+
+    this.setSize(this.wc, this.hc);
+
   }
 
-  updateSize() {
-    this.S = CELL;
+  update(x,y,wc,hc) {
+    this.cx = x-1; 
+    this.cy = y-1;
+    this.wc = this.renderStates ? config.cols : wc;
+    this.hc = this.renderStates ? config.rows : hc;
+
+    this.setSize(this.wc, this.hc);
+  }
+
+  setSize(w,h) {
     this.x = this.cx * this.S;
     this.y = this.cy * this.S;
-    this.w = config.cols * this.S;
-    this.h = config.rows * this.S;
+    this.w = w * this.S;
+    this.h = h * this.S;
   }
 
   contains(px, py) {
@@ -451,54 +472,98 @@ class EditorArea {
     const localX = Math.floor((px - this.x) / this.S);
     const localY = Math.floor((py - this.y) / this.S);
     // clamp to [0..cols-1] / [0..rows-1]
-    const cx = Math.max(0, Math.min(config.cols - 1, localX));
-    const cy = Math.max(0, Math.min(config.rows - 1, localY));
+    const cx = Math.max(0, Math.min(this.wc - 1, localX));
+    const cy = Math.max(0, Math.min(this.hc - 1, localY));
     return { x: cx, y: cy };
   }
 
-  // рендерим ТОЛЬКО клетки, которые внутри editor (фильтруем graphicStates)
+  renderCellsAnimFromAnimStates(ctx){
+    // draw cells current frame (clip) from userConfig 
+    const gfx = graphicStates[curGfx];
+    if (!gfx || !gfx.animStates[curAnim]) return;
+    ctx.fillStyle = "#fff";
+    gfx.animStates[curAnim].activeCells.forEach(key => {
+      const [cx, cy] = key.split(',').map(Number); // these are 0-based in your data
+      if (cx >= 0 && cx < this.wc && cy >= 0 && cy < this.hc) {
+        ctx.fillRect(this.x + cx * this.S, this.y + cy * this.S, this.S, this.S);
+      }
+    });
+  }
+
+  toggleCells(px, py) { //??? Этот метод должен добавить активную ячейку в activeCells
+    const pos = this.getPosFromCanvas(px, py);
+    if (!pos) return;
+    const key = `${pos.x},${pos.y}`;
+    if (this.activeCells.has(key)) {
+        this.activeCells.delete(key);
+    } else {
+        this.activeCells.add(key);
+    }
+    if(patternSearch){
+      patternSearch.setFramesPattern();
+    }
+    
+  }
+
+  getCells() {
+    return this.activeCells;
+  }
+
+  renderCells(ctx) { //??? Этот метод должен отрендерить ячейки из activeCells
+    if (!this.activeCells) return;
+
+    ctx.fillStyle = "#fff"; // Или любой другой цвет для EditorAreaB
+    this.activeCells.forEach(key => {
+        const [cx, cy] = key.split(',').map(Number);
+        ctx.fillRect(
+            this.x + cx * this.S, 
+            this.y + cy * this.S, 
+            this.S, 
+            this.S
+        );
+    });
+  }
+
   render(ctx) {
     ctx.fillStyle = "#000";
     ctx.fillRect(this.x, this.y, this.w, this.h);
     ctx.strokeStyle = "#222";
     ctx.strokeRect(this.x + 0.5, this.y + 0.5, this.w - 1, this.h - 1);
 
-    // grid
+    // grid layout
     ctx.strokeStyle = "#222";
-    for (let i = 0; i <= config.cols; i++) {
+    for (let i = 0; i <= this.wc; i++) {
       ctx.beginPath();
       ctx.moveTo(this.x + i * this.S, this.y);
-      ctx.lineTo(this.x + i * this.S, this.y + config.rows * this.S);
+      ctx.lineTo(this.x + i * this.S, this.y + this.hc * this.S);
       ctx.stroke();
     }
-    for (let j = 0; j <= config.rows; j++) {
+    for (let j = 0; j <= this.hc; j++) {
       ctx.beginPath();
       ctx.moveTo(this.x, this.y + j * this.S);
-      ctx.lineTo(this.x + config.cols * this.S, this.y + j * this.S);
+      ctx.lineTo(this.x + this.wc * this.S, this.y + j * this.S);
       ctx.stroke();
     }
 
-    // draw only visible cells from current frame (clip)
-    const gfx = graphicStates[curGfx];
-    if (!gfx || !gfx.animStates[curAnim]) return;
-    ctx.fillStyle = "#fff";
-    gfx.animStates[curAnim].activeCells.forEach(key => {
-      const [cx, cy] = key.split(',').map(Number); // these are 0-based in your data
-      if (cx >= 0 && cx < config.cols && cy >= 0 && cy < config.rows) {
-        ctx.fillRect(this.x + cx * this.S, this.y + cy * this.S, this.S, this.S);
-      }
-    });
+    if(this.renderStates){
+      this.renderCellsAnimFromAnimStates(ctx);
+    }else{
+      this.renderCells(ctx);
+    }
   }
 }
 
 
 class TimelineArea {
    // не используем группу для позиционирования, вручную задаем параметры для начальной и конечной кнопки 
-  constructor(cellX, cellY, cols, cellSize) {
-    this.cx = (cellX-1)*cellSize;
-    this.cy = (cellY-1)*cellSize;
+  constructor(cellX, cellY, cols, ) {
+
+    this.cellSize = CELL; 
+
+    this.cx = (cellX-1)*this.cellSize;
+    this.cy = (cellY-1)*this.cellSize;
     this.cols = cols;
-    this.cellSize = cellSize; 
+    
     this.group = { items: [] };
 
     // вынес т.к. нужны ссылки (хранить состояние)
@@ -557,11 +622,12 @@ class TimelineArea {
   }
 
   // Метод для обновления координат и размеров
-  update(cellX, cellY, cols, cellSize) {
-    this.cx = (cellX - 1) * cellSize;
-    this.cy = (cellY - 1) * cellSize;
+  update(cellX, cellY, cols) {
+    this.cellSize = CELL;
+    this.cx = (cellX - 1) * this.cellSize;
+    this.cy = (cellY - 1) * this.cellSize;
     this.cols = cols;
-    this.cellSize = cellSize;
+
     this.refresh(); // Обновляем только параметры
   }
 
@@ -926,11 +992,15 @@ if(!Tutorial && !Introduction){
 function rebuildLayout() {
   const cols = config.cols;   // ширина редактора в ячейках
   const rows = config.rows;   // высота редактора в ячейках
-  const size = config.size; // CELL SIZE
 
   //// EditorArea:
   editorX = 3; editorY = 3;
-  editorArea = new EditorArea(editorX, editorY);
+
+  if(!editorArea){
+    editorArea = new EditorArea(editorX, editorY, true);
+  }else{
+    editorArea.update(editorX, editorY);
+  }
 
   endEditorX = editorX + cols;
   endEditorY = editorY + rows;
@@ -957,14 +1027,13 @@ function rebuildLayout() {
   }
   
   // Нижняя панель
+
+  // Нижняя панель
   timelineY = endEditorY + 1;
 
   if(!timelineArea){
-    timelineArea = new TimelineArea(
-      editorX,
-      timelineY,   // y под редактором
-      cols,
-      size
+    timelineArea = new TimelineArea(editorX, timelineY, // y под редактором
+      cols
     );
 
     if(!Introduction && !Tutorial){
@@ -973,24 +1042,18 @@ function rebuildLayout() {
     }
 
   }else{
-    // если просто пытаюсь обратиться через timelineArea.rebuild() - не высчитывает размер;
-    timelineArea.update(
-      editorX,
-      timelineY,   // y под редактором
-      cols,
-      size
+    timelineArea.update(editorX, timelineY, // y под редактором
+    cols
     );
-
-    console.log("UPDATE_TIMELINE");
+    //console.log("UPDATE_TIMELINE");
   }
+  
 
-  // Правая панель
-  rightToolbarArea = new ButtonGroup(
-    endEditorX + 1,  // справа от редактора через ячейку
-    editorY,         // сверху на 3-й ячейке
-    rows,            // высота панели
+  // Правая панель // справа от редактора через ячейку, сверху на 3-й ячейке
+  rightToolbarArea = new ButtonGroup( endEditorX + 1, editorY, 
+    rows, // высота панели
     rightButtonsGroup,
-    1              // вертикаль
+    1 // вертикаль
   );
 
   // подкнопка
