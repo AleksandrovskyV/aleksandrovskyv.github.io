@@ -88,10 +88,21 @@ let debug = false;
 let curGfx = 0, curAnim = 0, lastT = 0, fIdx = 0;
 let mouseDown = false, isDrawing = false, drawMode = true, isPlaying = true, isInitialized = true;
 
+const VisualStates = { A: 0, V: 1};
+let currentVisualState = VisualStates.A;
+
+// cl - cell / pl - player / ed - editor / bg - background
+let textures = [
+  '/content/fb/va/cl.png',
+  '/content/fb/va/bg.png',
+];
+
+const bgimg = new Image();
+bgimg.src = '/content/fb/va/bg.png'; // Путь к вашей картинке
+
 
 const GameStates = { T_FPL_SPAWN: 0, T_FGOAL_SPAWN: 1, FRAME_GAME: 2,
 };
-
 let currentGameState = GameStates.T_FPL_SPAWN;
 
 
@@ -146,6 +157,14 @@ const INITIAL_SETUP = {
     }
   ]
 };
+
+/* config 
+config содержит данные игрового поля (EditorArea) при сохранении и загрузке,
+а мне нужен был canvas больше чем (EditorArea), и мне пришлось интегрировать CSIZEX и CSIZEY.
+По хорошему, DEFAULTS_SETUP | INITIAL_SETUP должны содержать только данные CANVAS
+А параметры config использовать для ресайза. Проверить сохранение ячеек и методов по типу "toggle" >
+Узнать где именно сохраняется config.cols\rows - и избавиться от CSIZEX \ CIZEY - они здесь избыточны
+*/
 
 let config = JSON.parse(JSON.stringify(INITIAL_SETUP.config));
 let graphicStates = JSON.parse(JSON.stringify(INITIAL_SETUP.graphicStates));
@@ -1136,11 +1155,16 @@ function renderAll() {
 
   if(debug){
     ctx.fillStyle = "#111"; // fill full bg
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
   }else{
     ctx.fillStyle = "#000"; // fill full bg
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    if (bgimg && bgimg.complete && bgimg.naturalWidth > 0 && currentVisualState!=VisualStates.AV) {
+      ctx.drawImage(bgimg, 0, 0);
+    }
   }
-  
-  ctx.fillRect(0,0,canvas.width,canvas.height);
 
   objectArea.render(ctx);
   editorArea.render(ctx);
