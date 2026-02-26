@@ -60,8 +60,8 @@ let debug = false;
 let curGfx = 0, curAnim = 0, lastT = 0, fIdx = 0;
 let mouseDown = false, isDrawing = false, drawMode = true, isPlaying = true, isInitialized = true;
 
-const VisualStates = { A: 0, V: 1};
-let currentVisualState = VisualStates.A;
+const VisualStates = { AV: 0, VA: 1};
+let currentVisualState = VisualStates.AV;
 
 const bgimg = new Image();
 bgimg.src = '/content/fb/va/bg.png'; // Путь к вашей картинке
@@ -890,11 +890,6 @@ function updateUIState(){
 
 function clear() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  if (bgimg.complete ) {
-    ctx.drawImage(bgimg, 0, 0);
-  }
-  
 }
 
 
@@ -927,8 +922,11 @@ function renderAll() {
   }else{
     ctx.fillStyle = "#000"; // fill full bg
   }
-  
   ctx.fillRect(0,0,canvas.width,canvas.height);
+  
+  if (bgimg && bgimg.complete && bgimg.naturalWidth > 0) {
+    ctx.drawImage(bgimg, 0, 0);
+  }
 
   objectArea.render(ctx);
   editorArea.render(ctx);
