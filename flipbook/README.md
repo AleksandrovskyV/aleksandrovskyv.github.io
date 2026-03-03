@@ -1,7 +1,7 @@
 ## FLIPBOOK!
 [/index.html ](https://aleksandrovskyv.github.io/flipbook/index.html) - Public Version...<br><br>
-[/editor.html](https://aleksandrovskyv.github.io/flipbook/editor.html) - Only Editor (No Tutorial Logic)!<br>
-[/player.html](https://aleksandrovskyv.github.io/flipbook/player.html) - Only Player (No Anything)!
+[/editor.html](https://aleksandrovskyv.github.io/flipbook/editor.html) - Only Editor (No Tutorial Logic!)<br>
+[/player.html](https://aleksandrovskyv.github.io/flipbook/player.html) - Only Player (No Anything!)
 
 ### ✦ Big Update 21.02.26:
 - [playing state] repeat only visible frames<br>
