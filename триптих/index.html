@@ -7,8 +7,8 @@
 
 <title>триптих</title>
 
-<link rel="preload" as="image" href="/content/trip/lock.png">
-<link rel="preload" as="image" href="/content/trip/open.png">
+<link rel="preload" as="image" href="/files/trip/lock.png">
+<link rel="preload" as="image" href="/files/trip/open.png">
 
 <script>
   (function () {
@@ -123,14 +123,14 @@ body:not(.ready) .container {
 }
 
 .lock-block {
-  background-image: url(/content/trip/lock.png);
+  background-image: url(/files/trip/lock.png);
   z-index: 3;
 }
 
 .lock-block.hidden { opacity: 0; }
 
 .open-block {
-  background-image: url(/content/trip/open.png);
+  background-image: url(/files/trip/open.png);
   background-size: cover;
   background-position: center;
   z-index: 5;
@@ -192,11 +192,11 @@ body:not(.ready) .container {
   <!-- заглушка вместо video -->
   
   <div class="block video-block" data-video="false">
-    <img src="/content/trip/stat_alt.png" draggable="false">
+    <img src="/files/trip/stat_alt.png" draggable="false">
 
     <div class="curtain">
       <div class="constr-lottie"></div>
-      <img class="video-stub" src="/content/trip/lock.png" width="720" height="1280" alt="poster" />
+      <img class="video-stub" src="/files/trip/lock.png" width="720" height="1280" alt="poster" />
       <div class="lock-block"></div>
       <div class="open-block"></div>
       <div class="overlay"></div>
@@ -206,11 +206,11 @@ body:not(.ready) .container {
   <!-- ===== VIDEO BLOCK 2 ===== -->
 
   <div class="block video-block">
-    <img src="/content/trip/2_bird_descr.png" draggable="false">
+    <img src="/files/trip/2_bird_descr.png" draggable="false">
 
     <div class="curtain">
       <div class="constr-lottie"></div>
-      <video src="/content/video/Bird_Web.mp4" id="VideoB" loop poster="/content/trip/lock.png" preload="metadata"></video>
+      <video src="/files/video/Bird_Web.mp4" id="VideoB" loop poster="/files/trip/lock.png" preload="metadata"></video>
       <div class="lock-block"></div>
       <div class="open-block"></div>
       <div class="overlay"></div>
@@ -220,10 +220,10 @@ body:not(.ready) .container {
   <!-- ===== VIDEO BLOCK 3 ===== -->
 
   <div class="block video-block">
-    <img src="/content/trip/3_cat_descr.png" draggable="false">
+    <img src="/files/trip/3_cat_descr.png" draggable="false">
     <div class="curtain">
     <div class="constr-lottie"></div>
-      <video src="/content/video/Cat_Web.mp4" id="VideoC" loop poster="/content/trip/lock.png" preload="metadata"></video>
+      <video src="/files/video/Cat_Web.mp4" id="VideoC" loop poster="/files/trip/lock.png" preload="metadata"></video>
       <div class="lock-block"></div>
       <div class="open-block"></div>
       <div class="overlay"></div>
@@ -239,7 +239,7 @@ body:not(.ready) .container {
 <script>
 (async function preloadCritical() {
   const urls = [
-    "/content/trip/lock.png"
+    "/files/trip/lock.png"
   ];
 
   await Promise.all(urls.map(src => new Promise(res => {
@@ -401,23 +401,23 @@ document.querySelectorAll(".video-block").forEach(block => {
     renderer: 'svg',
     loop: false,
     autoplay: false,
-    path: '/content/trip/constr.json'
+    path: '/files/trip/constr.json'
   });
 
   // ---------------------- CurtainSoundController ----------------------
   class CurtainSoundController {
     constructor() {
       // аудио-файлы (по одному экземпляру на блок)
-      this.gearsIn = new Audio('/content/audio/roll_gears_in.wav');
+      this.gearsIn = new Audio('/files/audio/roll_gears_in.wav');
       this.gearsIn.preload = 'auto';
       this.gearsIn.loop = false;
 
-      this.gearsLoop = new Audio('/content/audio/roll_gears_loop.wav');
+      this.gearsLoop = new Audio('/files/audio/roll_gears_loop.wav');
       this.gearsLoop.preload = 'auto';
       this.gearsLoop.loop = true;
       this.gearsLoop.volume = 0.8;
 
-      this.curtainOut = new Audio('/content/audio/roll_gears_out.wav');
+      this.curtainOut = new Audio('/files/audio/roll_gears_out.wav');
       this.curtainOut.preload = 'auto';
       this.curtainOut.loop = false;
       this.curtainOut.volume = 1.0;
