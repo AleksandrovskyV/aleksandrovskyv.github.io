@@ -48,6 +48,7 @@
 
 // UserFlags
 let debug = true;
+let isPlaying = true;
 
 //   Canvas UI primitives
 const canvas = document.getElementById('BaseCanvas');
@@ -67,11 +68,11 @@ let graphicStates = JSON.parse(JSON.stringify(DEFAULTS_SETUP.states));
 
 let CELL   = config.size; // Размер ячейки
 let CSIZEX = config.cols; // Размер поля X
-let CSIZEY = debug ? config.rows +1 : config.rows; // Размер поля Y
+let CSIZEY = debug ? config.rows + 1 : config.rows; // Размер поля Y
 
-function updateSizeCanvasPlayer(canvas) {
+function playerUpdateSizeCanvas(canvas) {
   CSIZEX = config.cols;
-  CSIZEY = debug ? config.rows +1 : config.rows;
+  CSIZEY = debug ? config.rows + 1 : config.rows;
 
   const w = CSIZEX * CELL;
   const h = CSIZEY * CELL;
@@ -81,14 +82,14 @@ function updateSizeCanvasPlayer(canvas) {
   canvas.style.height = `${h}px`;
 }
 
-updateSizeCanvasPlayer(canvas);
+playerUpdateSizeCanvas(canvas);
 
 // System Variables 
 let _rafId = null;
 let _loopPausedByVisibility = false;
 
 let curGfx = 0, curAnim = 0, lastT = 0, fIdx = 0;
-let isPlaying = true;
+
 
 
 /* Generic Base classes on cell grid */
@@ -98,29 +99,21 @@ const POSITION_BASED = 1;
 /* Special Wrappers */
 
 class EditorArea {
-  constructor(cellX, cellY, renderStates = false, wc, hc) {
-
+  constructor(cellX, cellY) {
     this.S = CELL;
-
     this.cx = cellX-1; 
     this.cy = cellY-1;
-    
-    this.renderStates = renderStates;
-    // если renderStates == false здесь будем хранить список активных ячеек пользователем
-    this.activeCells = renderStates ? null : new Set(); 
-
-    this.wc = renderStates ? config.cols : wc;
-    this.hc = renderStates ? config.rows : hc;
+    this.wc = config.cols;
+    this.hc = config.rows;
 
     this.setSize(this.wc, this.hc);
-
   }
 
-  update(x,y,wc,hc) {
+  update(x,y) {
     this.cx = x-1; 
     this.cy = y-1;
-    this.wc = this.renderStates ? config.cols : wc;
-    this.hc = this.renderStates ? config.rows : hc;
+    this.wc = config.cols;
+    this.hc = config.rows;
 
     this.setSize(this.wc, this.hc);
   }
@@ -130,20 +123,6 @@ class EditorArea {
     this.y = this.cy * this.S;
     this.w = w * this.S;
     this.h = h * this.S;
-  }
-
-  contains(px, py) {
-    return px >= this.x && py >= this.y && px < this.x + this.w && py < this.y + this.h;
-  }
-
-  getPosFromCanvas(px, py) {
-    if (!this.contains(px, py)) return null;
-    const localX = Math.floor((px - this.x) / this.S);
-    const localY = Math.floor((py - this.y) / this.S);
-    // clamp to [0..cols-1] / [0..rows-1]
-    const cx = Math.max(0, Math.min(this.wc - 1, localX));
-    const cy = Math.max(0, Math.min(this.hc - 1, localY));
-    return { x: cx, y: cy };
   }
 
   renderCellsAnimFromAnimStates(ctx){
@@ -156,40 +135,6 @@ class EditorArea {
       if (cx >= 0 && cx < this.wc && cy >= 0 && cy < this.hc) {
         ctx.fillRect(this.x + cx * this.S, this.y + cy * this.S, this.S, this.S);
       }
-    });
-  }
-
-  toggleCells(px, py) { //??? Этот метод должен добавить активную ячейку в activeCells
-    const pos = this.getPosFromCanvas(px, py);
-    if (!pos) return;
-    const key = `${pos.x},${pos.y}`;
-    if (this.activeCells.has(key)) {
-        this.activeCells.delete(key);
-    } else {
-        this.activeCells.add(key);
-    }
-    if(patternSearch){
-      patternSearch.setFramesPattern();
-    }
-    
-  }
-
-  getCells() {
-    return this.activeCells;
-  }
-
-  renderCells(ctx) { //??? Этот метод должен отрендерить ячейки из activeCells
-    if (!this.activeCells) return;
-
-    ctx.fillStyle = "#fff"; // Или любой другой цвет для EditorAreaB
-    this.activeCells.forEach(key => {
-        const [cx, cy] = key.split(',').map(Number);
-        ctx.fillRect(
-            this.x + cx * this.S, 
-            this.y + cy * this.S, 
-            this.S, 
-            this.S
-        );
     });
   }
 
@@ -219,20 +164,17 @@ class EditorArea {
       } 
     }
 
+    this.renderCellsAnimFromAnimStates(ctx);
 
-    if(this.renderStates){
-      this.renderCellsAnimFromAnimStates(ctx);
-    }else{
-      this.renderCells(ctx);
-    }
   }
+
 }
 
 //Build UI areas & buttons
 
 let editorArea;
 
-function rebuildLayoutPlayer() {
+function playerRebuildLayou() {
   //// EditorArea:
   if(!editorArea){
     editorArea = new EditorArea(1, 1, true);
@@ -241,7 +183,7 @@ function rebuildLayoutPlayer() {
   }
 }
 
-function renderAllPlayer() {
+function playerRenderAll() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   if(debug){
@@ -264,8 +206,8 @@ function renderAllPlayer() {
 }
 
 function buildUI() {
-  rebuildLayoutPlayer(); 
-  renderAllPlayer();
+  playerRebuildLayou(); 
+  playerRenderAll();
 }
 
 // ОСНОВНОЙ ЦИКЛ
@@ -294,7 +236,7 @@ function onKeyCommand(e) {
   const cod = e.code;
   if (cod === "KeyD"){
      debug=!debug ;
-    updateSizeCanvasPlayer(canvas);
+    playerUpdateSizeCanvas(canvas);
   }
 
   if(debug){
@@ -338,12 +280,11 @@ function loop(t) {
       const currentDelay = anims[fIdx] ? anims[fIdx].delay : 80;
       let frameCount = anims.length; // Объявляем заранее
 
-
       if (t - lastT > currentDelay) {
         lastT = t;
         curAnim = fIdx;
 
-        renderAllPlayer();
+        playerRenderAll();
 
         fIdx++;
         if (fIdx >= frameCount) { //anims.length
