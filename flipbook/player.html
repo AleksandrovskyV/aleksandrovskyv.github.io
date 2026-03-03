@@ -29,7 +29,6 @@
     display:flex; align-items:center; justify-content:center; user-select:none; overflow:hidden; }
   #root { width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; }
   canvas { image-rendering: pixelated; background:var(--cnvs); display:block; margin: 25px}
-  input[type=file] { display:none; }
 </style>
 
 </head>
@@ -39,36 +38,23 @@
   <canvas id="BaseCanvas"></canvas>
 </div>
 
-<input id="fileInput" type="file" accept="application/json" />
-
 <script>
 
 // flipbook.. flippook...
 // Type? Flip? Flip & Type !
 
-//   Canvas UI primitives
 const canvas = document.getElementById('BaseCanvas');
-const fileInput = document.getElementById('fileInput');
-
-const DEFAULTS_SETUP = {
-    config: { rows: 7, cols: 10, size: 40 },
-    states: [{ offsetX: 0, offsetY: 0, animStates: [{ activeCells: [], delay: 80 }] }]
-};
-
-let config = JSON.parse(JSON.stringify(DEFAULTS_SETUP.config));
-let graphicStates = JSON.parse(JSON.stringify(DEFAULTS_SETUP.states));
 
 // System Variables 
 let _rafId = null;
 let _loopPausedByVisibility = false;
-
 
 /* Generic Base classes on cell grid */
 const POSITION_BASED = 1;
 
 /* Special Wrappers */
 class PlayerArea {
-  constructor(pcanvas, pdebug) {
+  constructor(pcanvas, pdebug, pconfig) {
 
     this.canvas = pcanvas;
     this.ctx = this.canvas.getContext('2d');
@@ -77,29 +63,86 @@ class PlayerArea {
     this.isPlaying = true;
 
     this.useCustomDelay = true;
-    this.customDelay = 300;
+    this.customDelay = 120;
 
     this.curGfx = 0; this.curAnim = 0;
     this.lastT = 0; this.fIdx = 0;
 
-    this.updateConfig()
+    this.DEFAULTS_SETUP = {
+        config: { rows: 7, cols: 10, size: 40 },
+        states: [{ offsetX: 0, offsetY: 0, animStates: [{ activeCells: [], delay: this.customDelay }] }]
+    };
 
+    this.CURRENT_SETUP = pconfig ? pconfig : this.DEFAULTS_SETUP;
+
+    this.config = JSON.parse(JSON.stringify(this.CURRENT_SETUP.config));
+    this.graphicStates = JSON.parse(JSON.stringify(this.CURRENT_SETUP.states));
+
+    this.updateConfig()
+    this.initEvents();
+    }
+
+  // Единый метод для чтения файлов
+  async parseFile(file) {
+    if (!file) return;
+    try {
+      const text = await file.text();
+      this.updateConfig(JSON.parse(text));
+    } catch (err) { alert("Ошибка JSON"); }
   }
 
-  updateConfig() {
-    this.S = config.size ? config.size : 40;
-    this.wc = config.cols;
-    this.hc = config.rows;
+  async loadFile() {
+    const jsonFilter = {
+      description: 'JSON Config',
+      accept: { 'application/json': ['.json'] }
+    };
 
-    this.w = this.wc * this.S;
-    this.h = this.hc * this.S;
+    if (window.showOpenFilePicker) {
+      try {
+        const [handle] = await window.showOpenFilePicker({ types: [jsonFilter] });
+        this.parseFile(await handle.getFile());
+      } catch (e) {} 
+    } else {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json, application/json'; // Фильтр для старого способа
+      input.onchange = () => this.parseFile(input.files[0]);
+      input.click();
+    }
+  }
+
+  initEvents() {
+    // Клавиатура
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "KeyD") { this.debug = !this.debug; this.updateCanvasSize(); }
+      if (e.code === "KeyL" && this.debug) this.loadFile();
+    });
+
+    // Drag & Drop
+    ['dragover', 'drop'].forEach(name => {
+      this.canvas.addEventListener(name, (e) => {
+        e.preventDefault();
+        if (name === 'drop') this.parseFile(e.dataTransfer.files[0]);
+      });
+    });
+  }
+
+
+  updateConfig(data) {
+    if(data){
+      this.config = data.config; 
+      this.graphicStates = data.graphicStates;   
+    }
+
+    this.w = this.config.cols * this.config.size;
+    this.h = this.config.rows * this.config.size;
 
     this.updateCanvasSize();
   }
 
   updateCanvasSize() {
-    const w = this.wc * this.S;
-    const h = (this.debug ? this.hc + 1 : this.hc) * this.S;
+    const w = this.w;
+    const h = (this.debug ? this.config.rows + 1 : this.config.rows) * this.config.size; // расширено для дебага
 
     this.canvas.width = w; 
     this.canvas.height = h;
@@ -109,26 +152,16 @@ class PlayerArea {
     this.redrawCanvas();
   }
 
-  onKey(cod) {
-    if (cod === "KeyD"){
-      this.debug=!this.debug;
-      this.updateCanvasSize();
-    }
-
-    if(this.debug){
-     if (cod === "KeyL") fileInput.click();    
-    }
-  }
 
   renderCellsFromConfig(){
     // draw cells current frame (clip) from userConfig 
-    const gfx = graphicStates[this.curGfx];
+    const gfx = this.graphicStates[this.curGfx];
     if (!gfx || !gfx.animStates[this.curAnim]) return;
     this.ctx.fillStyle = "#fff";
     gfx.animStates[this.curAnim].activeCells.forEach(key => {
-      const [cx, cy] = key.split(',').map(Number); // these are 0-based in your data
-      if (cx >= 0 && cx < this.wc && cy >= 0 && cy < this.hc) {
-        this.ctx.fillRect(cx * this.S, cy * this.S, this.S, this.S);
+      const [cx, cy] = key.split(',').map(Number);
+      if (cx >= 0 && cx < this.config.cols && cy >= 0 && cy < this.config.rows) {
+        this.ctx.fillRect(cx * this.config.size, cy * this.config.size, this.config.size, this.config.size);
       }
     });
   }
@@ -136,7 +169,7 @@ class PlayerArea {
   loopUpdate(t){
 
     if (this.isPlaying) {
-      const gfx = graphicStates[this.curGfx];
+      const gfx = this.graphicStates[this.curGfx];
       if (gfx) {
         const anims = gfx.animStates;
         const currentDelay = anims[this.fIdx] ? this.useCustomDelay?this.customDelay:anims[this.fIdx].delay : this.customDelay;
@@ -151,7 +184,7 @@ class PlayerArea {
           this.fIdx++;
           if (this.fIdx >= frameCount) { //anims.length
             this.fIdx = 0;
-            this.curGfx = (this.curGfx + 1) % graphicStates.length;
+            this.curGfx = (this.curGfx + 1) % this.graphicStates.length;
             this.curAnim = 0;
           }
         }
@@ -163,46 +196,48 @@ class PlayerArea {
   redrawCanvas() {
     this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
 
-    // Canvas Zone
+    // Canvas Zone Fill
     if(this.debug){
       this.ctx.fillStyle = "#111"; // fill full bg
       this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
 
       this.ctx.fillStyle = "#777"; // fill full bg
-      this.ctx.font = Math.floor(this.S * 0.4) + "px sans-serif";
+      this.ctx.font = Math.floor(this.config.size * 0.4) + "px sans-serif";
       this.ctx.textAlign = "left";
       this.ctx.textBaseline = "middle";
-      this.ctx.fillText("Press [L]oad config or [D]ebug turn...", this.S/2.2, this.canvas.height-(this.S/2.2) );
+      this.ctx.fillText("Press [L]oad config or [D]ebug turn...", this.config.size/2.2, this.canvas.height-(this.config.size/2.2) );
 
     }else{
       this.ctx.fillStyle = "#000"; // fill full bg
       this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
     }
 
-    // Area Zone
+    // Area Zone Fill
     this.ctx.fillStyle = "#000";
     this.ctx.fillRect(0, 0, this.w, this.h);
 
-    // grid layout
+    // Guide Grid Cells
     if(this.debug){
 
       this.ctx.strokeStyle = "#222";
-      this.ctx.strokeRect(0.5, 0.5, this.w - 1, this.h - 1);
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeRect(0, 0, this.w, this.h);
 
-      this.ctx.strokeStyle = "#222";
+      this.ctx.lineWidth = 1;
 
-      for (let i = 0; i <= this.wc; i++) {
+      for (let i = 0; i <= this.config.cols; i++) {
         this.ctx.beginPath();
-        this.ctx.moveTo(i * this.S, 0);
-        this.ctx.lineTo(i * this.S, 0 + this.hc * this.S);
+        this.ctx.moveTo(i * this.config.size, 0);
+        this.ctx.lineTo(i * this.config.size, 0 + this.config.rows * this.config.size);
         this.ctx.stroke();
       }
-      for (let j = 0; j <= this.hc; j++) {
+      for (let j = 0; j <= this.config.rows; j++) {
         this.ctx.beginPath();
-        this.ctx.moveTo(0, j * this.S);
-        this.ctx.lineTo(this.wc * this.S, j * this.S);
+        this.ctx.moveTo(0, j * this.config.size);
+        this.ctx.lineTo(this.config.cols * this.config.size, j * this.config.size);
         this.ctx.stroke();
       } 
+
     }
 
     this.renderCellsFromConfig();
@@ -214,36 +249,6 @@ class PlayerArea {
 /* Create Instance */
 
 let playerArea = new PlayerArea(canvas, true);
-
-/* KEYBOARD INPUT */
-
-function onKeyCommand(e) {
-  const cod = e.code;
-  playerArea.onKey(cod);
-}
-
-window.addEventListener("keydown", onKeyCommand);
-
-/* LOAD CONFIG LOGIC */
-fileInput.addEventListener('change', (ev)=>{
-  const f = ev.target.files && ev.target.files[0];
-  if (!f) return;
-  const reader = new FileReader();
-  reader.onload = (e)=>{
-    try {
-      const data = JSON.parse(e.target.result);
-
-      config = data.config; 
-      graphicStates = data.graphicStates;
-
-      playerArea.updateConfig();
-
-    } catch(err){ alert("Ошибка при чтении JSON файла"); }
-  };
-  reader.readAsText(f);
-});
-
-;
 
 
 /* BASE LOOP */
