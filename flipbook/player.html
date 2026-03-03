@@ -291,7 +291,7 @@ function renderAllPlayer() {
     ctx.font = Math.floor(CELL * 0.4) + "px sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.fillText("Press [L] to load config", CELL/2.2, canvas.height-(CELL/2.2) );
+    ctx.fillText("Press [L]oad config or [D]ebug turn...", CELL/2.2, canvas.height-(CELL/2.2) );
 
   }else{
     ctx.fillStyle = "#000"; // fill full bg
@@ -331,8 +331,12 @@ document.addEventListener('visibilitychange', () => {
 /* Keyboard handling — reuse previous mapping */
 function onKeyCommand(e) {
   const cod = e.code;
+  if (cod === "KeyD") debug=!debug;
+
   if(debug){
    if (cod === "KeyL") fileInput.click();    
+  }else{
+
   }
 }
 
