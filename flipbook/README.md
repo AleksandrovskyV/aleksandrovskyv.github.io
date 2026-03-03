@@ -3,5 +3,7 @@
 - Add [S]pace and [R]eset key on Introduction Screen (skip tutorial state)
 
 ## Comments
-/editor.html - Only Editor (No Tutorial Logic)!<br>
-/player.html - Only Player (No Anything)!
+[/editor.html](https://aleksandrovskyv.github.io/flipbook/editor.html) - Only Editor (No Tutorial Logic)!<br>
+[/player.html](https://aleksandrovskyv.github.io/flipbook/editor.html) - Only Player (No Anything)!
+
+
