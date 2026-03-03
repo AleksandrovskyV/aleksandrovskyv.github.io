@@ -121,6 +121,7 @@ function toggleVisualState() {
   renderAll();
 }
 
+
 const GameStates = { T_FPL_SPAWN: 0, T_FGOAL_SPAWN: 1, FRAME_GAME: 2,
 };
 let currentGameState = GameStates.T_FPL_SPAWN;
@@ -1186,6 +1187,7 @@ function renderAll() {
     }else{
       console.log("сюда попали");
     }
+
   }
 
   objectArea.render(ctx);
@@ -1760,18 +1762,21 @@ function onKeyCommand(e) {
   const cod = e.code;
   const key = e.key;
 
+
   if (cod === "KeyR") resetCurrentArea();
   else if (cod === "KeyV") toggleVisualState();
-  else if (cod === "Space") playPauseLogic();
+  else if (cod === "Space"){
 
-  if(EditorTutorial){
-    if(baseButton.status == 1){
-      EditorTutorial.tutorialButtonLogic();
-    }
-  }else{
+    if(EditorTutorial){
+      if(baseButton.status == 1){
+        EditorTutorial.tutorialButtonLogic();
+      }
+    }else{
       playPauseLogic();
+    }
   }
   
+
   if (isDrawing) return;
   if (isPlaying){
     switch(key) {
