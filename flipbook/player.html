@@ -55,13 +55,10 @@ const canvas = document.getElementById('BaseCanvas');
 const ctx = canvas.getContext('2d');
 const fileInput = document.getElementById('fileInput');
 
-// Frame Area setup : Default
 const DEFAULTS_SETUP = {
     config: { rows: 7, cols: 10, size: 40 },
     states: [{ offsetX: 0, offsetY: 0, animStates: [{ activeCells: [], delay: 80 }] }]
 };
-
-// Frame Area setup : Preview on load page
 
 let config = JSON.parse(JSON.stringify(DEFAULTS_SETUP.config));
 let graphicStates = JSON.parse(JSON.stringify(DEFAULTS_SETUP.states));
@@ -87,10 +84,7 @@ playerUpdateSizeCanvas(canvas);
 // System Variables 
 let _rafId = null;
 let _loopPausedByVisibility = false;
-
 let curGfx = 0, curAnim = 0, lastT = 0, fIdx = 0;
-
-
 
 /* Generic Base classes on cell grid */
 
@@ -170,12 +164,12 @@ class EditorArea {
 
 }
 
-//Build UI areas & buttons
+/* GRID UI */
 
 let editorArea;
 
 function playerRebuildLayou() {
-  //// EditorArea:
+  // Only EditorArea
   if(!editorArea){
     editorArea = new EditorArea(1, 1, true);
   }else{
@@ -202,7 +196,6 @@ function playerRenderAll() {
   }
 
   editorArea.render(ctx);
-
 }
 
 function buildUI() {
@@ -210,28 +203,9 @@ function buildUI() {
   playerRenderAll();
 }
 
-// ОСНОВНОЙ ЦИКЛ
-function startLoop() {
-  if (_rafId === null) _rafId = requestAnimationFrame(loop);
-}
-function stopLoop() {
-  if (_rafId !== null) { cancelAnimationFrame(_rafId); _rafId = null; }
-}  
 
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    // при сворачивании — можно паузить анимацию или хотя бы уменьшить частоту
-    _loopPausedByVisibility = true;
-    // если хотите полностью стоп: stopLoop();
-  } else {
-    _loopPausedByVisibility = false;
-    startLoop();
-  }
-});
+/* KEYBOARD INPUT */
 
-
-
-/* Keyboard handling — reuse previous mapping */
 function onKeyCommand(e) {
   const cod = e.code;
   if (cod === "KeyD"){
@@ -248,8 +222,10 @@ function onKeyCommand(e) {
 
 window.addEventListener("keydown", onKeyCommand);
 
-if(debug){
 
+/* LOAD CONFIG LOGIC */
+
+if(debug){
   fileInput.addEventListener('change', (ev)=>{
     const f = ev.target.files && ev.target.files[0];
     if (!f) return;
@@ -257,7 +233,7 @@ if(debug){
     reader.onload = (e)=>{
       try {
         const data = JSON.parse(e.target.result);
-        
+
         config = data.config; graphicStates = data.graphicStates;
         CELL = config.size;
         
@@ -267,8 +243,26 @@ if(debug){
     };
     reader.readAsText(f);
   });
-
 }
+
+
+/* BASE LOOP */
+
+function startLoop() {
+  if (_rafId === null) _rafId = requestAnimationFrame(loop);
+}
+function stopLoop() {
+  if (_rafId !== null) { cancelAnimationFrame(_rafId); _rafId = null; }
+}  
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    _loopPausedByVisibility = true;
+  } else {
+    _loopPausedByVisibility = false;
+    startLoop();
+  }
+});
 
 function loop(t) {
 
@@ -303,7 +297,8 @@ function buildUIOnceAndStart() {
   requestAnimationFrame(loop);
 }
 
-//   Initialize
+/* INIT */
+
 buildUIOnceAndStart();
 
 </script>
