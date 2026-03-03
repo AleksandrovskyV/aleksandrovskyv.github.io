@@ -1764,16 +1764,14 @@ function onKeyCommand(e) {
   else if (cod === "KeyV") toggleVisualState();
   else if (cod === "Space") playPauseLogic();
 
-    if(EditorTutorial){
-      if(baseButton.status == 1){
-        EditorTutorial.tutorialButtonLogic();
-      }
-    }else{
-      playPauseLogic();
+  if(EditorTutorial){
+    if(baseButton.status == 1){
+      EditorTutorial.tutorialButtonLogic();
     }
+  }else{
+      playPauseLogic();
   }
   
-
   if (isDrawing) return;
   if (isPlaying){
     switch(key) {
