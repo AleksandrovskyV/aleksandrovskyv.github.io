@@ -257,9 +257,8 @@ if(debug){
     reader.onload = (e)=>{
       try {
         const data = JSON.parse(e.target.result);
+        
         config = data.config; graphicStates = data.graphicStates;
-
-        // синхронизируем глобальную «ячейковую» величину
         CELL = config.size;
         
         buildUI();
