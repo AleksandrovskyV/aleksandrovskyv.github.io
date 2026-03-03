@@ -50,23 +50,31 @@ let _rafId = null;
 let _loopPausedByVisibility = false;
 
 /* Generic Base classes on cell grid */
-const POSITION_BASED = 1;
+const POSITION_BASED = 1; // not used on this implementation now
 
 /* Special Wrappers */
 class PlayerArea {
   constructor(pcanvas, pdebug, pconfig) {
-
     this.canvas = pcanvas;
     this.ctx = this.canvas.getContext('2d');
     this.debug = pdebug;
 
     this.isPlaying = true;
-
-    this.useCustomDelay = true;
+    this.useCustomDelay = false;
     this.customDelay = 120;
 
     this.curGfx = 0; this.curAnim = 0;
     this.lastT = 0; this.fIdx = 0;
+
+    // Shear settings
+    this.shearEnabled = false;
+    this.shearAngle = -9; // degree
+    this.shearAxis = 0; // 0=vertical 1=horizontal
+
+    // Shear temp
+    this._shearK = 0; // tan(angle)
+    this._shearOffsetX = 0;
+    this._shearOffsetY = 0;
 
     this.DEFAULTS_SETUP = {
         config: { rows: 7, cols: 10, size: 40 },
@@ -80,7 +88,7 @@ class PlayerArea {
 
     this.updateConfig()
     this.initEvents();
-    }
+  }
 
   // Единый метод для чтения файлов
   async parseFile(file) {
@@ -116,6 +124,9 @@ class PlayerArea {
     window.addEventListener("keydown", (e) => {
       if (e.code === "KeyD") { this.debug = !this.debug; this.updateCanvasSize(); }
       if (e.code === "KeyL" && this.debug) this.loadFile();
+      if (e.code === "KeyH") { this.shearEnabled = !this.shearEnabled;     this.updateCanvasSize();};
+      if (e.code === "KeyI") { this.shearAxis = this.shearAxis == 1 ? 0:1; this.updateCanvasSize();};
+      if (e.code === "Space"){ this.isPlaying = !this.isPlaying; };
     });
 
     // Drag & Dro
@@ -135,38 +146,80 @@ class PlayerArea {
 
     this.w = this.config.cols * this.config.size;
     this.h = this.config.rows * this.config.size;
-
+    
+    this.shearOriginX = Math.round(this.w / 2);
     this.updateCanvasSize();
   }
 
-  updateCanvasSize() {
-    const w = this.w;
-    const h = (this.debug ? this.config.rows + 1 : this.config.rows) * this.config.size; // расширено для дебага
+  updateShearGeometry() {
+    if (!this.shearEnabled || !this.shearAngle) {
+      this._shearK = 0;
+      this._shearOffsetX = 0; this._shearOffsetY = 0;
+      this.shearedW = this.w; this.shearedH = this.h;
+      return;
+    }
 
-    this.canvas.width = w; 
-    this.canvas.height = h;
-    this.canvas.style.width = `${w}px`;
-    this.canvas.style.height = `${h}px`;
+    const angleRad = this.shearAngle * Math.PI / 180;
+    this._shearK = Math.tan(angleRad);
+
+    if (this.shearAxis == 0) { //vertical: y' = y + x*k
+      const deltaY = Math.abs(this._shearK) * this.w;
+
+      this.shearedW = this.w;
+      this.shearedH = this.h + deltaY;
+
+      this._shearOffsetY = this._shearK < 0 ? deltaY : 0;
+      this._shearOffsetX = 0;
+
+    } else { // horizontal: x' = x + y*k
+      const deltaX = Math.abs(this._shearK) * this.h;
+
+      this.shearedW = this.w + deltaX;
+      this.shearedH = this.h;
+
+      this._shearOffsetX = this._shearK < 0 ? deltaX : 0;
+      this._shearOffsetY = 0;
+    }
+  }
+
+  updateCanvasSize() {
+    this.updateShearGeometry();
+    const debugExtra = this.debug ? this.config.size : 0;
+
+    const finalW = Math.ceil(this.shearedW);
+    const finalH = Math.ceil(this.shearedH + debugExtra);
+
+    this.canvas.width = finalW;
+    this.canvas.height = finalH;
+    this.canvas.style.width = finalW + "px";
+    this.canvas.style.height = finalH + "px";
 
     this.redrawCanvas();
   }
-
 
   renderCellsFromConfig(){
     // draw cells current frame (clip) from userConfig 
     const gfx = this.graphicStates[this.curGfx];
     if (!gfx || !gfx.animStates[this.curAnim]) return;
-    this.ctx.fillStyle = "#fff";
+    
+    const color = "#fff";
+    
     gfx.animStates[this.curAnim].activeCells.forEach(key => {
       const [cx, cy] = key.split(',').map(Number);
       if (cx >= 0 && cx < this.config.cols && cy >= 0 && cy < this.config.rows) {
+
+        this.ctx.fillStyle = color;
         this.ctx.fillRect(cx * this.config.size, cy * this.config.size, this.config.size, this.config.size);
+        
+        if(this.shearEnabled){
+          this.ctx.strokeStyle  = color;
+          this.ctx.strokeRect(cx * this.config.size, cy * this.config.size, this.config.size, this.config.size);
+        }
       }
     });
   }
 
   loopUpdate(t){
-
     if (this.isPlaying) {
       const gfx = this.graphicStates[this.curGfx];
       if (gfx) {
@@ -192,10 +245,10 @@ class PlayerArea {
   }
 
 
-  redrawCanvas() {
+ redrawCanvas() {
     this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
 
-    // Canvas Zone Fill
+    // Canvas Zone Fill (фон и подсказка / дебаг)
     if(this.debug){
       this.ctx.fillStyle = "#111"; // fill full bg
       this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
@@ -204,18 +257,32 @@ class PlayerArea {
       this.ctx.font = Math.floor(this.config.size * 0.4) + "px sans-serif";
       this.ctx.textAlign = "left";
       this.ctx.textBaseline = "middle";
-      this.ctx.fillText("Press [L]oad config or [D]ebug turn...", this.config.size/2.2, this.canvas.height-(this.config.size/2.2) );
+      this.ctx.fillText("[D]ebug, [L]oad (D&Drop), s[H]ear [I]nvert and [s__e]!", this.config.size/4, this.canvas.height-(this.config.size/2.2) );
 
     }else{
       this.ctx.fillStyle = "#000"; // fill full bg
       this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
     }
 
-    // Area Zone Fill
+    // Area Zone Fill (внутри трансформированного пространства) с возможным shear
+    this.ctx.save();
+
+    if (this.shearEnabled && this._shearK !== 0) {
+      this.ctx.translate(this._shearOffsetX, this._shearOffsetY);
+
+      if (this.shearAxis == 0) { //vertical
+        // y += x*k
+        this.ctx.transform(1, this._shearK, 0, 1, 0, 0);
+      } else {
+        // x += y*k
+        this.ctx.transform(1, 0, this._shearK, 1, 0, 0);
+      }
+    }
+
     this.ctx.fillStyle = "#000";
     this.ctx.fillRect(0, 0, this.w, this.h);
 
-    // Guide Grid Cells
+    // Guide Grid Cells (shear accept)
     if(this.debug){
 
       this.ctx.strokeStyle = "#222";
@@ -236,11 +303,12 @@ class PlayerArea {
         this.ctx.lineTo(this.config.cols * this.config.size, j * this.config.size);
         this.ctx.stroke();
       } 
-
     }
 
+    // Render cells (подтянет трансформацию, квадраты станут параллелограммами)
     this.renderCellsFromConfig();
 
+    this.ctx.restore();
   }
 
 }
@@ -250,7 +318,6 @@ let playerArea = new PlayerArea(canvas, true);
 
 
 /* BASE LOOP */
-
 function startLoop() {
   if (_rafId === null) _rafId = requestAnimationFrame(loop);
 }
