@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<meta name="description" content="Type to Flip? Flip and Type!" />
+<meta property="og:title" content="flipbook">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://vsky.space/flipbook">
+<meta property="og:description" content="Type to Flip? Flip and Type!">
+<meta property="og:image" content="https://vsky.space/content/cover/flipbook.jpg">
+<meta property="og:image:secure_url" content="https://vsky.space/content/cover/flipbook.jpg">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="flipbook">
+<meta name="twitter:description" content="Type to Flip? Flip and Type!">
+<meta name="twitter:image" content="https://vsky.space/content/cover/flipbook.jpg">
+<meta name="twitter:site" content="@AleksandrovskyV">
+
+<title>Flipbook Player Only</title>
+<link rel="icon" href="/content/fav/f_book.png" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="/content/fav/f_book.png">
+
+<style>
+  :root { --bg: #000; --ui: #000; --border: #222; --active: #fff; --accent: #ff8c00; }
+  html,body { height:100%; margin:0; }
+  body { background:var(--bg); color:#fff; font-family:system-ui, -apple-system, sans-serif; display:flex; align-items:center; justify-content:center; user-select:none; overflow:hidden; }
+  #root { width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; }
+  canvas { image-rendering: pixelated; background:#000; display:block; margin: 25px}
+  input[type=file] { display:none; }
+</style>
+
+
+</head>
+<body>
+
+<div id="root">
+  <canvas id="BaseCanvas"></canvas>
+</div>
+
+<input id="fileInput" type="file" accept="application/json" />
+
+<script>
+
+// flipbook.. flippook...
+// Type? Flip? Flip & Type !
+
+// UserFlags
+let debug = true;
+
+//   Canvas UI primitives
+const canvas = document.getElementById('BaseCanvas');
+const ctx = canvas.getContext('2d');
+const fileInput = document.getElementById('fileInput');
+
+// Frame Area setup : Default
+const DEFAULTS_SETUP = {
+    config: { rows: 7, cols: 10, size: 40 },
+    states: [{ offsetX: 0, offsetY: 0, animStates: [{ activeCells: [], delay: 80 }] }]
+};
+
+// Frame Area setup : Preview on load page
+const INITIAL_SETUP = {
+  "config": { "rows": 7, "cols": 15, "size": 40
+  },
+  "graphicStates": [
+    {
+      "offsetX": 0, "offsetY": 0,
+      "animStates": [
+        { "activeCells": ["1,1","2,1","4,3","5,4","6,2","8,2","9,4","10,2","12,4","10,1","12,2","13,3","12,3","13,1","1,5","1,4","13,5","8,4","10,4","0,1","1,3","4,1","4,2","5,5","6,3","6,1","8,1","8,3","10,3","12,5","12,1","14,1","14,5","14,3","8,5","9,1","6,4","4,4","1,2"], "delay": 140 },
+        { "activeCells": ["1,1","2,1","4,3","5,4","6,2","8,2","9,4","10,2","12,4","10,1","12,2","13,3","12,3","13,1","1,5","1,4","13,5","8,4","10,4","0,1","1,3","4,1","4,2","5,5","6,3","6,1","8,1","8,3","10,3","12,5","12,1","14,1","14,5","14,3","8,5","9,1","6,4","4,4"], "delay": 140 },
+        { "activeCells": ["1,1","2,1","4,3","5,4","6,2","8,2","9,4","10,2","12,4","10,1","12,2","13,3","12,3","13,1","1,5","1,4","13,5","8,4","10,4","0,1","1,3","4,1","4,2","5,5","6,3","6,1","8,1","8,3","10,3","12,5","12,1","14,1","14,5","14,3","8,5","9,1","6,4"], "delay": 140 },
+        { "activeCells": ["2,1","4,3","5,4","6,2","8,2","9,4","10,2","12,4","10,1","12,2","13,3","12,3","13,1","1,5","13,5","8,4","10,4","4,1","4,2","5,5","6,3","6,1","8,1","8,3","10,3","12,5","12,1","14,1","14,5","14,3","8,5","9,1"], "delay": 140 },
+        { "activeCells": ["4,3","5,4","6,2","8,2","9,4","10,2","12,4","10,1","12,2","13,3","12,3","13,1","13,5","8,4","10,4","4,1","4,2","5,5","6,3","6,1","8,1","8,3","10,3","12,5","12,1","14,1","14,5","14,3","8,5"], "delay": 140 },
+        { "activeCells": ["5,4","6,2","8,2","9,4","10,2","12,4","10,1","12,2","13,3","12,3","13,1","13,5","8,4","10,4","5,5","6,3","6,1","8,1","8,3","10,3","12,5","12,1","14,1","14,5","14,3"], "delay": 140 },
+        { "activeCells": ["6,2","8,2","9,4","10,2","12,4","10,1","12,2","13,3","12,3","13,1","13,5","8,4","10,4","6,3","6,1","8,1","8,3","10,3","12,5","12,1","14,1","14,5"], "delay": 140 },
+        { "activeCells": ["9,4","10,2","12,4","10,1","12,2","13,3","12,3","13,1","13,5","8,4","10,4","10,3","12,5","12,1","14,1"], "delay": 140 },
+        { "activeCells": ["10,2","12,4","10,1","12,2","13,3","12,3","13,1","13,5","10,3","12,5","12,1"], "delay": 140 },
+        { "activeCells": ["12,4","12,2","13,3","12,3","13,1","13,5","12,5"], "delay": 140 },
+        { "activeCells": ["12,2","12,3","13,1"], "delay": 140 },
+        { "activeCells": ["12,2","12,3"], "delay": 140 },
+        { "activeCells": [], "delay": 140 }
+      ]
+    },
+    {
+      "offsetX": 0, "offsetY": 0,
+      "animStates": [
+        { "activeCells": ["0,1","1,1","2,1","0,2","0,3","0,4","0,5","1,3","2,2","4,1","4,2","4,3","4,4","4,5","5,5","6,5","8,1","8,2","8,3","8,4","8,5","9,1","10,1","10,2","10,3","10,4","10,5","9,3","12,1","12,2","12,3","14,3","14,1","14,2","13,4","13,5","12,4","14,4"], "delay": 140 },
+        { "activeCells": ["0,1","1,1","2,1","0,2","0,3","0,4","0,5","1,3","2,2","4,1","4,2","4,3","4,4","4,5","5,5","6,5","8,1","8,2","8,3","8,4","8,5","9,1","10,1","10,2","10,3","10,4","10,5","9,3","12,1","12,2","12,3","14,3","14,1","14,2","13,4","13,5","12,4"], "delay": 140 },
+        { "activeCells": ["0,1","1,1","2,1","0,2","0,3","0,4","0,5","1,3","2,2","4,1","4,2","4,3","4,4","4,5","5,5","6,5","8,4","8,5","9,1","10,1","10,2","10,3","10,4","10,5","9,3","12,1","12,2","12,3","14,3","14,1","14,2","13,4","13,5"], "delay": 140 },
+        { "activeCells": ["0,1","1,1","2,1","0,2","0,3","0,4","0,5","1,3","2,2","4,1","4,2","4,3","4,4","4,5","5,5","6,5","8,4","8,5","9,1","12,1","12,2","12,3","14,3","14,1","14,2","13,4"], "delay": 140 },
+        { "activeCells": ["0,1","1,1","2,1","0,2","0,3","0,4","0,5","1,3","2,2","4,4","4,5","5,5","6,5","8,4","8,5","9,1","12,1","12,2","12,3","14,3","14,1","14,2"], "delay": 140 },
+        { "activeCells": ["0,1","1,1","2,1","0,2","0,3","0,4","0,5","1,3","2,2","4,4","4,5","5,5","6,5","8,4","8,5","9,1","14,3","14,1"], "delay": 140 },
+        { "activeCells": ["0,1","1,1","2,1","0,2","0,3","0,4","0,5","1,3","2,2","4,4","4,5","5,5","6,5","8,4","8,5"], "delay": 140 },
+        { "activeCells": ["0,1","1,1","2,1","0,2","0,3","0,4","0,5","1,3","2,2","4,4","4,5"], "delay": 140 },
+        { "activeCells": ["0,1","1,1","2,1","0,2","0,3","0,4","0,5"], "delay": 140 },
+        { "activeCells": ["0,1","1,1","2,1"], "delay": 140 },
+        { "activeCells": ["0,1","1,1"], "delay": 140 },
+        { "activeCells": ["0,1"], "delay": 140 },
+        { "activeCells": [], "delay": 140 }
+      ]
+    }
+  ]
+};
+
+
+let config = JSON.parse(JSON.stringify(debug?DEFAULTS_SETUP.config:INITIAL_SETUP.config));
+let graphicStates = JSON.parse(JSON.stringify(debug?DEFAULTS_SETUP.states:INITIAL_SETUP.graphicStates));
+
+let CELL   = config.size; // Размер ячейки
+let CSIZEX = config.cols; // Размер поля X
+let CSIZEY = debug ? config.rows +1 : config.rows; // Размер поля Y
+
+function updateSizeCanvasPlayer(canvas) {
+  CSIZEX = config.cols;
+  CSIZEY = debug ? config.rows +1 : config.rows;
+
+  const w = CSIZEX * CELL;
+  const h = CSIZEY * CELL;
+
+  canvas.width = w; canvas.height = h;
+  canvas.style.width = `${w}px`;
+  canvas.style.height = `${h}px`;
+}
+
+updateSizeCanvasPlayer(canvas);
+
+// System Variables 
+let _rafId = null;
+let _loopPausedByVisibility = false;
+
+let curGfx = 0, curAnim = 0, lastT = 0, fIdx = 0;
+let isPlaying = true;
+
+
+/* Generic Base classes on cell grid */
+
+const POSITION_BASED = 1;
+
+
+
+/* Special Wrappers */
+
+class EditorArea {
+  constructor(cellX, cellY, renderStates = false, wc, hc) {
+
+    this.S = CELL;
+
+    this.cx = cellX-1; 
+    this.cy = cellY-1;
+    
+    this.renderStates = renderStates;
+    // если renderStates == false здесь будем хранить список активных ячеек пользователем
+    this.activeCells = renderStates ? null : new Set(); 
+
+    this.wc = renderStates ? config.cols : wc;
+    this.hc = renderStates ? config.rows : hc;
+
+    this.setSize(this.wc, this.hc);
+
+  }
+
+  update(x,y,wc,hc) {
+    this.cx = x-1; 
+    this.cy = y-1;
+    this.wc = this.renderStates ? config.cols : wc;
+    this.hc = this.renderStates ? config.rows : hc;
+
+    this.setSize(this.wc, this.hc);
+  }
+
+  setSize(w,h) {
+    this.x = this.cx * this.S;
+    this.y = this.cy * this.S;
+    this.w = w * this.S;
+    this.h = h * this.S;
+  }
+
+  contains(px, py) {
+    return px >= this.x && py >= this.y && px < this.x + this.w && py < this.y + this.h;
+  }
+
+  getPosFromCanvas(px, py) {
+    if (!this.contains(px, py)) return null;
+    const localX = Math.floor((px - this.x) / this.S);
+    const localY = Math.floor((py - this.y) / this.S);
+    // clamp to [0..cols-1] / [0..rows-1]
+    const cx = Math.max(0, Math.min(this.wc - 1, localX));
+    const cy = Math.max(0, Math.min(this.hc - 1, localY));
+    return { x: cx, y: cy };
+  }
+
+  renderCellsAnimFromAnimStates(ctx){
+    // draw cells current frame (clip) from userConfig 
+    const gfx = graphicStates[curGfx];
+    if (!gfx || !gfx.animStates[curAnim]) return;
+    ctx.fillStyle = "#fff";
+    gfx.animStates[curAnim].activeCells.forEach(key => {
+      const [cx, cy] = key.split(',').map(Number); // these are 0-based in your data
+      if (cx >= 0 && cx < this.wc && cy >= 0 && cy < this.hc) {
+        ctx.fillRect(this.x + cx * this.S, this.y + cy * this.S, this.S, this.S);
+      }
+    });
+  }
+
+  toggleCells(px, py) { //??? Этот метод должен добавить активную ячейку в activeCells
+    const pos = this.getPosFromCanvas(px, py);
+    if (!pos) return;
+    const key = `${pos.x},${pos.y}`;
+    if (this.activeCells.has(key)) {
+        this.activeCells.delete(key);
+    } else {
+        this.activeCells.add(key);
+    }
+    if(patternSearch){
+      patternSearch.setFramesPattern();
+    }
+    
+  }
+
+  getCells() {
+    return this.activeCells;
+  }
+
+  renderCells(ctx) { //??? Этот метод должен отрендерить ячейки из activeCells
+    if (!this.activeCells) return;
+
+    ctx.fillStyle = "#fff"; // Или любой другой цвет для EditorAreaB
+    this.activeCells.forEach(key => {
+        const [cx, cy] = key.split(',').map(Number);
+        ctx.fillRect(
+            this.x + cx * this.S, 
+            this.y + cy * this.S, 
+            this.S, 
+            this.S
+        );
+    });
+  }
+
+  render(ctx) {
+    ctx.fillStyle = "#000";
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+    ctx.strokeStyle = "#222";
+    ctx.strokeRect(this.x + 0.5, this.y + 0.5, this.w - 1, this.h - 1);
+
+    // grid layout
+    ctx.strokeStyle = "#222";
+    for (let i = 0; i <= this.wc; i++) {
+      ctx.beginPath();
+      ctx.moveTo(this.x + i * this.S, this.y);
+      ctx.lineTo(this.x + i * this.S, this.y + this.hc * this.S);
+      ctx.stroke();
+    }
+    for (let j = 0; j <= this.hc; j++) {
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y + j * this.S);
+      ctx.lineTo(this.x + this.wc * this.S, this.y + j * this.S);
+      ctx.stroke();
+    }
+
+    if(this.renderStates){
+      this.renderCellsAnimFromAnimStates(ctx);
+    }else{
+      this.renderCells(ctx);
+    }
+  }
+}
+
+//Build UI areas & buttons
+
+let editorArea;
+
+function rebuildLayoutPlayer() {
+  //// EditorArea:
+  if(!editorArea){
+    editorArea = new EditorArea(1, 1, true);
+  }else{
+    editorArea.update(1, 1);
+  }
+}
+
+function renderAllPlayer() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  if(debug){
+    ctx.fillStyle = "#111"; // fill full bg
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = "#777"; // fill full bg
+    ctx.font = Math.floor(CELL * 0.4) + "px sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText("Press [L] to load config", CELL/2.2, canvas.height-(CELL/2.2) );
+
+  }else{
+    ctx.fillStyle = "#000"; // fill full bg
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+  }
+
+  editorArea.render(ctx);
+
+}
+
+function buildUI() {
+  rebuildLayoutPlayer(); 
+  renderAllPlayer();
+}
+
+// ОСНОВНОЙ ЦИКЛ
+function startLoop() {
+  if (_rafId === null) _rafId = requestAnimationFrame(loop);
+}
+function stopLoop() {
+  if (_rafId !== null) { cancelAnimationFrame(_rafId); _rafId = null; }
+}  
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    // при сворачивании — можно паузить анимацию или хотя бы уменьшить частоту
+    _loopPausedByVisibility = true;
+    // если хотите полностью стоп: stopLoop();
+  } else {
+    _loopPausedByVisibility = false;
+    startLoop();
+  }
+});
+
+
+
+/* Keyboard handling — reuse previous mapping */
+function onKeyCommand(e) {
+  const cod = e.code;
+  if(debug){
+   if (cod === "KeyL") fileInput.click();    
+  }
+}
+
+window.addEventListener("keydown", onKeyCommand);
+
+if(debug){
+
+  fileInput.addEventListener('change', (ev)=>{
+    const f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      try {
+        const data = JSON.parse(e.target.result);
+        config = data.config; graphicStates = data.graphicStates;
+
+        // синхронизируем глобальную «ячейковую» величину
+        CELL = config.size;
+        
+        buildUI();
+
+      } catch(err){ alert("Ошибка при чтении JSON файла"); }
+    };
+    reader.readAsText(f);
+  });
+
+}
+
+function loop(t) {
+
+  if (isPlaying) {
+    const gfx = graphicStates[curGfx];
+    if (gfx) {
+      const anims = gfx.animStates;
+      const currentDelay = anims[fIdx] ? anims[fIdx].delay : 80;
+      let frameCount = anims.length; // Объявляем заранее
+
+
+      if (t - lastT > currentDelay) {
+        lastT = t;
+        curAnim = fIdx;
+
+        renderAllPlayer();
+
+        fIdx++;
+        if (fIdx >= frameCount) { //anims.length
+          fIdx = 0;
+          curGfx = (curGfx + 1) % graphicStates.length;
+          curAnim = 0;
+        }
+      }
+    }
+  }
+  _rafId = requestAnimationFrame(loop);
+  //requestAnimationFrame(loop);
+}
+
+function buildUIOnceAndStart() {
+  buildUI();
+  requestAnimationFrame(loop);
+}
+
+//   Initialize
+buildUIOnceAndStart();
+
+</script>
+</body>
+</html>
