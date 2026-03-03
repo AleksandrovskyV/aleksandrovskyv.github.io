@@ -32,7 +32,6 @@
   input[type=file] { display:none; }
 </style>
 
-
 </head>
 <body>
 
@@ -47,13 +46,8 @@
 // flipbook.. flippook...
 // Type? Flip? Flip & Type !
 
-// UserFlags
-let debug = true;
-let isPlaying = true;
-
 //   Canvas UI primitives
 const canvas = document.getElementById('BaseCanvas');
-const ctx = canvas.getContext('2d');
 const fileInput = document.getElementById('fileInput');
 
 const DEFAULTS_SETUP = {
@@ -64,184 +58,192 @@ const DEFAULTS_SETUP = {
 let config = JSON.parse(JSON.stringify(DEFAULTS_SETUP.config));
 let graphicStates = JSON.parse(JSON.stringify(DEFAULTS_SETUP.states));
 
-let CELL   = config.size; // Размер ячейки
-let CSIZEX = config.cols; // Размер поля X
-let CSIZEY = debug ? config.rows + 1 : config.rows; // Размер поля Y
-
-function playerUpdateSizeCanvas(canvas) {
-  CSIZEX = config.cols;
-  CSIZEY = debug ? config.rows + 1 : config.rows;
-
-  const w = CSIZEX * CELL;
-  const h = CSIZEY * CELL;
-
-  canvas.width = w; canvas.height = h;
-  canvas.style.width = `${w}px`;
-  canvas.style.height = `${h}px`;
-}
-
-playerUpdateSizeCanvas(canvas);
-
 // System Variables 
 let _rafId = null;
 let _loopPausedByVisibility = false;
-let curGfx = 0, curAnim = 0, lastT = 0, fIdx = 0;
+
 
 /* Generic Base classes on cell grid */
-
 const POSITION_BASED = 1;
 
 /* Special Wrappers */
+class PlayerArea {
+  constructor(pcanvas, pdebug) {
 
-class EditorArea {
-  constructor(cellX, cellY) {
-    this.S = CELL;
-    this.cx = cellX-1; 
-    this.cy = cellY-1;
+    this.canvas = pcanvas;
+    this.ctx = this.canvas.getContext('2d');
+    this.debug = pdebug;
+
+    this.isPlaying = true;
+
+    this.useCustomDelay = true;
+    this.customDelay = 300;
+
+    this.curGfx = 0; this.curAnim = 0;
+    this.lastT = 0; this.fIdx = 0;
+
+    this.updateConfig()
+
+  }
+
+  updateConfig() {
+    this.S = config.size ? config.size : 40;
     this.wc = config.cols;
     this.hc = config.rows;
 
-    this.setSize(this.wc, this.hc);
+    this.w = this.wc * this.S;
+    this.h = this.hc * this.S;
+
+    this.updateCanvasSize();
   }
 
-  update(x,y) {
-    this.cx = x-1; 
-    this.cy = y-1;
-    this.wc = config.cols;
-    this.hc = config.rows;
+  updateCanvasSize() {
+    const w = this.wc * this.S;
+    const h = (this.debug ? this.hc + 1 : this.hc) * this.S;
 
-    this.setSize(this.wc, this.hc);
+    this.canvas.width = w; 
+    this.canvas.height = h;
+    this.canvas.style.width = `${w}px`;
+    this.canvas.style.height = `${h}px`;
+
+    this.redrawCanvas();
   }
 
-  setSize(w,h) {
-    this.x = this.cx * this.S;
-    this.y = this.cy * this.S;
-    this.w = w * this.S;
-    this.h = h * this.S;
+  onKey(cod) {
+    if (cod === "KeyD"){
+      this.debug=!this.debug;
+      this.updateCanvasSize();
+    }
+
+    if(this.debug){
+     if (cod === "KeyL") fileInput.click();    
+    }
   }
 
-  renderCellsAnimFromAnimStates(ctx){
+  renderCellsFromConfig(){
     // draw cells current frame (clip) from userConfig 
-    const gfx = graphicStates[curGfx];
-    if (!gfx || !gfx.animStates[curAnim]) return;
-    ctx.fillStyle = "#fff";
-    gfx.animStates[curAnim].activeCells.forEach(key => {
+    const gfx = graphicStates[this.curGfx];
+    if (!gfx || !gfx.animStates[this.curAnim]) return;
+    this.ctx.fillStyle = "#fff";
+    gfx.animStates[this.curAnim].activeCells.forEach(key => {
       const [cx, cy] = key.split(',').map(Number); // these are 0-based in your data
       if (cx >= 0 && cx < this.wc && cy >= 0 && cy < this.hc) {
-        ctx.fillRect(this.x + cx * this.S, this.y + cy * this.S, this.S, this.S);
+        this.ctx.fillRect(cx * this.S, cy * this.S, this.S, this.S);
       }
     });
   }
 
-  render(ctx) {
-    ctx.fillStyle = "#000";
-    ctx.fillRect(this.x, this.y, this.w, this.h);
+  loopUpdate(t){
+
+    if (this.isPlaying) {
+      const gfx = graphicStates[this.curGfx];
+      if (gfx) {
+        const anims = gfx.animStates;
+        const currentDelay = anims[this.fIdx] ? this.useCustomDelay?this.customDelay:anims[this.fIdx].delay : this.customDelay;
+        let frameCount = anims.length; // Объявляем заранее
+
+        if (t - this.lastT > currentDelay) {
+          this.lastT = t;
+          this.curAnim = this.fIdx;
+
+          playerArea.redrawCanvas();
+
+          this.fIdx++;
+          if (this.fIdx >= frameCount) { //anims.length
+            this.fIdx = 0;
+            this.curGfx = (this.curGfx + 1) % graphicStates.length;
+            this.curAnim = 0;
+          }
+        }
+      }
+    }
+  }
+
+
+  redrawCanvas() {
+    this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+
+    // Canvas Zone
+    if(this.debug){
+      this.ctx.fillStyle = "#111"; // fill full bg
+      this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
+
+      this.ctx.fillStyle = "#777"; // fill full bg
+      this.ctx.font = Math.floor(this.S * 0.4) + "px sans-serif";
+      this.ctx.textAlign = "left";
+      this.ctx.textBaseline = "middle";
+      this.ctx.fillText("Press [L]oad config or [D]ebug turn...", this.S/2.2, this.canvas.height-(this.S/2.2) );
+
+    }else{
+      this.ctx.fillStyle = "#000"; // fill full bg
+      this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
+    }
+
+    // Area Zone
+    this.ctx.fillStyle = "#000";
+    this.ctx.fillRect(0, 0, this.w, this.h);
 
     // grid layout
-    if(debug){
+    if(this.debug){
 
-      ctx.strokeStyle = "#222";
-      ctx.strokeRect(this.x + 0.5, this.y + 0.5, this.w - 1, this.h - 1);
+      this.ctx.strokeStyle = "#222";
+      this.ctx.strokeRect(0.5, 0.5, this.w - 1, this.h - 1);
 
-      ctx.strokeStyle = "#222";
+      this.ctx.strokeStyle = "#222";
+
       for (let i = 0; i <= this.wc; i++) {
-        ctx.beginPath();
-        ctx.moveTo(this.x + i * this.S, this.y);
-        ctx.lineTo(this.x + i * this.S, this.y + this.hc * this.S);
-        ctx.stroke();
+        this.ctx.beginPath();
+        this.ctx.moveTo(i * this.S, 0);
+        this.ctx.lineTo(i * this.S, 0 + this.hc * this.S);
+        this.ctx.stroke();
       }
       for (let j = 0; j <= this.hc; j++) {
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y + j * this.S);
-        ctx.lineTo(this.x + this.wc * this.S, this.y + j * this.S);
-        ctx.stroke();
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, j * this.S);
+        this.ctx.lineTo(this.wc * this.S, j * this.S);
+        this.ctx.stroke();
       } 
     }
 
-    this.renderCellsAnimFromAnimStates(ctx);
-  }
-}
+    this.renderCellsFromConfig();
 
-/* GRID UI */
-
-let editorArea;
-
-function playerRebuildLayou() {
-  // Only EditorArea
-  if(!editorArea){
-    editorArea = new EditorArea(1, 1, true);
-  }else{
-    editorArea.update(1, 1);
-  }
-}
-
-function playerRenderAll() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  if(debug){
-    ctx.fillStyle = "#111"; // fill full bg
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    ctx.fillStyle = "#777"; // fill full bg
-    ctx.font = Math.floor(CELL * 0.4) + "px sans-serif";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
-    ctx.fillText("Press [L]oad config or [D]ebug turn...", CELL/2.2, canvas.height-(CELL/2.2) );
-
-  }else{
-    ctx.fillStyle = "#000"; // fill full bg
-    ctx.fillRect(0,0,canvas.width,canvas.height);
   }
 
-  editorArea.render(ctx);
 }
 
-function buildUI() {
-  playerRebuildLayou(); 
-  playerRenderAll();
-}
+/* Create Instance */
 
+let playerArea = new PlayerArea(canvas, true);
 
 /* KEYBOARD INPUT */
 
 function onKeyCommand(e) {
   const cod = e.code;
-  if (cod === "KeyD"){
-     debug=!debug ;
-    playerUpdateSizeCanvas(canvas);
-  }
-
-  if(debug){
-   if (cod === "KeyL") fileInput.click();    
-  }else{
-
-  }
+  playerArea.onKey(cod);
 }
 
 window.addEventListener("keydown", onKeyCommand);
 
-
 /* LOAD CONFIG LOGIC */
+fileInput.addEventListener('change', (ev)=>{
+  const f = ev.target.files && ev.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try {
+      const data = JSON.parse(e.target.result);
 
-if(debug){
-  fileInput.addEventListener('change', (ev)=>{
-    const f = ev.target.files && ev.target.files[0];
-    if (!f) return;
-    const reader = new FileReader();
-    reader.onload = (e)=>{
-      try {
-        const data = JSON.parse(e.target.result);
+      config = data.config; 
+      graphicStates = data.graphicStates;
 
-        config = data.config; graphicStates = data.graphicStates;
-        CELL = config.size;
-        
-        buildUI();
+      playerArea.updateConfig();
 
-      } catch(err){ alert("Ошибка при чтении JSON файла"); }
-    };
-    reader.readAsText(f);
-  });
-}
+    } catch(err){ alert("Ошибка при чтении JSON файла"); }
+  };
+  reader.readAsText(f);
+});
+
+;
 
 
 /* BASE LOOP */
@@ -263,40 +265,17 @@ document.addEventListener('visibilitychange', () => {
 });
 
 function loop(t) {
-
-  if (isPlaying) {
-    const gfx = graphicStates[curGfx];
-    if (gfx) {
-      const anims = gfx.animStates;
-      const currentDelay = anims[fIdx] ? anims[fIdx].delay : 80;
-      let frameCount = anims.length; // Объявляем заранее
-
-      if (t - lastT > currentDelay) {
-        lastT = t;
-        curAnim = fIdx;
-
-        playerRenderAll();
-
-        fIdx++;
-        if (fIdx >= frameCount) { //anims.length
-          fIdx = 0;
-          curGfx = (curGfx + 1) % graphicStates.length;
-          curAnim = 0;
-        }
-      }
-    }
-  }
+  playerArea.loopUpdate(t);
   _rafId = requestAnimationFrame(loop);
   //requestAnimationFrame(loop);
 }
 
 function buildUIOnceAndStart() {
-  buildUI();
+  playerArea.redrawCanvas();
   requestAnimationFrame(loop);
 }
 
 /* INIT */
-
 buildUIOnceAndStart();
 
 </script>
