@@ -3,4 +3,5 @@
 - Add [S]pace and [R]eset key on Introduction Screen (skip tutorial state)
 
 ## Comments
-editor.html - Only Editor (No Tutorial Logic)!
+/editor.html - Only Editor (No Tutorial Logic)!
+/player.html - Only Player (No Anything)!
