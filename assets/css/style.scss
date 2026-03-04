@@ -1,6 +1,17 @@
 ---
 ---
-body { background-color: #000 !important; color: #fff !important; }
-table { border: 1px solid #444; border-collapse: collapse; margin: 20px 0; }
-th, td { border: 1px solid #444; padding: 10px; }
-a { color: #4da6ff; }
+body {
+    background-color: #0c0c0c !important;
+    color: #e2e2e2 !important;
+}
+
+table {
+    border: 1px solid #444 !important;
+    border-collapse: collapse !important;
+    width: 100% !important;
+}
+
+th, td {
+    border: 1px solid #444 !important;
+    padding: 10px !important;
+}
