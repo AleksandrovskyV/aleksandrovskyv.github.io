@@ -1,8 +1,5 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
 
-<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Присутствуют негативы, почти целый триптих и многое другое..." />
 
@@ -200,9 +197,19 @@
     <button data-href="/process"  data-state="close" data-mobile="false" >_cess</button>
 
     <button data-href="/const"    data-state="close" data-mobile="false" >/</button>
+
+    <!-- disable on mobile  ? -->
+
+    <button data-href="/fe"       data-state="open" data-mobile="false" data-mhidden="true" >fe</button>
+    <button data-href="/flipbook" data-state="open" data-mobile="false" data-mhidden="true" >flipbook</button>
+
+    <!-- ends  ? -->
+
     <button data-href="/space"    data-state="close" data-mobile="false" >—</button>
-  
     <button data-href="/about"    data-state="close" data-mobile="false" >[ &hearts; ]</button>
+
+
+
   </div>
   <div class="background" id="mBackground"></div>
 </div>
@@ -255,10 +262,23 @@
   })();
 
 
+  function removeBtnsOnMobile() {
+    if (!isMobile) return;
+
+    const container = document.getElementById('mButtonsContainer');
+    const btnsToRemove = container.querySelectorAll('button[data-mhidden="true"]');
+
+    btnsToRemove.forEach(btn => {
+      btn.remove();
+    });
+  }
+
   function removeOverflowingCloseButtons() {
     // метод удаления кнопок в мобильной версии
+
     const container = buttonContainer;
     const maxHeight = overlay.clientHeight;
+
 
     // Пока контент не помещается
     while (container.scrollHeight > maxHeight) {
@@ -356,6 +376,7 @@
   }
 
   // Вызов при загрузке
+  removeBtnsOnMobile();
   shuffleButtonsWithRules();
 
   if (isMobile) {
