@@ -27,7 +27,7 @@
     padding: 0;
     box-sizing: border-box;
   }
-  
+
   html, body {
     width: 100%;
     background: black;
@@ -63,12 +63,10 @@
     height: 64px;
   }
 
-  @media (max-width: 768px) {
-      #mainContainer {
-        padding: 0px 10vw;
-      }
-  }
 
+  #mainContainer {
+    padding: 0 clamp(0vw, calc(-60vw + 660.48px), 20vw);
+  }
 
 </style>
 
@@ -86,8 +84,7 @@
 
 <script>
 
-//const ua = navigator.userAgent.toLowerCase();
-//const isMobile = /iphone|ipad|android/.test(ua);
+
 
 const images = [
   {src: "/files/exegesis/e_2_alt.png", w: 1400, h: 745},
@@ -103,6 +100,12 @@ const container = document.getElementById("mainContainer");
 const firstImg = document.querySelector('#mainContainer img');
 const loader = document.getElementById("loader");
 
+const ua = navigator.userAgent.toLowerCase();
+const isMobile = /iphone|ipad|android/.test(ua);
+
+if(isMobile){
+container.style.padding = "0vw";
+}
 
 async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
   let attempts = 0;
