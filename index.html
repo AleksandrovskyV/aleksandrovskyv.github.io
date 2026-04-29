@@ -123,9 +123,9 @@
              env(safe-area-inset-left, 12px);
 
     display:flex;
-    flex-wrap:wrap;           /* перенос строк */
+    flex-wrap:wrap;
     gap:16px;
-    justify-content: space-between; /* ключ! */
+    justify-content: space-between;
     background:transparent;
   }
 
@@ -332,6 +332,36 @@
     });
   }
 
+  function getLastRowInfo() {
+    const btns = Array.from(buttonContainer.children);
+    if (!btns.length) return 0;
+
+    const lastTop = btns[btns.length - 1].offsetTop;
+    const lastRowBtns = btns.filter(btn => btn.offsetTop === lastTop);
+
+    //console.log(`На последней строке: ${lastRowBtns.length}`);
+    return lastRowBtns.length;
+  }
+
+  function checkLastRow() {
+    // Максимум 3 попытки, чтобы не уйти в бесконечность
+    for (let i = 0; i < 3; i++) {
+      const n = getLastRowInfo();
+      
+      // Если в хвосте 1 или 2 кнопки — чистим
+      if (n > 0 && n <= 2) {
+        const closeButtons = Array.from(buttonContainer.querySelectorAll('button[data-state="close"]'))
+          .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
+
+        if (closeButtons.length === 0) break;
+
+        closeButtons[closeButtons.length - 1].remove();
+      } else {
+        break;
+      }
+    }
+  }
+
   function shuffleButtonsWithRules() {
     const container = buttonContainer;
 
@@ -364,10 +394,8 @@
       valid = !excl.includes(lastRest);
     }
 
-    // очищаем контейнер
     container.innerHTML = "";
 
-    // вставляем перемешанные кнопки
     rest.forEach(btn => container.appendChild(btn));
 
     // вставляем фиксированные в конец 
@@ -381,7 +409,10 @@
   if (isMobile) {
     removeBtnsOnMobile();
     removeOverflowingCloseButtons();
+  }else{
+    
   }
+  checkLastRow();
 
   buttons.forEach(btn => {
     btn.addEventListener('click', async (ev) => {
