@@ -460,6 +460,15 @@ function onKeyCommand(e) {
       window.location.href = "./wolume";
     }
   }
+
+  if (e.code === 'KeyE') {
+    if (window.location.protocol === "file:") {
+      window.location.href = "./exegesis/index.html";
+    } else {
+      window.location.href = "./exegesis";
+    }
+  }
+
   if (e.code === 'KeyR') {
     if (window.location.protocol === "file:") {
       window.location.href = "./renders/index.html";
@@ -467,6 +476,7 @@ function onKeyCommand(e) {
       window.location.href = "./renders";
     }
   }
+
   if (e.code === 'KeyG') {
     if (window.location.protocol === "file:") {
       window.location.href = "./графика/index.html";
@@ -474,6 +484,7 @@ function onKeyCommand(e) {
       window.location.href = "./графика";
     }
   }
+
   if (e.code === 'KeyH') {
     if (window.location.protocol === "file:") {
       window.location.href = "./негативы/index.html";
@@ -481,6 +492,7 @@ function onKeyCommand(e) {
       window.location.href = "./негативы";
     }
   }
+  
 }
 
 
