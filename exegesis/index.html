@@ -178,9 +178,13 @@ loadFirstImageWithRetries(firstImg).then(() => loadSequentially(images));
 
 
 function onKeyCommand(e) {
+
+  console.log("Press", e.code);
   
-  // ESC — выход со страницы
-  if (e.key === "Escape") {
+  if (e.code === "Escape"){ // ESC
+    e.preventDefault();
+    e.stopImmediatePropagation(); // Чтобы другие скрипты не мешали
+
     if (window.location.protocol === "file:") {
       window.location.href = "./index.html";
     } else {
@@ -188,9 +192,15 @@ function onKeyCommand(e) {
       window.location.href = "https://vsky.space";
     }
   }
+
+  return
 }
 
-window.addEventListener("keydown", onKeyCommand, { capture: true });
+document.addEventListener("keydown", onKeyCommand);
+
+window.addEventListener('focus', () => {
+    console.log("Фокус вернулся");
+});
 
 </script>
 

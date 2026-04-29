@@ -453,6 +453,12 @@
   });
 
 function onKeyCommand(e) {
+
+  console.log("Press", e.code);
+  e.preventDefault();
+  e.stopImmediatePropagation(); // Чтобы другие скрипты не мешали
+
+
   if (e.code === "Backquote") {
     if (window.location.protocol === "file:") {
       window.location.href = "./wolume/index.html";
@@ -492,13 +498,16 @@ function onKeyCommand(e) {
       window.location.href = "./негативы";
     }
   }
-  
+
+  return
 }
 
+document.addEventListener("keydown", onKeyCommand);
 
-// Подписываем один обработчик на оба объекта
-window.addEventListener('keydown', onKeyCommand);
-document.addEventListener('keydown', onKeyCommand);
+window.addEventListener('focus', () => {
+    console.log("Фокус вернулся");
+});
+
 
 </script>
 
