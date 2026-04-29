@@ -177,7 +177,7 @@ async function loadSequentially(list) {
 loadFirstImageWithRetries(firstImg).then(() => loadSequentially(images));
 
 // ESC — выход со страницы
-function handleEscape(e) {
+function onKeyCommand(e) {
   if (e.key === "Escape") {
     if (window.location.protocol === "file:") {
       window.location.href = "./index.html";
@@ -189,8 +189,8 @@ function handleEscape(e) {
 }
 
 // Подписываем один обработчик на оба объекта
-//window.addEventListener('keydown', handleEscape);
-//document.addEventListener('keydown', handleEscape);
+//window.addEventListener('keydown', onKeyCommand);
+//document.addEventListener('keydown', onKeyCommand);
 window.addEventListener("keydown", onKeyCommand, { capture: true });
 
 </script>
