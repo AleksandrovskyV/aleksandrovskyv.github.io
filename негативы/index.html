@@ -321,29 +321,43 @@ document.querySelectorAll("button").forEach(btn => {
 
 
 
-// ESC
-function onKeyCommand(e) {
-  if (e.key === "Escape") {
-    if (window.location.protocol === "file:") {
-      window.location.href = "./index.html";
-    } else {
-      window.location.href = "https://vsky.space";
-    }
-    e.preventDefault()
-    return
-  }
-  
-  if (e.code === 'KeyH') {
-	  cleanupScene();
-      initScene();
-  }
-}
+
 
 document.querySelectorAll("a, button, img, .draggable").forEach(el => {
   el.tabIndex = -1;
 });
 
-window.addEventListener("keydown", onKeyCommand, { capture: true });
+
+function onKeyCommand(e) {
+
+  console.log("Press", e.code);
+  
+  if (e.code === "Escape"){ // ESC
+    
+    e.preventDefault();
+    e.stopImmediatePropagation(); // Чтобы другие скрипты не мешали
+
+    if (window.location.protocol === "file:") {
+      window.location.href = "./index.html";
+    } else {
+      window.location.href = "https://vsky.space";
+    }
+
+    return
+  }
+  
+  if (e.code === 'KeyH') {
+      cleanupScene();
+      initScene();
+  }
+}
+
+document.addEventListener("keydown", onKeyCommand);
+
+// Хак для возвращения фокуса, если страница была неактивна
+window.addEventListener('focus', () => {
+    console.log("Фокус вернулся");
+});
 
 
 window.addEventListener("pointerdown", () => {
