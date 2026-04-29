@@ -176,8 +176,10 @@ async function loadSequentially(list) {
 // Используем перед загрузкой последовательного списка
 loadFirstImageWithRetries(firstImg).then(() => loadSequentially(images));
 
-// ESC — выход со страницы
+
 function onKeyCommand(e) {
+  
+  // ESC — выход со страницы
   if (e.key === "Escape") {
     if (window.location.protocol === "file:") {
       window.location.href = "./index.html";
@@ -188,9 +190,6 @@ function onKeyCommand(e) {
   }
 }
 
-// Подписываем один обработчик на оба объекта
-//window.addEventListener('keydown', onKeyCommand);
-//document.addEventListener('keydown', onKeyCommand);
 window.addEventListener("keydown", onKeyCommand, { capture: true });
 
 </script>
