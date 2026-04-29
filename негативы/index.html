@@ -329,7 +329,10 @@ function onKeyCommand(e) {
     } else {
       window.location.href = "https://vsky.space";
     }
+    e.preventDefault()
+    return
   }
+  
   if (e.code === 'KeyH') {
 	  cleanupScene();
       initScene();
