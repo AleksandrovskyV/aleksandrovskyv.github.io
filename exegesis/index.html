@@ -105,7 +105,7 @@ const ua = navigator.userAgent.toLowerCase();
 const isMobile = /iphone|ipad|android/.test(ua);
 
 if(isMobile){
-container.style.padding = "0vw";
+  container.style.padding = "0vw";
 }
 
 async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
