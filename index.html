@@ -222,6 +222,11 @@
 </head>
 <body>
 
+<div style="position: fixed; width: 1px; height: 1px; left: -10px; opacity: 0.01; pointer-events: none;">
+  <img src="./content/heart_in.gif" id="pre-in">
+  <img src="./content/heart_out.gif" id="pre-out">
+</div>
+
 <div id="mBackground" class="background" ></div>
 
 <div class="overlay" id="mOverlay">
@@ -273,6 +278,7 @@
 
 let isFull = false;
 let isAnimating = false;
+let playCounter = 0; 
 
 const debugMode = false
 
@@ -554,44 +560,38 @@ buttons.forEach(btn => {
     // ИСКЛЮЧЕНИЕ ДЛЯ HEART ICON
     if (targetHref === "/about") {
       ev.preventDefault();
-      if (isAnimating) return; // Блокировка от спам-кликов
+      if (isAnimating) return;
 
       const heartImg = document.getElementById('heartIcon');
-      const t = "?t=" + Date.now();
       isAnimating = true;
+      playCounter++; 
 
-
-      const animationDuration = 400; 
-      
+      // Для первого раза берем чистый файл (из прелоада), 
+      // для последующих добавляем хвост для сброса цикла
+      const suffix = playCounter > 1 ? "?t=" + Date.now() : "";
+      const animationDuration = 450; // Чуть увеличим запас для iOS
 
       if (!isFull) {
-        heartImg.src = "./content/heart_in.gif" + t;
-        isFull = true; // Стейт меняем сразу  
-
+        heartImg.src = "./content/heart_in.gif" + suffix;
+        isFull = true;
         changeZone("open");
         
         setTimeout(() => {
+          heartImg.src = "./content/heart_open.png";
           isAnimating = false;
-          // Подмена на PNG не обязательна мгновенно, 
-          // GIF уже замер. Можно подменить для надежности:
-          heartImg.src = "./content/heart_open.png"; 
         }, animationDuration);
 
       } else {
-        heartImg.src = "./content/heart_out.gif" + t;
+        heartImg.src = "./content/heart_out.gif" + suffix;
         isFull = false;
-
-        
         changeZone("close");
 
         setTimeout(() => {
-          isAnimating = false;
           heartImg.src = "./content/heart.png";
+          isAnimating = false;
         }, animationDuration);
       }
-
-
-      return; // Прерываем функцию, чтобы не сработал переход по ссылке
+      return;
     }
 
     // ЛОГИКА ДЛЯ CLOSE КНОПОК
