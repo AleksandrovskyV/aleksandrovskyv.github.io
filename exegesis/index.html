@@ -21,42 +21,42 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/content/fav/f_ex_alt.png">
 
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  html, body {
-    width: 100%;
-    background: black;
-  }
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: black;
-  }
-  .container img {
-    width:100%;
-    max-width:1600px;
-    height:auto;
-    display:block;
-    background:black;
-    pointer-events:none;
-    opacity:0;
-    transition: opacity 0.5s;
-  }
-  .loading_container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 10px 0; 
-    /* не fixed, чтобы двигался вниз по мере вставки img */
-  }
-  .loading_container img {
-    width: 64px; /* или любой размер gif */
-    height: 64px;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html, body {
+  width: 100%;
+  background: black;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: black;
+}
+.container img {
+  width:100%;
+  max-width:1600px;
+  height:auto;
+  display:block;
+  background:black;
+  pointer-events:none;
+  opacity:0;
+  transition: opacity 0.5s;
+}
+.loading_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0; 
+  /* не fixed, чтобы двигался вниз по мере вставки img */
+}
+.loading_container img {
+  width: 64px; /* или любой размер gif */
+  height: 64px;
+}
 
 
 #mainContainer {
