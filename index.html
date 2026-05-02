@@ -505,6 +505,11 @@ function connectActionsToBtns(){
         return false;
       }
 
+      if ( btn.classList.contains('wLock') ) {//|| btn.classList.contains('bLock')
+        ev.preventDefault();
+        return false;
+      }
+
       // Для остальных кнопок
       let target = btn.dataset.href || '#';
 
