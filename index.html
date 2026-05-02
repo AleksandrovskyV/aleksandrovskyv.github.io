@@ -604,43 +604,52 @@ buttons.forEach(btn => {
         btn.style.opacity = "1";
 
         // Сброс и перезапуск GIF для Safari
-        const restartGif = (el, path) => {
-            el.src = path + "?t=" + Date.now(); // Форсируем старт с 1 кадра
+        const restartGif = (el, path, onReady) => {
+            el.classList.remove('active'); // Сначала скрываем
+            el.src = ""; // Полностью очищаем путь
+            
+            // Ждем, пока браузер зафиксирует очистку
+            requestAnimationFrame(() => {
+                el.src = path + "?t=" + Date.now();
+                // Даем браузеру время подгрузить новый src
+                requestAnimationFrame(() => {
+                    el.classList.add('active');
+                    if (onReady) onReady();
+                });
+            });
         };
 
-        if (!isFull) {
-            restartGif(imgIn, "./content/heart_in.gif");
-            
-            // Переключаем видимость
-            imgStatic.classList.remove('active');
-            imgIn.classList.add('active');
-            
-            //changeZone("open");
-            isFull = true;
 
-            setTimeout(() => {
-                imgIn.classList.remove('active');
-                imgFull.classList.add('active');
-                isAnimating = false;
-                //btn.style.pointerEvents = "auto";
-            }, durationValue);
+        if (!isFull) {
+            // Включаем IN
+            restartGif(imgIn, "./content/heart_in.gif", () => {
+                imgStatic.classList.remove('active');
+                isFull = true;
+                // changeZone("open");
+
+                setTimeout(() => {
+                    imgIn.classList.remove('active');
+                    imgFull.classList.add('active');
+                    isAnimating = false;
+                }, durationValue); 
+            });
 
         } else {
-            restartGif(imgOut, "./content/heart_out.gif");
-            
-            imgFull.classList.remove('active');
-            imgOut.classList.add('active');
-            
-            //changeZone("close");
-            isFull = false;
+            // Включаем OUT
+            restartGif(imgOut, "./content/heart_out.gif", () => {
+                imgFull.classList.remove('active');
+                isFull = false;
+                // changeZone("close");
 
-            setTimeout(() => {
-                imgOut.classList.remove('active');
-                imgStatic.classList.add('active');
-                isAnimating = false;
-                //btn.style.pointerEvents = "auto";
-            }, durationValue);
+                setTimeout(() => {
+                    imgOut.classList.remove('active');
+                    imgStatic.classList.add('active');
+                    isAnimating = false;
+                }, durationValue);
+            });
         }
+
+
         return;
     }
 
@@ -680,6 +689,7 @@ buttons.forEach(btn => {
   });
 });
 
+/*
 function preloadAssets(urls) {
   urls.forEach(url => {
     const img = new Image();
@@ -688,7 +698,7 @@ function preloadAssets(urls) {
 }
 
 // Запускаем сразу при загрузке страницы
-/*
+
 preloadAssets([
   "./content/heart_in.gif",
   "./content/heart_out.gif",
