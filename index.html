@@ -292,12 +292,13 @@
     -->
 
     <button id="endHeart" data-href="/about" data-state="open" data-mobile="false">
-        <div class="heart-container">
-            <img id="heartStatic" src="./content/heart.png" class="active">
-            <img id="heartIn" src="./content/heart_in.gif">
-            <img id="heartOut" src="./content/heart_out.gif">
-            <img id="heartFull" src="./content/heart_open.png">
-        </div>
+      <div class="heart-container">
+          <img id="heartStatic" src="./content/heart.png" class="active">
+          <img id="heartIn_A"   src="./content/heart_in.gif">
+          <img id="heartIn_B"   src="./content/heart_in.gif"> <!-- Клон для чередования -->
+          <img id="heartOut"    src="./content/heart_out.gif">
+          <img id="heartFull"   src="./content/heart_open.png">
+      </div>
     </button>
 
 
@@ -587,69 +588,57 @@ buttons.forEach(btn => {
     
     const targetHref = btn.dataset.href;
 
-    // ИСКЛЮЧЕНИЕ ДЛЯ HEART ICON
+    let useA = true; // Флаг чередования слоев
+
     if (targetHref === "/about") {
         ev.preventDefault();
         if (isAnimating) return;
 
-        const imgStatic = document.getElementById('heartStatic');
-        const imgIn = document.getElementById('heartIn');
-        const imgOut = document.getElementById('heartOut');
-        const imgFull = document.getElementById('heartFull');
-
-        const durationValue = isMobile ? 650 : 400;
-
         isAnimating = true;
-        //btn.style.pointerEvents = "none";
         btn.style.opacity = "1";
-
-        // Сброс и перезапуск GIF для Safari
-        const restartGif = (el, path, onReady) => {
-            el.classList.remove('active'); // Сначала скрываем
-            el.src = ""; // Полностью очищаем путь
-            
-            // Ждем, пока браузер зафиксирует очистку
-            requestAnimationFrame(() => {
-                el.src = path + "?t=" + Date.now();
-                // Даем браузеру время подгрузить новый src
-                requestAnimationFrame(() => {
-                    el.classList.add('active');
-                    if (onReady) onReady();
-                });
-            });
-        };
-
+        const t = "?t=" + Date.now();
+        const durationValue = 400; // Строго под один цикл
 
         if (!isFull) {
-            // Включаем IN
-            restartGif(imgIn, "./content/heart_in.gif", () => {
-                imgStatic.classList.remove('active');
-                isFull = true;
-                // changeZone("open");
+            // Выбираем один из двух слоев IN
+            const currentIn = useA ? document.getElementById('heartIn_A') : document.getElementById('heartIn_B');
+            const otherIn = useA ? document.getElementById('heartIn_B') : document.getElementById('heartIn_A');
 
-                setTimeout(() => {
-                    imgIn.classList.remove('active');
-                    imgFull.classList.add('active');
-                    isAnimating = false;
-                }, durationValue); 
-            });
+            // Перезапускаем только текущий
+            currentIn.src = "./content/heart_in.gif" + t;
+            
+            document.getElementById('heartStatic').classList.remove('active');
+            currentIn.classList.add('active');
+            otherIn.classList.remove('active'); // На всякий случай гасим второй
+
+            isFull = true;
+            // changeZone("open");
+
+            useA = !useA; // Меняем флаг для следующего раза
+
+            setTimeout(() => {
+                currentIn.classList.remove('active');
+                document.getElementById('heartFull').classList.add('active');
+                isAnimating = false;
+            }, durationValue);
 
         } else {
-            // Включаем OUT
-            restartGif(imgOut, "./content/heart_out.gif", () => {
-                imgFull.classList.remove('active');
-                isFull = false;
-                // changeZone("close");
+            // OUT работает нормально, его не трогаем
+            const imgOut = document.getElementById('heartOut');
+            imgOut.src = "./content/heart_out.gif" + t;
+            
+            document.getElementById('heartFull').classList.remove('active');
+            imgOut.classList.add('active');
+            
+            isFull = false;
+            // changeZone("close");
 
-                setTimeout(() => {
-                    imgOut.classList.remove('active');
-                    imgStatic.classList.add('active');
-                    isAnimating = false;
-                }, durationValue);
-            });
+            setTimeout(() => {
+                imgOut.classList.remove('active');
+                document.getElementById('heartStatic').classList.add('active');
+                isAnimating = false;
+            }, durationValue);
         }
-
-
         return;
     }
 
