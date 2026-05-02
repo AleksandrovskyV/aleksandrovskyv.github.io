@@ -164,14 +164,31 @@
     color: rgba(70,70,70,1.0);
   }
 
-  #heartIcon {
-      display: block;  /* Убираем лишние отступы снизу (baseline) */
-      height: 42px;    /* Чистая высота графики */
-      width: 88px;     /* Ширина согласно пропорции 500х240 */
-      padding-top: 5px; /* Добор до системных 47px */
+  .heart-container {
+      position: relative; /* Чтобы картинки внутри накладывались друг на друга */
+      display: block;
+      width: 88px;      
+      height: 47px;     /* Итоговая высота блока для верстки */
       margin: 0 auto;
+      pointer-events: none;
+  }
+
+  .heart-container img {
+      position: absolute; /* Накладываем их друг на друга */
+      top: 6px;
+      left: 0;
+      display: block;
+      height: 42px;    
+      width: 88px;     
       object-fit: contain;
-      pointer-events: none; /* Чтобы клик всегда шел на кнопку, а не на картинку */
+      
+      opacity: 0;       /* Скрыты по умолчанию */
+      transition: none; /* Мгновенная подмена без мерцания */
+  }
+
+  /* Твой активный слой */
+  .heart-container img.active {
+      opacity: 1;
   }
 
   /* Классы для мобильной */
@@ -228,12 +245,6 @@
 </head>
 <body>
 
-<div style="position: fixed; width: 1px; height: 1px; left: -10px; opacity: 0.01; pointer-events: none;">
-  <img src="./content/heart_in.gif" id="pre-in">
-  <img src="./content/heart_out.gif" id="pre-out">
-  <img src="./content/heart_open.png">
-</div>
-
 <div id="mBackground" class="background" ></div>
 
 <div class="overlay" id="mOverlay">
@@ -274,9 +285,21 @@
     <button id="endSpace"  class="bb" data-z="B" data-href="/space" data-state="close" data-mobile="false" >—</button>
     
      <!--   <button data-href="/aboutOld"    data-state="close" data-mobile="false" >[ &hearts; ]</button>-->
+     <!--
     <button  id="endHeart"  class="bh" data-z="B" data-href="/about"    data-state="open" data-mobile="false" >
         <img id="heartIcon" src="./content/heart.png" >
     </button>
+    -->
+
+    <button id="endHeart" data-href="/about" data-state="open" data-mobile="false">
+        <div class="heart-container">
+            <img id="heartStatic" src="./content/heart.png" class="active">
+            <img id="heartIn" src="./content/heart_in.gif">
+            <img id="heartOut" src="./content/heart_out.gif">
+            <img id="heartFull" src="./content/heart_open.png">
+        </div>
+    </button>
+
 
   </div>
 </div>
@@ -565,43 +588,59 @@ buttons.forEach(btn => {
     const targetHref = btn.dataset.href;
 
     // ИСКЛЮЧЕНИЕ ДЛЯ HEART ICON
-  if (targetHref === "/about") {
-    ev.preventDefault();
-    if (isAnimating) return; 
+    if (targetHref === "/about") {
+        ev.preventDefault();
+        if (isAnimating) return;
 
-    const heartImg = document.getElementById('heartIcon');
-    const t = "?t=" + Date.now();
-    
-    isAnimating = true;
-    btn.style.pointerEvents = "none"; // БЛОКИРОВКА: кнопка перестает реагировать на пальцы
-    btn.style.opacity = "1";          // Гарантируем яркость при спаме
+        const imgStatic = document.getElementById('heartStatic');
+        const imgIn = document.getElementById('heartIn');
+        const imgOut = document.getElementById('heartOut');
+        const imgFull = document.getElementById('heartFull');
 
-    const animationDuration = 400; 
+        isAnimating = true;
+        btn.style.pointerEvents = "none";
+        btn.style.opacity = "1";
 
-    if (!isFull) {
-      heartImg.src = "./content/heart_in.gif" + t;
-      isFull = true;
-      changeZone("open");
-      
-      setTimeout(() => {
-        heartImg.src = "./content/heart_open.png";
-        isAnimating = false;
-        btn.style.pointerEvents = "auto"; // РАЗБЛОКИРОВКА
-      }, animationDuration);
+        // Сброс и перезапуск GIF для Safari
+        const restartGif = (el, path) => {
+            el.src = path + "?t=" + Date.now(); // Форсируем старт с 1 кадра
+        };
 
-    } else {
-      heartImg.src = "./content/heart_out.gif" + t;
-      isFull = false;
-      changeZone("close");
+        if (!isFull) {
+            restartGif(imgIn, "./content/heart_in.gif");
+            
+            // Переключаем видимость
+            imgStatic.classList.remove('active');
+            imgIn.classList.add('active');
+            
+            changeZone("open");
+            isFull = true;
 
-      setTimeout(() => {
-        heartImg.src = "./content/heart.png";
-        isAnimating = false;
-        btn.style.pointerEvents = "auto"; // РАЗБЛОКИРОВКА
-      }, animationDuration);
+            setTimeout(() => {
+                imgIn.classList.remove('active');
+                imgFull.classList.add('active');
+                isAnimating = false;
+                btn.style.pointerEvents = "auto";
+            }, 400);
+
+        } else {
+            restartGif(imgOut, "./content/heart_out.gif");
+            
+            imgFull.classList.remove('active');
+            imgOut.classList.add('active');
+            
+            changeZone("close");
+            isFull = false;
+
+            setTimeout(() => {
+                imgOut.classList.remove('active');
+                imgStatic.classList.add('active');
+                isAnimating = false;
+                btn.style.pointerEvents = "auto";
+            }, 400);
+        }
+        return;
     }
-    return;
-  }
 
     // ЛОГИКА ДЛЯ CLOSE КНОПОК
     if (btn.dataset.state === 'close') {
