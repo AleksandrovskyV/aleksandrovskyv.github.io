@@ -39,12 +39,9 @@
     transition: background-color 0.7s ease-out;
   }
 
-  body.switchZone{
-    background: #000;
-  }
+  body.invert{background: #000;}
 
   /* Классы для Desktop */
-
   .overlay{
     position:fixed;
     inset:0;
@@ -88,36 +85,46 @@
   }
 
   /* Общее для всех */
-  .buttonblock button[data-state="close"],
-  .buttonblockMobile button[data-state="close"] {
+  .buttonblock button[data-st="close"],
+  .buttonblockMobile button[data-st="close"] {
     color: rgba(70,70,70,1.0);
   }
 
   /* 3. ЭФФЕКТЫ ТОЛЬКО ДЛЯ ПК (с мышкой) */
   @media (hover: hover) {
-    .buttonblock button:not([data-state="close"]):hover,
-    .buttonblockMobile button:not([data-state="close"]):hover {
+    .buttonblock button:not([data-st="close"]):hover,
+    .buttonblockMobile button:not([data-st="close"]):hover {
       opacity: .5;
     }
 
-    .buttonblock button[data-state="close"] {
+    .buttonblock button[data-st="close"] {
       cursor: grab;
     }
 
-    .buttonblock button[data-state="close"]:active {
+    .buttonblock button[data-st="close"]:active {
       cursor: grabbing;
       transform: scale(0.99); 
       color: rgba(50,50,50,1.0); 
     }
   }
 
+
+  /* Both Buttons */
   .buttonblock button.bb,
   .buttonblockMobile button.bb {
     cursor: default;
     pointer-events: none;
+    transition: color 0.6s ease;
     color: #9b9b9b;
   }
 
+  .buttonblock button.bb.bLock,
+  .buttonblockMobile button.bb.bLock {
+    color: rgba(70,70,70,1.0);
+  }
+
+
+  /* Dark Buttons */
   .buttonblock button.bd,
   .buttonblockMobile button.bd {
     cursor: default;
@@ -139,6 +146,7 @@
     color: rgba(128, 128, 128, 1); 
   }
 
+  /* White Buttons */
   .buttonblock button.bw,
   .buttonblockMobile button.bw {
     pointer-events: none;
@@ -235,44 +243,42 @@
 <div class="overlay" id="mOverlay">
   <div class="buttonblock" id="mButtonsContainer"> 
 
-    <button id="startW" class="bw" data-z="W" data-href="/identity" data-state="close" data-mobile="false" >identity</button>
-    <button id="startD" class="bd" data-z="D" data-href="/wolume"   data-state="open"  data-mobile="false" >~</button>
+    <!-- z=zone ; mb = mobile -->
+
+    <button id="startW" class="bw" data-z="W" data-href="/identity" data-st="close" data-mb="false" >identity</button>
+    <button id="startD" class="bd" data-z="D" data-href="/wolume"   data-st="open"  data-mb="false" >~</button>
 
     <!-- mobile special -->
-    <button data-href="/chat"     class="bd" data-z="D" data-state="open"  data-mobile="true" >chat___</button>
-    <button data-href="/день"     class="bd" data-z="D" data-state="open"  data-mobile="true" >день</button>
-    <button data-href="/триптих"  class="bd" data-z="D" data-state="open"  data-mobile="true" >триптих</button>
+    <button data-href="/chat"     class="bd" data-z="D" data-st="open"  data-mb="true" >chat___</button>
+    <button data-href="/день"     class="bd" data-z="D" data-st="open"  data-mb="true" >день</button>
+    <button data-href="/триптих"  class="bd" data-z="D" data-st="open"  data-mb="true" >триптих</button>
 
     <!-- combine between web and mobile  -->
-    <button data-href="/негативы" class="bd" data-z="D" data-state="open"  data-mobile="false" >негативы</button>
-    <button data-href="/exegesis" class="bd" data-z="D" data-state="open"  data-mobile="false" >.exe</button>
+    <button data-href="/негативы" class="bd" data-z="D" data-st="open"  data-mb="false" >негативы</button>
+    <button data-href="/exegesis" class="bd" data-z="D" data-st="open"  data-mb="false" >.exe</button>
 
-    <button data-href="/renders"  class="bw" data-z="W" data-state="close" data-mobile="false" >_enders</button>
-    <button data-href="/снимки"   class="bw" data-z="W" data-state="close" data-mobile="false" >снимки</button>
-    <button data-href="/графика"  class="bw" data-z="W" data-state="close" data-mobile="false" >графика</button>
+    <button data-href="/renders"  class="bw" data-z="W" data-st="close" data-mb="false" >_enders</button>
+    <button data-href="/снимки"   class="bw" data-z="W" data-st="close" data-mb="false" >снимки</button>
+    <button data-href="/графика"  class="bw" data-z="W" data-st="close" data-mb="false" >графика</button>
   
-    <button data-href="/bread"    class="bw" data-z="W" data-state="close" data-mobile="false" >bread</button>
-    <button data-href="/haloguys" class="bw" data-z="W" data-state="close" data-mobile="false" >[ haloguys ]</button>
-    <button data-href="/покпокки" class="bw" data-z="W" data-state="close" data-mobile="false" >покпокки</button>
+    <button data-href="/bread"    class="bw" data-z="W" data-st="close" data-mb="false" >bread</button>
+    <button data-href="/haloguys" class="bw" data-z="W" data-st="close" data-mb="false" >[ haloguys ]</button>
+    <button data-href="/покпокки" class="bw" data-z="W" data-st="close" data-mb="false" >покпокки</button>
   
-    <button data-href="/работа"   class="bw" data-z="W" data-state="close" data-mobile="false" >работа</button>
-    <button data-href="/process"  class="bw" data-z="W" data-state="close" data-mobile="false" >_cess</button>
+    <button data-href="/работа"   class="bw" data-z="W" data-st="close" data-mb="false" >работа</button>
+    <button data-href="/process"  class="bw" data-z="W" data-st="close" data-mb="false" >_cess</button>
 
-    <button data-href="/const"    class="bb" data-z="B" data-state="close" data-mobile="false" >/</button>
+    <button data-href="/const"    class="bb" data-z="B" data-st="close" data-mb="false" >/</button>
 
     <!-- disable on mobile -->
-
-    <button data-href="/fe"       class="bd" data-z="D" data-state="open" data-mobile="false" data-mhidden="true" >fe</button>
-    <button data-href="/flipbook" class="bd" data-z="D" data-state="open" data-mobile="false" data-mhidden="true" >flipbook</button>
+    <button data-href="/fe"       class="bd" data-z="D" data-st="open" data-mb="false" data-mhidden="true" >fe</button>
+    <button data-href="/flipbook" class="bd" data-z="D" data-st="open" data-mb="false" data-mhidden="true" >flipbook</button>
 
     <!-- end block -->
-
-    <button id="endSpace"  class="bb" data-z="B" data-href="/space" data-state="close" data-mobile="false" >—</button>
-    
-     <!--   <button data-href="/aboutOld"    data-state="close" data-mobile="false" >[ &hearts; ]</button>-->
-
+    <button id="endSpace" class="bb" data-z="B" data-href="/space" data-st="close" data-mb="false" >—</button>
+     <!--   <button data-href="/aboutOld"    data-st="close" data-mb="false" >[ &hearts; ]</button>-->
      <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
-    <button id="endHeart" data-href="/about" data-state="open">
+    <button id="endHeart" data-href="/about" data-st="open">
         <div id="heartIcon" class="heart-sprite"></div>
     </button>
 
@@ -281,21 +287,18 @@
 
 <script>
 
-
 const debugMode = false
-
 const ua = navigator.userAgent.toLowerCase();
 const isMobile = /iphone|ipad|android/.test(ua);
 
 const overlay = document.getElementById('mOverlay');
 const buttonContainer = document.getElementById('mButtonsContainer');
-
 const buttons = Array.from(buttonContainer.querySelectorAll('button'));
-const heart = buttons.find(b => b.dataset.href === "/about");
 
 if (!isMobile) {
-  // замена на изображение
-  //heart.textContent = '[ ❤ ]'; // теперь у нас png+gif
+  // замена на изображение > теперь у нас sprite
+  //const heart = buttons.find(b => b.dataset.href === "/about");
+  //heart.textContent = '[ ❤ ]'; 
 } else {
   overlay.classList.replace('overlay', 'overlayMobile');
   buttonContainer.classList.replace('buttonblock', 'buttonblockMobile');
@@ -337,7 +340,7 @@ function debugOffsets() {
   });
 }
 
-/* ========== Автоматическая подстройка размера шрифта в зависимости от кол-ва кнопок ==========
+/* ========== подстройка размера шрифта в зависимости от кол-ва кнопок ==========
    простая эвристика: чем больше кнопок — тем меньше шрифт (можно настроить под себя).
 */
 
@@ -372,7 +375,7 @@ function removeOverflowingCloseButtons() {
   while (container.scrollHeight > maxHeight) {
     // Берём все кнопки close, кроме исключений
 
-    const closeButtons = Array.from(container.querySelectorAll('button[data-state="close"]'))
+    const closeButtons = Array.from(container.querySelectorAll('button[data-st="close"]'))
       .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
 
     if (closeButtons.length === 0) break; // Больше нечего удалять
@@ -440,7 +443,7 @@ function checkLastRow() {
     
     // Если в хвосте 1 или 2 кнопки — чистим
     if (n > 0 && n <= 2) {
-      const closeButtons = Array.from(buttonContainer.querySelectorAll('button[data-state="close"]'))
+      const closeButtons = Array.from(buttonContainer.querySelectorAll('button[data-st="close"]'))
         .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
 
       if (closeButtons.length === 0) break;
@@ -493,20 +496,6 @@ function shuffleButtonsWithRules() {
   container.appendChild(last); 
 }
 
-// Вызов при загрузке
-adjustFontByCount();
-shuffleButtonsWithRules();
-
-if (isMobile) {
-  removeBtnsOnMobile();
-  removeOverflowingCloseButtons();
-}else{
-  
-}
-
-checkLastRow();
-
-
 let isFull = false;      // Хранит состояние зоны (открыта/закрыта)
 let isAnimating = false; // Блокирует спам-клики на 50мс
 
@@ -522,6 +511,7 @@ function changeZone(state = "open") {
   const delayStyles = 0; 
 
   // Используем прямые команды вместо toggle
+  // исключает риск рассинхрона стейта при спам-кликах
   setTimeout(() => {
     if (state === "open") {
       sprite.classList.add('is-full');
@@ -531,80 +521,35 @@ function changeZone(state = "open") {
     isAnimating = false;
   }, delayIcon);
 
-  // Стили меняем МГНОВЕННО (без setTimeout), чтобы не копить очередь событий
+
   const dButtons = Array.from(bContainer.querySelectorAll('button[data-z="D"]'))
-    .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
+    .filter(btn => btn.id !== 'endHeart');
 
   const wButtons = Array.from(bContainer.querySelectorAll('button[data-z="W"]'))
-    .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
+    .filter(btn => btn.id !== 'endHeart');
+
+  const bButtons = Array.from(bContainer.querySelectorAll('button[data-z="B"]'))
+    .filter(btn => btn.id !== 'endHeart');
 
   if (state === "open") {
     setTimeout(() => {
-      document.body.classList.add("switchZone");
-      dButtons.forEach(b => { b.classList.add('dOpen');});
-      wButtons.forEach(b => { b.classList.add('wLock');});
+      document.body.classList.add("invert");
+      dButtons.forEach(b => b.classList.add('dOpen'));
+      wButtons.forEach(b => b.classList.add('wLock'));
+      bButtons.forEach(b => b.classList.add('bLock'));
 
     }, delayStyles);
   
   } else {
     setTimeout(() => {
-      document.body.classList.remove("switchZone");
+      document.body.classList.remove("invert");
       dButtons.forEach(b => b.classList.remove('dOpen'));
       wButtons.forEach(b => b.classList.remove('wLock'));
+      bButtons.forEach(b => b.classList.remove('bLock'));
     }, delayStyles);
   
   }
 }
-
-buttons.forEach(btn => {
-  btn.addEventListener('click', async (ev) => {
-    
-    const targetHref = btn.dataset.href;
-
-    if (targetHref === "/about") {
-        ev.preventDefault();
-                
-        isFull = !isFull;
-        if (typeof changeZone === "function") changeZone(isFull ? "open" : "close");
-        
-        return;
-    }
-
-    // ЛОГИКА ДЛЯ CLOSE КНОПОК
-    if (btn.dataset.state === 'close') {
-      ev.preventDefault();
-      return false;
-    }
-
-    // Для остальных кнопок
-    let target = btn.dataset.href || '#';
-
-    ev.preventDefault();
-    buttonContainer.style.pointerEvents = 'none';
-    await hideAllButtons();
-
-    if (window.location.protocol === "file:") {
-      // локальная отладка
-      if (target.startsWith("/")) target = target.slice(1);
-      target = target + ".html";
-    } else {
-      // сервер
-      if (target.endsWith(".html")) {
-        target = "/" + target.replace(".html", "");
-      }
-    }
-
-    if (isMobile && btn.dataset.mobile === 'true') {
-      target = "/ios" + target + "/";
-    }
-    if (isMobile) {
-      target = target + "/";
-    }
-  
-    window.location.href = target;
-
-  });
-});
 
 function onKeyCommand(e) {
 
@@ -655,12 +600,79 @@ function onKeyCommand(e) {
   return
 }
 
-document.addEventListener("keydown", onKeyCommand);
+function connectActionsToBtns(){
+  const buttons = Array.from(buttonContainer.querySelectorAll('button'));
 
-window.addEventListener('focus', () => {
-    console.log("Фокус вернулся");
-});
+  buttons.forEach(btn => {
+    btn.addEventListener('click', async (ev) => {
+      
+      const endHeart = document.getElementById('endHeart');
+      if (btn.id === 'endHeart') {
+          ev.preventDefault();
+          isFull = !isFull;
+          if (typeof changeZone === "function") changeZone(isFull ? "open" : "close");
+          return;
+      }
 
+      // ЛОГИКА ДЛЯ CLOSE КНОПОК
+      if (btn.dataset.st === 'close') {
+        ev.preventDefault();
+        return false;
+      }
+
+      // Для остальных кнопок
+      let target = btn.dataset.href || '#';
+
+      ev.preventDefault();
+      buttonContainer.style.pointerEvents = 'none';
+      await hideAllButtons();
+
+      if (window.location.protocol === "file:") {
+        // локальная отладка
+        if (target.startsWith("/")) target = target.slice(1);
+        target = target + ".html";
+      } else {
+        // сервер
+        if (target.endsWith(".html")) {
+          target = "/" + target.replace(".html", "");
+        }
+      }
+
+      if (isMobile && btn.dataset.mb === 'true') {
+        target = "/ios" + target + "/";
+      }
+      if (isMobile) {
+        target = target + "/";
+      }
+    
+      window.location.href = target;
+
+    });
+  });
+}
+
+function initWebsite() {
+
+  adjustFontByCount();
+  shuffleButtonsWithRules();
+
+  if (isMobile) {
+    removeBtnsOnMobile();
+    removeOverflowingCloseButtons();
+  }
+  checkLastRow();
+  
+  connectActionsToBtns();
+
+  document.addEventListener("keydown", onKeyCommand);
+
+  window.addEventListener('focus', () => {
+      console.log("Фокус вернулся");
+  });
+}
+
+// Init Block
+initWebsite();
 
 </script>
 
