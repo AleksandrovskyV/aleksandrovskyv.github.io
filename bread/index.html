@@ -155,20 +155,21 @@ function loadImage(src, maxRetries = 5, delay = 1000) {
 }
 
 async function loadSequentially(list) {
-  const TARGET_WIDTH = 1400; // Целевая ширина
+  const TARGET_WIDTH = 1400; 
 
   for (const item of list) {
     try {
       const img = await loadImage(item.src);
       
-      // Вычисляем коэффициент масштабирования относительно 1400px
+      // 1. Оставляем атрибуты для "подсказки" браузеру о пропорциях
       const scaleFactor = TARGET_WIDTH / item.w;
-      
-      // Устанавливаем ширину ровно 1400
       img.width = TARGET_WIDTH;
       img.height = item.h * scaleFactor;
 
-      img.style.width = TARGET_WIDTH + "px";
+      // 2. УДАЛЯЕМ жесткую установку px. 
+      // Вместо этого прописываем то же, что у первой картинки:
+      img.style.width = "100%";
+      img.style.maxWidth = "1400px"; // Это позволит им сжиматься при ресайзе
       img.style.height = "auto"; 
       
       img.style.opacity = 1;
