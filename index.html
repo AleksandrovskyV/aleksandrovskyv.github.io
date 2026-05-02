@@ -281,7 +281,7 @@
 
 <script>
 
-let isFull = false;
+
 const debugMode = false
 
 const ua = navigator.userAgent.toLowerCase();
@@ -507,8 +507,13 @@ if (isMobile) {
 checkLastRow();
 
 
+let isFull = false;      // Хранит состояние зоны (открыта/закрыта)
+let isAnimating = false; // Блокирует спам-клики на 50мс
 
-function changeZone(state="open") {
+function changeZone(state = "open") {
+  // 1. Блокируем повторный вход, пока не отработал старт (50мс)
+  if (isAnimating) return; 
+  isAnimating = true;
 
   const sprite = document.getElementById('heartIcon');
   const bContainer = document.getElementById('mButtonsContainer');
@@ -516,49 +521,39 @@ function changeZone(state="open") {
   const delayIcon = 50;
   const delayStyles = 0; 
 
+  // 2. Используем четкие команды вместо toggle
   setTimeout(() => {
-    //  класс CSS сам проиграет анимацию в обе стороны
-    sprite.classList.toggle('is-full');
+    if (state === "open") {
+      sprite.classList.add('is-full');
+    } else {
+      sprite.classList.remove('is-full');
+    }
+    isAnimating = false; // Разблокируем после срабатывания
   }, delayIcon);
 
+  // Стили меняем МГНОВЕННО (без setTimeout), чтобы не копить очередь событий
   const dButtons = Array.from(bContainer.querySelectorAll('button[data-z="D"]'))
     .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
 
   const wButtons = Array.from(bContainer.querySelectorAll('button[data-z="W"]'))
     .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
 
-  if(state === "open"){
-    
+  if (state === "open") {
     setTimeout(() => {
       document.body.classList.add("switchZone");
-
-      dButtons.forEach(b => { 
-          b.classList.add('dOpen');
-      });
-
-      wButtons.forEach(b => { 
-          b.classList.add('wLock');
-      });
+      dButtons.forEach(b => { b.classList.add('dOpen');});
+      wButtons.forEach(b => { b.classList.add('wLock');});
 
     }, delayStyles);
-
-  }else{
-
+  
+  } else {
     setTimeout(() => {
       document.body.classList.remove("switchZone");
-
-      dButtons.forEach(b => { 
-          b.classList.remove('dOpen');
-
-      });
-
-      wButtons.forEach(b => { 
-          b.classList.remove('wLock');
-      });
-
+      dButtons.forEach(b => b.classList.remove('dOpen'));
+      wButtons.forEach(b => b.classList.remove('wLock'));
     }, delayStyles);
+  
   }
-
 }
 
 buttons.forEach(btn => {
