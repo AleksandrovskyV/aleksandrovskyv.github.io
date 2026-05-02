@@ -18,46 +18,45 @@
 
 <title>bread</title>
 <link rel="icon" href="/content/fav/f_br.png" type="image/png">
-<link rel="apple-touch-icon" sizes="180x180" href="/content/fav/f_br.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://vsky.space/content/fav/f_br.png">
 
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  html, body {
-    width: 100%;
-    background: #e5e5e5;
-  }
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: none;
-  }
-  .container img {
-    width:100%;
-    max-width: 1400px;
-    height:auto;
-    display:block;
-    background:none;
-    pointer-events:none;
-    opacity:0;
-    transition: opacity 0.5s;
-  }
-  .loading_container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 10px 0; 
-    /* не fixed, чтобы двигался вниз по мере вставки img */
-  }
-  .loading_container img {
-    width: 64px; /* или любой размер gif */
-    height: 64px;
-  }
-
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html, body {
+  width: 100%;
+  background: #e5e5e5;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+}
+.container img {
+  width:100%;
+  max-width: 1400px;
+  height:auto;
+  display:block;
+  background:none;
+  pointer-events:none;
+  opacity:0;
+  transition: opacity 0.5s;
+}
+.loading_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0; 
+  /* не fixed, чтобы двигался вниз по мере вставки img */
+}
+.loading_container img {
+  width: 64px; /* или любой размер gif */
+  height: 64px;
+}
 
 #mainContainer {
   /* Интерполяция между 1600 и 2000 */
@@ -166,8 +165,6 @@ async function loadSequentially(list) {
       img.width = TARGET_WIDTH;
       img.height = item.h * scaleFactor;
 
-      // 2. УДАЛЯЕМ жесткую установку px. 
-      // Вместо этого прописываем то же, что у первой картинки:
       img.style.width = "100%";
       img.style.maxWidth = "1400px"; // Это позволит им сжиматься при ресайзе
       img.style.height = "auto"; 
