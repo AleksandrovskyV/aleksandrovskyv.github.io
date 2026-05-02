@@ -294,16 +294,9 @@
     <button id="endHeart" data-href="/about" data-state="open" data-mobile="false">
       <div class="heart-container">
           <img id="heartStatic" src="./content/heart.png" class="active">
-          
-          <!-- Две гифки для входа -->
-          <img id="heartIn_1" src="./content/heart_in.gif">
-          <img id="heartIn_2" src="./content/heart_in.gif">
-          
-          <!-- Две гифки для выхода -->
-          <img id="heartOut_1" src="./content/heart_out.gif">
-          <img id="heartOut_2" src="./content/heart_out.gif">
-          
-          <img id="heartFull" src="./content/heart_open.png">
+          <img id="heartIn"     src="./content/heart_in.gif"> 
+          <img id="heartOut"    src="./content/heart_out.gif">
+          <img id="heartFull"   src="./content/heart_open.png">
       </div>
     </button>
 
@@ -597,53 +590,56 @@ buttons.forEach(btn => {
     const targetHref = btn.dataset.href;
 
     if (targetHref === "/about") {
-        ev.preventDefault();
-        if (isAnimating) return;
-        isAnimating = true;
+      ev.preventDefault();
+      if (isAnimating) return;
 
-        const container = document.querySelector('.heart-container');
-        const durationValue = isMobile ? 500 : 400;
+      const imgStatic = document.getElementById('heartStatic');
+      const imgIn = document.getElementById('heartIn');
+      const imgOut = document.getElementById('heartOut');
+      const imgFull = document.getElementById('heartFull');
 
-        if (!isFull) {
-            // Находим ту гифку IN, которая сейчас НЕ активна
-            const gifIn = container.querySelector('img[id^="heartIn"]:not(.active)');
-            
-            // Сбрасываем её (без ?t= она возьмется из кэша мгновенно)
-            gifIn.src = gifIn.src;
+      isAnimating = true;
+      const durationValue = isMobile ? 500 : 400; 
 
-            setTimeout(() => {
-                document.getElementById('heartStatic').classList.remove('active');
-                gifIn.classList.add('active');
-                isFull = true;
-                if (typeof changeZone === "function") changeZone("open");
+      if (!isFull) {
+          // 1. Сбрасываем GIF просто переназначив src (без таймстемпа)
+          imgIn.src = "./content/heart_in.gif"; // Без таймстемпа
 
-                setTimeout(() => {
-                    gifIn.classList.remove('active');
-                    document.getElementById('heartFull').classList.add('active');
-                    isAnimating = false;
-                }, durationValue);
-            }, 50);
+          // 2. Пауза 50мс — даем Safari "раздуплиться"
+          setTimeout(() => {
+              imgStatic.classList.remove('active');
+              imgIn.classList.add('active');
+              
+              isFull = true;
+              if (typeof changeZone === "function") changeZone("open");
 
-        } else {
-            // Находим ту гифку OUT, которая сейчас НЕ активна
-            const gifOut = container.querySelector('img[id^="heartOut"]:not(.active)');
-            
-            gifOut.src = gifOut.src;
+              setTimeout(() => {
+                  imgIn.classList.remove('active');
+                  imgFull.classList.add('active');
+                  isAnimating = false;
+              }, durationValue);
 
-            setTimeout(() => {
-                document.getElementById('heartFull').classList.remove('active');
-                gifOut.classList.add('active');
-                isFull = false;
-                if (typeof changeZone === "function") changeZone("close");
+          }, 50);
 
-                setTimeout(() => {
-                    gifOut.classList.remove('active');
-                    document.getElementById('heartStatic').classList.add('active');
-                    isAnimating = false;
-                }, durationValue);
-            }, 50);
-        }
-        return;
+      } else {
+          // 1. Сбрасываем Out гифку
+          imgOut.src = "./content/heart_out.gif"; // Без таймстемпа
+
+          setTimeout(() => {
+              imgFull.classList.remove('active');
+              imgOut.classList.add('active');
+              
+              isFull = false;
+              if (typeof changeZone === "function") changeZone("close");
+
+              setTimeout(() => {
+                  imgOut.classList.remove('active');
+                  imgStatic.classList.add('active');
+                  isAnimating = false;
+              }, durationValue);
+          }, 50);
+      }
+      return;
     }
 
 
