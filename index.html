@@ -593,6 +593,19 @@ window.addEventListener('focus', () => {
     console.log("Фокус вернулся");
 });
 
+function preloadAssets(urls) {
+  urls.forEach(url => {
+    const img = new Image();
+    img.src = url;
+  });
+}
+
+// Запускаем сразу при загрузке страницы
+preloadAssets([
+  "./content/heart_in.gif",
+  "./content/heart_out.gif",
+  "./content/heart_open.png"
+]);
 
 </script>
 
