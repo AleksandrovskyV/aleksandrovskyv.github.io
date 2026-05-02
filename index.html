@@ -34,207 +34,89 @@
   html, body {
     height: 100%;
     background: #e5e5e5;
-    margin: 0;
-    padding: 0;
     transition: background-color 0.7s ease-out;
   }
-
   body.invert{background: #000;}
 
-  /* Классы для Desktop */
-  .overlay{
-    position:fixed;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:1000;
+  /* 1. КОНТЕЙНЕРЫ (Геометрия) */
+  .overlay, .overlayMobile {
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:1000;
   }
+  .overlayMobile { top: env(safe-area-inset-top, 0); bottom: env(safe-area-inset-bottom, 0); }
 
-  .buttonblock{
-    display:flex;
-    flex-wrap:wrap;           
-    gap:16px;
-    width: min(90vw, 700px);
-    height: min(90vh, 680px);
-    align-content:center;
-    justify-content: space-between; 
-    padding:20px;
-    background:transparent;
+  .buttonblock, .buttonblockMobile {
+    display:flex; flex-wrap:wrap; gap:16px; justify-content: space-between; background:transparent;
   }
+  .buttonblock { width: min(90vw, 700px); height: min(90vh, 680px); align-content:center; padding:20px; }
+  .buttonblockMobile { padding: env(safe-area-inset-top, 12px) env(safe-area-inset-right, 12px) env(safe-area-inset-bottom, 12px) env(safe-area-inset-left, 12px); }
 
-  .buttonblock button,
-  .buttonblockMobile button{
-    flex: 0 0 auto;  
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    padding:12px 12px;
-    font-size:1.25rem;
-    color: gray;
-    background: rgba(0,0,0,0.0);
-    border: 0;
-    cursor:pointer;
+  /* 2. БАЗОВАЯ КНОПКА (Объединяем только фундамент) */
+  .buttonblock button, .buttonblockMobile button {
+    flex: 0 0 auto; display:inline-flex; align-items:center; justify-content:center;
+    padding:12px; font-size:1.25rem; color: gray; border: 0; cursor:pointer;
     transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color .6s ease;
-    will-change: opacity, transform;
-    z-index: 99;
-
-    -webkit-user-select: none;
-    user-select: none;
-
+    will-change: opacity, transform; z-index: 99; user-select: none; background: transparent;
   }
 
-  /* Общее для всех */
-  .buttonblock button[data-st="close"],
-  .buttonblockMobile button[data-st="close"] {
-    color: rgba(70,70,70,1.0);
-  }
+  .buttonblock button[data-st="close"], .buttonblockMobile button[data-st="close"] { color: rgba(70,70,70,1.0); }
 
-  /* 3. ЭФФЕКТЫ ТОЛЬКО ДЛЯ ПК (с мышкой) */
+  /* 3. ЭФФЕКТЫ ПК */
   @media (hover: hover) {
-    .buttonblock button:not([data-st="close"]):hover,
-    .buttonblockMobile button:not([data-st="close"]):hover {
-      opacity: .5;
-    }
-
-    .buttonblock button[data-st="close"] {
-      cursor: grab;
-    }
-
-    .buttonblock button[data-st="close"]:active {
-      cursor: grabbing;
-      transform: scale(0.99); 
-      color: rgba(50,50,50,1.0); 
+    .buttonblock button:not([data-st="close"]):hover, .buttonblockMobile button:not([data-st="close"]):hover { opacity: .5; }
+    .buttonblock button[data-st="close"], .buttonblockMobile button[data-st="close"] { cursor: grab; }
+    .buttonblock button[data-st="close"]:active, .buttonblockMobile button[data-st="close"]:active {
+      cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
     }
   }
 
-
-  /* Both Buttons */
-  .buttonblock button.bb,
-  .buttonblockMobile button.bb {
-    cursor: default;
-    pointer-events: none;
-    transition: color 0.6s ease;
-    color: #9b9b9b;
+  /* 4. ЗОНЫ (BD, BW, BB) */
+  .buttonblock button.bd, .buttonblockMobile button.bd,
+  .buttonblock button.bw, .buttonblockMobile button.bw,
+  .buttonblock button.bb, .buttonblockMobile button.bb {
+    cursor: default; pointer-events: none;
   }
 
-  .buttonblock button.bb.bLock,
-  .buttonblockMobile button.bb.bLock {
-    color: rgba(70,70,70,1.0);
+  /* Цвета покоя */
+  .buttonblock button.bd, .buttonblockMobile button.bd { color: rgba(128, 128, 128, 0); }
+  .buttonblock button.bb, .buttonblockMobile button.bb,
+  .buttonblock button.bw, .buttonblockMobile button.bw { color: #9b9b9b; }
+
+  /* СТРОГО ПО ИСХОДНИКУ: у BB только цвет, у остальных — всё */
+  .buttonblock button.bb, .buttonblockMobile button.bb { transition: color 0.6s ease; }
+
+  /* АКТИВНЫЕ СОСТОЯНИЯ */
+  .buttonblock button.bd.dOpen, .buttonblockMobile button.bd.dOpen {
+    pointer-events: auto; cursor: pointer; color: rgba(128, 128, 128, 1);
+    /* Здесь 0.9s для цвета, как ты настраивал */
+    transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color 0.9s ease-out;
   }
 
-
-  /* Dark Buttons */
-  .buttonblock button.bd,
-  .buttonblockMobile button.bd {
-    cursor: default;
-    pointer-events: none;
-    transition: opacity .6s ease, 
-                transform .45s cubic-bezier(.2,.9,.2,1), 
-                color 0.6s ease; /* дефолтный изинг */
-    color: rgba(128, 128, 128, 0); 
+  .buttonblock button.bw.wLock, .buttonblockMobile button.bw.wLock,
+  .buttonblock button.bb.bLock, .buttonblockMobile button.bb.bLock {
+    pointer-events: auto; cursor: grab; color: rgba(70,70,70,1.0);
   }
 
-  .buttonblock button.bd.dOpen,
-  .buttonblockMobile button.bd.dOpen {
-    pointer-events: auto;
-    cursor: pointer;
-    transition: opacity .6s ease, 
-                transform .45s cubic-bezier(.2,.9,.2,1), 
-                color 0.9s ease-out;
-
-    color: rgba(128, 128, 128, 1); 
+  /* Эффект нажатия (добавил смену цвета до 50,50,50 для идентичности) */
+  .buttonblock button.bw.wLock:active, .buttonblockMobile button.bw.wLock:active,
+  .buttonblock button.bb.bLock:active, .buttonblockMobile button.bb.bLock:active {
+    cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
   }
 
-  /* White Buttons */
-  .buttonblock button.bw,
-  .buttonblockMobile button.bw {
-    pointer-events: none;
-    transition: opacity .6s ease, 
-                transform .45s cubic-bezier(.2,.9,.2,1), 
-                color 0.6s ease; /* дефолтный изинг */
-    color: #9b9b9b;
-  }
-
-  .buttonblock button.bw.wLock,
-  .buttonblockMobile button.bw.wLock {
-    pointer-events: auto;
-    transition: opacity .6s ease, 
-                transform .45s cubic-bezier(.2,.9,.2,1), 
-                color 0.6s ease;
-    color: rgba(70,70,70,1.0);
-  }
-
+  /* 5. HEART SPRITE */
   .heart-sprite {
-      display: block;
-      margin: 0 auto;
-      width: 88px;
-      height: 42px;
-      margin-top: 5px;
-      
-      background-image: url("./content/heart_sprite.png");
-      background-repeat: no-repeat;
-      background-size: 100% auto;
-      background-position: 0 0;
-      transition: background-position 0.4s steps(19); /* ~ 50 fps*/
-      
-      pointer-events: none;
-      will-change: background-position;
+    display: block; margin: 0 auto; width: 88px; height: 42px; margin-top: 5px;
+    background-image: url("./content/heart_sprite.png"); background-repeat: no-repeat;
+    background-size: 100% auto; background-position: 0 0;
+    transition: background-position 0.4s steps(19); will-change: background-position;
   }
+  .heart-sprite.is-full { background-position: 0 100%; }
 
-  .heart-sprite.is-full {
-      background-position: 0 100%; /* Прыжок в конец ленты */
-  }
+  .hidden-btn { opacity: 0 !important; pointer-events: none !important; }
 
-  /* Классы для мобильной */
-
-  .overlayMobile{
-    position: fixed;
-
-    top: env(safe-area-inset-top, 0);
-    left: env(safe-area-inset-left, 0);
-    right: env(safe-area-inset-right, 0);
-    bottom: env(safe-area-inset-bottom, 0);
-    
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-
-  .buttonblockMobile{
-    padding: env(safe-area-inset-top, 12px)
-             env(safe-area-inset-right, 12px)
-             env(safe-area-inset-bottom, 12px)
-             env(safe-area-inset-left, 12px);
-
-    display:flex;
-    flex-wrap:wrap;
-    gap:16px;
-    justify-content: space-between;
-    background:transparent;
-  }
-
-  .hidden-btn{
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-
-  /* маленькие устройства — уменьшаем отступ и шрифт */
   @media (max-width:420px){
-    .buttonblock,
-    .buttonblockMobile {
-      gap:10px;
-      padding:12px;
-    }
-
-    .buttonblock button,
-    .buttonblockMobile button{
-      padding:10px 14px;
-      font-size:1rem;
-    }
+    .buttonblock, .buttonblockMobile { gap:10px; padding:12px; }
+    .buttonblock button, .buttonblockMobile button { padding:10px 14px; font-size:1rem; }
   }
-
 </style>
 
 </head>
