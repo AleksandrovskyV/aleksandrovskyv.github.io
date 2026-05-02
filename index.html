@@ -36,19 +36,20 @@
     background: #e5e5e5;
     margin: 0;
     padding: 0;
+    transition: opacity 1.2s ease, background-color 0.7s ease-out;
   }
 
   /* Общщие */
   .background{
     position:absolute;
     inset:0;
-    background:#e5e5e5;
+    background: none;
     z-index:0;
     transition: opacity 1.2s ease, background-color 0.7s ease-out;
   }
 
-  .background.switchZone{
-    background:#000;
+  body.switchZone{
+    background: #000;
   }
 
   /* Классы для Desktop */
@@ -582,7 +583,8 @@ function changeZone(state="open") {
   if(state === "open"){
     
     setTimeout(() => {
-      mBackground.classList.add("switchZone")
+      document.body.classList.add("switchZone");
+      //mBackground.classList.add("switchZone")
 
       dButtons.forEach(b => { 
           b.classList.add('dOpen');
@@ -597,7 +599,8 @@ function changeZone(state="open") {
   }else{
 
     setTimeout(() => {
-      mBackground.classList.remove("switchZone")
+      document.body.classList.remove("switchZone");
+      //mBackground.classList.remove("switchZone")
 
       dButtons.forEach(b => { 
           b.classList.remove('dOpen');
