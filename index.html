@@ -511,7 +511,7 @@ let isFull = false;      // Хранит состояние зоны (откры
 let isAnimating = false; // Блокирует спам-клики на 50мс
 
 function changeZone(state = "open") {
-  // 1. Блокируем повторный вход, пока не отработал старт (50мс)
+
   if (isAnimating) return; 
   isAnimating = true;
 
@@ -521,14 +521,14 @@ function changeZone(state = "open") {
   const delayIcon = 50;
   const delayStyles = 0; 
 
-  // 2. Используем четкие команды вместо toggle
+  // Используем прямые команды вместо toggle
   setTimeout(() => {
     if (state === "open") {
       sprite.classList.add('is-full');
     } else {
       sprite.classList.remove('is-full');
     }
-    isAnimating = false; // Разблокируем после срабатывания
+    isAnimating = false;
   }, delayIcon);
 
   // Стили меняем МГНОВЕННО (без setTimeout), чтобы не копить очередь событий
