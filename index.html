@@ -559,41 +559,43 @@ buttons.forEach(btn => {
     const targetHref = btn.dataset.href;
 
     // ИСКЛЮЧЕНИЕ ДЛЯ HEART ICON
-    if (targetHref === "/about") {
-      ev.preventDefault();
-      if (isAnimating) return;
+  if (targetHref === "/about") {
+    ev.preventDefault();
+    if (isAnimating) return; 
 
-      const heartImg = document.getElementById('heartIcon');
-      isAnimating = true;
-      playCounter++; 
+    const heartImg = document.getElementById('heartIcon');
+    const t = "?t=" + Date.now();
+    
+    isAnimating = true;
+    btn.style.pointerEvents = "none"; // БЛОКИРОВКА: кнопка перестает реагировать на пальцы
+    btn.style.opacity = "1";          // Гарантируем яркость при спаме
 
-      // Для первого раза берем чистый файл (из прелоада), 
-      // для последующих добавляем хвост для сброса цикла
-      const suffix = playCounter > 1 ? "?t=" + Date.now() : "";
-      const animationDuration = 450; // Чуть увеличим запас для iOS
+    const animationDuration = 400; 
 
-      if (!isFull) {
-        heartImg.src = "./content/heart_in.gif" + suffix;
-        isFull = true;
-        changeZone("open");
-        
-        setTimeout(() => {
-          heartImg.src = "./content/heart_open.png";
-          isAnimating = false;
-        }, animationDuration);
+    if (!isFull) {
+      heartImg.src = "./content/heart_in.gif" + t;
+      isFull = true;
+      changeZone("open");
+      
+      setTimeout(() => {
+        heartImg.src = "./content/heart_open.png";
+        isAnimating = false;
+        btn.style.pointerEvents = "auto"; // РАЗБЛОКИРОВКА
+      }, animationDuration);
 
-      } else {
-        heartImg.src = "./content/heart_out.gif" + suffix;
-        isFull = false;
-        changeZone("close");
+    } else {
+      heartImg.src = "./content/heart_out.gif" + t;
+      isFull = false;
+      changeZone("close");
 
-        setTimeout(() => {
-          heartImg.src = "./content/heart.png";
-          isAnimating = false;
-        }, animationDuration);
-      }
-      return;
+      setTimeout(() => {
+        heartImg.src = "./content/heart.png";
+        isAnimating = false;
+        btn.style.pointerEvents = "auto"; // РАЗБЛОКИРОВКА
+      }, animationDuration);
     }
+    return;
+  }
 
     // ЛОГИКА ДЛЯ CLOSE КНОПОК
     if (btn.dataset.state === 'close') {
