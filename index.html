@@ -294,8 +294,7 @@
     <button id="endHeart" data-href="/about" data-state="open" data-mobile="false">
       <div class="heart-container">
           <img id="heartStatic" src="./content/heart.png" class="active">
-          <img id="heartIn_A"   src="./content/heart_in.gif">
-          <img id="heartIn_B"   src="./content/heart_in.gif"> <!-- Клон для чередования -->
+          <img id="heartIn"     src="./content/heart_in.gif"> 
           <img id="heartOut"    src="./content/heart_out.gif">
           <img id="heartFull"   src="./content/heart_open.png">
       </div>
@@ -590,70 +589,48 @@ buttons.forEach(btn => {
     
     const targetHref = btn.dataset.href;
 
-    
-
     if (targetHref === "/about") {
         ev.preventDefault();
         if (isAnimating) return;
 
         const imgStatic = document.getElementById('heartStatic');
+        const imgIn = document.getElementById('heartIn');
         const imgOut = document.getElementById('heartOut');
         const imgFull = document.getElementById('heartFull');
-        
-        // Выбираем текущий слой IN согласно флагу useA
-        const imgIn = useA ? document.getElementById('heartIn_A') : document.getElementById('heartIn_B');
-        const otherIn = useA ? document.getElementById('heartIn_B') : document.getElementById('heartIn_A');
 
         isAnimating = true;
-        btn.style.opacity = "1";
-        const t = "?t=" + Date.now();
         const durationValue = isMobile ? 500 : 400; 
 
         if (!isFull) {
-            // 1. Сбрасываем и готовим текущий слой
-            //imgIn.src = "./content/heart_in.gif" + t;
-            imgIn.src = "./content/heart_in.gif"; // Без таймстемпа
-            otherIn.classList.remove('active'); // Гасим второй на всякий случай
+            // МГНОВЕННО показываем то, что уже в кэше и в DOM
+            imgStatic.classList.remove('active');
+            imgIn.classList.add('active');
+            
+            isFull = true;
+            changeZone("open");
 
-            // 2. Пауза 50мс для Safari
             setTimeout(() => {
-                imgStatic.classList.remove('active');
-                imgIn.classList.add('active');
-                
-                isFull = true;
-                useA = !useA; // Переключаем на следующий раз
-
-                //changeZone("open")
-
-                setTimeout(() => {
-                    imgIn.classList.remove('active');
-                    imgFull.classList.add('active');
-                    isAnimating = false;
-                }, durationValue);
-
-            }, 50);
+                imgIn.classList.remove('active');
+                imgFull.classList.add('active');
+                isAnimating = false;
+            }, durationValue);
 
         } else {
-            // С OUT проблем меньше, работаем по старой схеме
-            //imgOut.src = "./content/heart_out.gif" + t;
-            imgIn.src = "./content/heart_out.gif"; // Без таймстемпа
+            imgFull.classList.remove('active');
+            imgOut.classList.add('active');
+            
+            isFull = false;
+            changeZone("close");
 
             setTimeout(() => {
-                imgFull.classList.remove('active');
-                imgOut.classList.add('active');
-                isFull = false;
-
-                //changeZone("close")
-
-                setTimeout(() => {
-                    imgOut.classList.remove('active');
-                    imgStatic.classList.add('active');
-                    isAnimating = false;
-                }, durationValue);
-            }, 50);
+                imgOut.classList.remove('active');
+                imgStatic.classList.add('active');
+                isAnimating = false;
+            }, durationValue);
         }
         return;
     }
+
 
     // ЛОГИКА ДЛЯ CLOSE КНОПОК
     if (btn.dataset.state === 'close') {
