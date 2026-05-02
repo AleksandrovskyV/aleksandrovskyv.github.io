@@ -600,7 +600,7 @@ buttons.forEach(btn => {
         const durationValue = 650;
 
         isAnimating = true;
-        btn.style.pointerEvents = "none";
+        //btn.style.pointerEvents = "none";
         btn.style.opacity = "1";
 
         // Сброс и перезапуск GIF для Safari
@@ -622,7 +622,7 @@ buttons.forEach(btn => {
                 imgIn.classList.remove('active');
                 imgFull.classList.add('active');
                 isAnimating = false;
-                btn.style.pointerEvents = "auto";
+                //btn.style.pointerEvents = "auto";
             }, durationValue);
 
         } else {
@@ -638,7 +638,7 @@ buttons.forEach(btn => {
                 imgOut.classList.remove('active');
                 imgStatic.classList.add('active');
                 isAnimating = false;
-                btn.style.pointerEvents = "auto";
+                //btn.style.pointerEvents = "auto";
             }, durationValue);
         }
         return;
