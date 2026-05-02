@@ -85,7 +85,7 @@
     background: rgba(0,0,0,0.0);
     border: 0;
     cursor:pointer;
-    transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color 0.9s ease-out;
+    transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color .6s ease;
     will-change: opacity, transform;
     z-index: 99;
 
@@ -118,36 +118,43 @@
     }
   }
 
-  .buttonblock button.bb,
-  .buttonblockMobile button.bb {
-    cursor: default;
-    pointer-events: none;
-    color: #9b9b9b;
-  }
 
   .buttonblock button.bd,
   .buttonblockMobile button.bd {
     cursor: default;
     pointer-events: none;
-    color: #e5e5e5;
+    transition: opacity .6s ease, 
+                transform .45s cubic-bezier(.2,.9,.2,1), 
+                color 0.6s ease; /* дефолтный изинг */
+    color: rgba(128, 128, 128, 0); 
   }
 
   .buttonblock button.bd.dOpen,
   .buttonblockMobile button.bd.dOpen {
     pointer-events: auto;
     cursor: pointer;
-    color: gray;
+    transition: opacity .6s ease, 
+                transform .45s cubic-bezier(.2,.9,.2,1), 
+                color 0.9s ease-out;
+
+    color: rgba(128, 128, 128, 1); 
   }
 
   .buttonblock button.bw,
   .buttonblockMobile button.bw {
     pointer-events: none;
+    transition: opacity .6s ease, 
+                transform .45s cubic-bezier(.2,.9,.2,1), 
+                color 0.6s ease; /* дефолтный изинг */
     color: #9b9b9b;
   }
 
   .buttonblock button.bw.wLock,
   .buttonblockMobile button.bw.wLock {
     pointer-events: auto;
+    transition: opacity .6s ease, 
+                transform .45s cubic-bezier(.2,.9,.2,1), 
+                color 0.6s ease;
     color: rgba(70,70,70,1.0);
   }
 
@@ -264,365 +271,379 @@
 
 <script>
 
-  let isFull = false;
-  let isAnimating = false;
+let isFull = false;
+let isAnimating = false;
 
-  const debugMode = false
+const debugMode = false
 
-  const ua = navigator.userAgent.toLowerCase();
-  const isMobile = /iphone|ipad|android/.test(ua);
+const ua = navigator.userAgent.toLowerCase();
+const isMobile = /iphone|ipad|android/.test(ua);
 
-  const overlay = document.getElementById('mOverlay');
-  const buttonContainer = document.getElementById('mButtonsContainer');
+const overlay = document.getElementById('mOverlay');
+const buttonContainer = document.getElementById('mButtonsContainer');
 
-  const buttons = Array.from(buttonContainer.querySelectorAll('button'));
-  const heart = buttons.find(b => b.dataset.href === "/about");
+const buttons = Array.from(buttonContainer.querySelectorAll('button'));
+const heart = buttons.find(b => b.dataset.href === "/about");
+
+if (!isMobile) {
+  // замена на изображение
+  //heart.textContent = '[ ❤ ]'; // теперь у нас png+gif
+} else {
+  overlay.classList.replace('overlay', 'overlayMobile');
+  buttonContainer.classList.replace('buttonblock', 'buttonblockMobile');
+}
   
-  if (!isMobile) {
-    // замена на изображение
-    //heart.textContent = '[ ❤ ]'; // теперь у нас png+gif
-  } else {
-    overlay.classList.replace('overlay', 'overlayMobile');
-    buttonContainer.classList.replace('buttonblock', 'buttonblockMobile');
+// ВОССТАНОВЛЕНИЕ ПОСЛЕ ВОЗВРАТА НАЗАД
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) {
+    // только восстанавливаем видимость скрытых кнопок
+    buttons.forEach(btn => {
+      if(btn.classList.contains('hidden-btn')){
+        btn.classList.remove('hidden-btn');
+        btn.style.visibility = 'visible';
+      }
+    });
+    buttonContainer.style.pointerEvents = "";
   }
-  
-  // ВОССТАНОВЛЕНИЕ ПОСЛЕ ВОЗВРАТА НАЗАД
-  window.addEventListener("pageshow", (event) => {
-    if (event.persisted) {
-      // только восстанавливаем видимость скрытых кнопок
-      buttons.forEach(btn => {
-        if(btn.classList.contains('hidden-btn')){
-          btn.classList.remove('hidden-btn');
-          btn.style.visibility = 'visible';
-        }
-      });
-      buttonContainer.style.pointerEvents = "";
-    }
+});
+
+function debugOffsets() {
+  const btns = document.getElementById('mButtonsContainer').children;
+  if (btns.length < 2) return console.log("Недостаточно кнопок");
+
+  const last = btns[btns.length - 1];
+  const preLast = btns[btns.length - 2];
+
+  console.log({
+    last: {
+      tag: last.dataset.href || 'no-href',
+      offset: last.offsetTop,
+      height: last.offsetHeight
+    },
+    preLast: {
+      tag: preLast.dataset.href || 'no-href',
+      offset: preLast.offsetTop,
+      height: preLast.offsetHeight
+    },
+    diff: Math.abs(last.offsetTop - preLast.offsetTop)
   });
+}
 
-  function debugOffsets() {
-    const btns = document.getElementById('mButtonsContainer').children;
-    if (btns.length < 2) return console.log("Недостаточно кнопок");
+/* ========== Автоматическая подстройка размера шрифта в зависимости от кол-ва кнопок ==========
+   простая эвристика: чем больше кнопок — тем меньше шрифт (можно настроить под себя).
+*/
 
-    const last = btns[btns.length - 1];
-    const preLast = btns[btns.length - 2];
+function adjustFontByCount(){
+  const n = buttons.length;
 
-    console.log({
-      last: {
-        tag: last.dataset.href || 'no-href',
-        offset: last.offsetTop,
-        height: last.offsetHeight
-      },
-      preLast: {
-        tag: preLast.dataset.href || 'no-href',
-        offset: preLast.offsetTop,
-        height: preLast.offsetHeight
-      },
-      diff: Math.abs(last.offsetTop - preLast.offsetTop)
-    });
+  //web - 4.6 
+  const base = isMobile ? 4.4 : 4.6;
+  const sizeRem = Math.max(0.9, base - (n - 3) * 0.12);
+  buttons.forEach(b => b.style.fontSize = sizeRem + 'rem');
+};
+
+function removeBtnsOnMobile() {
+  if (!isMobile) return;
+
+  const container = document.getElementById('mButtonsContainer');
+  const btnsToRemove = container.querySelectorAll('button[data-mhidden="true"]');
+
+  btnsToRemove.forEach(btn => {
+    btn.remove();
+  });
+}
+
+function removeOverflowingCloseButtons() {
+  // метод удаления кнопок в мобильной версии
+
+  const container = buttonContainer;
+  const maxHeight = overlay.clientHeight;
+
+
+  // Пока контент не помещается
+  while (container.scrollHeight > maxHeight) {
+    // Берём все кнопки close, кроме исключений
+
+    const closeButtons = Array.from(container.querySelectorAll('button[data-state="close"]'))
+      .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
+
+    if (closeButtons.length === 0) break; // Больше нечего удалять
+
+    // Удаляем последнюю подходящую кнопку
+    const btnToRemove = closeButtons.pop();
+    container.removeChild(btnToRemove);
   }
+}
 
-  /* ========== Автоматическая подстройка размера шрифта в зависимости от кол-ва кнопок ==========
-     простая эвристика: чем больше кнопок — тем меньше шрифт (можно настроить под себя).
-  */
+function hideAllButtons() {
+  return new Promise(resolve => {
+    let finished = 0;
+    const total = buttons.length;
 
-  function adjustFontByCount(){
-    const n = buttons.length;
+    function onTransitionEnd(e) {
+      if (e.propertyName !== 'opacity') return;
+      finished++;
+      if (finished >= total) {
+        cleanup();
+        buttons.forEach(btn => btn.style.visibility = 'hidden');
+        resolve();
+      }
+    }
 
-    //web - 4.6 
-    const base = isMobile ? 4.4 : 4.6;
-    const sizeRem = Math.max(0.9, base - (n - 3) * 0.12);
-    buttons.forEach(b => b.style.fontSize = sizeRem + 'rem');
-  };
+    function cleanup(){
+      buttons.forEach(btn => btn.removeEventListener('transitionend', onTransitionEnd));
+    }
 
-  function removeBtnsOnMobile() {
-    if (!isMobile) return;
-
-    const container = document.getElementById('mButtonsContainer');
-    const btnsToRemove = container.querySelectorAll('button[data-mhidden="true"]');
-
-    btnsToRemove.forEach(btn => {
-      btn.remove();
+    // привязываем слушатель И запускаем анимацию скрытия
+    buttons.forEach(btn => btn.addEventListener('transitionend', onTransitionEnd));
+    // небольшая задержка, чтобы гарантировано применился класс и началась анимация
+    requestAnimationFrame(() => {
+      buttons.forEach(btn => btn.classList.add('hidden-btn'));
     });
-  }
 
-  function removeOverflowingCloseButtons() {
-    // метод удаления кнопок в мобильной версии
+    // safety fallback — если transitionend не сработает, через 1.2s всё равно продолжим
+    setTimeout(() => {
+      if (finished < total) {
+        cleanup();
+        buttons.forEach(btn => btn.style.visibility = 'hidden');
+        resolve();
+      }
+    }, 1400);
+  });
+}
 
-    const container = buttonContainer;
-    const maxHeight = overlay.clientHeight;
+function getLastRowInfo() {
+  const btns = Array.from(buttonContainer.children);
+  if (!btns.length) return 0;
 
+  //debugOffsets();
 
-    // Пока контент не помещается
-    while (container.scrollHeight > maxHeight) {
-      // Берём все кнопки close, кроме исключений
+  const lastTop = btns[btns.length - 1].offsetTop;
+  const lastRowBtns = btns.filter(btn => btn.offsetTop === lastTop);
 
-      const closeButtons = Array.from(container.querySelectorAll('button[data-state="close"]'))
+  console.log(`На последней строке: ${lastRowBtns.length}`);
+  return lastRowBtns.length;
+}
+
+function checkLastRow() {
+  // Максимум 3 попытки, чтобы не уйти в бесконечность
+  for (let i = 0; i < 3; i++) {
+    const n = getLastRowInfo();
+    
+    // Если в хвосте 1 или 2 кнопки — чистим
+    if (n > 0 && n <= 2) {
+      const closeButtons = Array.from(buttonContainer.querySelectorAll('button[data-state="close"]'))
         .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
 
-      if (closeButtons.length === 0) break; // Больше нечего удалять
+      if (closeButtons.length === 0) break;
 
-      // Удаляем последнюю подходящую кнопку
-      const btnToRemove = closeButtons.pop();
-      container.removeChild(btnToRemove);
+      closeButtons[closeButtons.length - 1].remove();
+    } else {
+      break;
+    }
+  }
+}
+
+function shuffleButtonsWithRules() {
+  const container = buttonContainer;
+
+  // слишком мало кнопок для перемешивания
+  if (buttons.length <= 3) return; 
+
+  // находим фиксированные
+  const pre_a = buttons.find(b => b.dataset.href === "/space");
+  const last = buttons.find(b => b.dataset.href === "/about");
+
+  // кнопки, которые нельзя ставить последними перед фиксированными
+  const excl = buttons.filter(b => b.dataset.href === "/wolume" || b.dataset.href === "/const");
+
+  // остальные кнопки
+  const rest = buttons.filter(b => ![last, pre_a].includes(b));
+
+  // функция перемешивания Fisher–Yates
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
     }
   }
 
-  function hideAllButtons() {
-    return new Promise(resolve => {
-      let finished = 0;
-      const total = buttons.length;
+  // перемешиваем, пока последний элемент локального массива не будет в excl
+  let valid = false;
+  while (!valid) {
+    shuffle(rest);
+    const lastRest = rest[rest.length - 1];
+    valid = !excl.includes(lastRest);
+  }
 
-      function onTransitionEnd(e) {
-        if (e.propertyName !== 'opacity') return;
-        finished++;
-        if (finished >= total) {
-          cleanup();
-          buttons.forEach(btn => btn.style.visibility = 'hidden');
-          resolve();
-        }
-      }
+  container.innerHTML = "";
 
-      function cleanup(){
-        buttons.forEach(btn => btn.removeEventListener('transitionend', onTransitionEnd));
-      }
+  rest.forEach(btn => container.appendChild(btn));
 
-      // привязываем слушатель И запускаем анимацию скрытия
-      buttons.forEach(btn => btn.addEventListener('transitionend', onTransitionEnd));
-      // небольшая задержка, чтобы гарантировано применился класс и началась анимация
-      requestAnimationFrame(() => {
-        buttons.forEach(btn => btn.classList.add('hidden-btn'));
+  // вставляем фиксированные в конец 
+  container.appendChild(pre_a);
+  container.appendChild(last); 
+}
+
+// Вызов при загрузке
+adjustFontByCount();
+shuffleButtonsWithRules();
+
+if (isMobile) {
+  removeBtnsOnMobile();
+  removeOverflowingCloseButtons();
+}else{
+  
+}
+
+checkLastRow();
+
+
+
+function changeZone(state="open") {
+  const mBackground = document.getElementById("mBackground");
+  const bContainer = document.getElementById('mButtonsContainer');
+
+  const delayValue = 100; 
+
+  const dButtons = Array.from(bContainer.querySelectorAll('button[data-z="D"]'))
+    .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
+
+  const wButtons = Array.from(bContainer.querySelectorAll('button[data-z="W"]'))
+    .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
+
+  if(state === "open"){
+    
+    setTimeout(() => {
+      mBackground.classList.add("switchZone")
+
+      dButtons.forEach(b => { 
+          b.classList.add('dOpen');
       });
 
-      // safety fallback — если transitionend не сработает, через 1.2s всё равно продолжим
-      setTimeout(() => {
-        if (finished < total) {
-          cleanup();
-          buttons.forEach(btn => btn.style.visibility = 'hidden');
-          resolve();
-        }
-      }, 1400);
-    });
-  }
+      wButtons.forEach(b => { 
+          b.classList.add('wLock');
+      });
 
-  function getLastRowInfo() {
-    const btns = Array.from(buttonContainer.children);
-    if (!btns.length) return 0;
+    }, delayValue);
 
-    //debugOffsets();
-
-    const lastTop = btns[btns.length - 1].offsetTop;
-    const lastRowBtns = btns.filter(btn => btn.offsetTop === lastTop);
-
-    console.log(`На последней строке: ${lastRowBtns.length}`);
-    return lastRowBtns.length;
-  }
-
-  function checkLastRow() {
-    // Максимум 3 попытки, чтобы не уйти в бесконечность
-    for (let i = 0; i < 3; i++) {
-      const n = getLastRowInfo();
-      
-      // Если в хвосте 1 или 2 кнопки — чистим
-      if (n > 0 && n <= 2) {
-        const closeButtons = Array.from(buttonContainer.querySelectorAll('button[data-state="close"]'))
-          .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
-
-        if (closeButtons.length === 0) break;
-
-        closeButtons[closeButtons.length - 1].remove();
-      } else {
-        break;
-      }
-    }
-  }
-
-  function shuffleButtonsWithRules() {
-    const container = buttonContainer;
-
-    // слишком мало кнопок для перемешивания
-    if (buttons.length <= 3) return; 
-
-    // находим фиксированные
-    const pre_a = buttons.find(b => b.dataset.href === "/space");
-    const last = buttons.find(b => b.dataset.href === "/about");
-
-    // кнопки, которые нельзя ставить последними перед фиксированными
-    const excl = buttons.filter(b => b.dataset.href === "/wolume" || b.dataset.href === "/const");
-
-    // остальные кнопки
-    const rest = buttons.filter(b => ![last, pre_a].includes(b));
-
-    // функция перемешивания Fisher–Yates
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
-
-    // перемешиваем, пока последний элемент локального массива не будет в excl
-    let valid = false;
-    while (!valid) {
-      shuffle(rest);
-      const lastRest = rest[rest.length - 1];
-      valid = !excl.includes(lastRest);
-    }
-
-    container.innerHTML = "";
-
-    rest.forEach(btn => container.appendChild(btn));
-
-    // вставляем фиксированные в конец 
-    container.appendChild(pre_a);
-    container.appendChild(last); 
-  }
-
-  // Вызов при загрузке
-  adjustFontByCount();
-  shuffleButtonsWithRules();
-
-  if (isMobile) {
-    removeBtnsOnMobile();
-    removeOverflowingCloseButtons();
   }else{
-    
+
+    setTimeout(() => {
+      mBackground.classList.remove("switchZone")
+
+      dButtons.forEach(b => { 
+          b.classList.remove('dOpen');
+
+      });
+
+      wButtons.forEach(b => { 
+          b.classList.remove('wLock');
+      });
+
+    }, delayValue);
   }
-  checkLastRow();
+
+}
+
+buttons.forEach(btn => {
+  btn.addEventListener('click', async (ev) => {
+    
+    const targetHref = btn.dataset.href;
+
+    // ИСКЛЮЧЕНИЕ ДЛЯ HEART ICON
+    if (targetHref === "/about") {
+      ev.preventDefault();
+      if (isAnimating) return; // Блокировка от спам-кликов
+
+      const heartImg = document.getElementById('heartIcon');
+      const t = "?t=" + Date.now();
+      isAnimating = true;
 
 
-
-  function changeZone(state="open") {
-    const mBackground = document.getElementById("mBackground");
-    const bContainer = document.getElementById('mButtonsContainer');
-
-    const delayValue = 100; 
-
-    const dButtons = Array.from(bContainer.querySelectorAll('button[data-z="D"]'))
-      .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
-
-    const wButtons = Array.from(bContainer.querySelectorAll('button[data-z="W"]'))
-      .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
-
-    if(state === "open"){
+      const animationDuration = 400; 
       
-      setTimeout(() => {
-        mBackground.classList.add("switchZone")
 
-        dButtons.forEach(b => { 
-            b.classList.add('dOpen');
-        });
+      if (!isFull) {
+        heartImg.src = "./content/heart_in.gif" + t;
+        isFull = true; // Стейт меняем сразу  
 
-        wButtons.forEach(b => { 
-            b.classList.add('wLock');
-        });
+        changeZone("open");
+        
+        setTimeout(() => {
+          isAnimating = false;
+          // Подмена на PNG не обязательна мгновенно, 
+          // GIF уже замер. Можно подменить для надежности:
+          heartImg.src = "./content/heart_open.png"; 
+        }, animationDuration);
 
-      }, delayValue);
+      } else {
+        heartImg.src = "./content/heart_out.gif" + t;
+        isFull = false;
 
-    }else{
+        
+        changeZone("close");
 
-      setTimeout(() => {
-        mBackground.classList.remove("switchZone")
+        setTimeout(() => {
+          isAnimating = false;
+          heartImg.src = "./content/heart.png";
+        }, animationDuration);
+      }
 
-        dButtons.forEach(b => { 
-            b.classList.remove('dOpen');
 
-        });
-
-        wButtons.forEach(b => { 
-            b.classList.remove('wLock');
-        });
-
-      }, delayValue);
+      return; // Прерываем функцию, чтобы не сработал переход по ссылке
     }
 
-  }
-
-  buttons.forEach(btn => {
-    btn.addEventListener('click', async (ev) => {
-      
-      const targetHref = btn.dataset.href;
-
-      // ИСКЛЮЧЕНИЕ ДЛЯ HEART ICON
-      if (targetHref === "/about") {
-        ev.preventDefault();
-        if (isAnimating) return; // Блокировка от спам-кликов
-
-        const heartImg = document.getElementById('heartIcon');
-        const t = "?t=" + Date.now();
-        isAnimating = true;
-
-
-        const animationDuration = 400; 
-        
-
-        if (!isFull) {
-          heartImg.src = "./content/heart_in.gif" + t;
-          isFull = true; // Стейт меняем сразу  
-
-          changeZone("open");
-          
-          setTimeout(() => {
-            isAnimating = false;
-            // Подмена на PNG не обязательна мгновенно, 
-            // GIF уже замер. Можно подменить для надежности:
-            heartImg.src = "./content/heart_open.png"; 
-          }, animationDuration);
-
-        } else {
-          heartImg.src = "./content/heart_out.gif" + t;
-          isFull = false;
-
-          
-          changeZone("close");
-
-          setTimeout(() => {
-            isAnimating = false;
-            heartImg.src = "./content/heart.png";
-          }, animationDuration);
-        }
-
-
-        return; // Прерываем функцию, чтобы не сработал переход по ссылке
-      }
-
-      // ЛОГИКА ДЛЯ CLOSE КНОПОК
-
-
-      if (btn.dataset.state === 'close') {
-        ev.preventDefault();
-        return false;
-      }
-
-      // Для остальных кнопок
-      let target = btn.dataset.href || '#';
-
+    // ЛОГИКА ДЛЯ CLOSE КНОПОК
+    if (btn.dataset.state === 'close') {
       ev.preventDefault();
-      buttonContainer.style.pointerEvents = 'none';
-      await hideAllButtons();
+      return false;
+    }
 
-      if (window.location.protocol === "file:") {
-        // локальная отладка
-        if (target.startsWith("/")) target = target.slice(1);
-        target = target + ".html";
-      } else {
-        // сервер
-        if (target.endsWith(".html")) {
-          target = "/" + target.replace(".html", "");
-        }
-      }
-	
-      if (isMobile && btn.dataset.mobile === 'true') {
-        target = "/ios" + target + "/";
-      }
-      if (isMobile) {
-        target = target + "/";
-      }
-	  
-      window.location.href = target;
+    // Для остальных кнопок
+    let target = btn.dataset.href || '#';
 
-    });
+    ev.preventDefault();
+    buttonContainer.style.pointerEvents = 'none';
+    await hideAllButtons();
+
+    if (window.location.protocol === "file:") {
+      // локальная отладка
+      if (target.startsWith("/")) target = target.slice(1);
+      target = target + ".html";
+    } else {
+      // сервер
+      if (target.endsWith(".html")) {
+        target = "/" + target.replace(".html", "");
+      }
+    }
+
+    if (isMobile && btn.dataset.mobile === 'true') {
+      target = "/ios" + target + "/";
+    }
+    if (isMobile) {
+      target = target + "/";
+    }
+  
+    window.location.href = target;
+
   });
+});
+
+function preloadAssets(urls) {
+  urls.forEach(url => {
+    const img = new Image();
+    img.src = url;
+  });
+}
+
+// Запускаем сразу при загрузке страницы
+preloadAssets([
+  "./content/heart_in.gif",
+  "./content/heart_out.gif",
+  "./content/heart_open.png"
+]);
+
 
 function onKeyCommand(e) {
 
@@ -679,19 +700,6 @@ window.addEventListener('focus', () => {
     console.log("Фокус вернулся");
 });
 
-function preloadAssets(urls) {
-  urls.forEach(url => {
-    const img = new Image();
-    img.src = url;
-  });
-}
-
-// Запускаем сразу при загрузке страницы
-preloadAssets([
-  "./content/heart_in.gif",
-  "./content/heart_out.gif",
-  "./content/heart_open.png"
-]);
 
 </script>
 
