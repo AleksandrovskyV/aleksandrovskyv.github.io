@@ -39,15 +39,6 @@
     transition: background-color 0.7s ease-out;
   }
 
-  /* Общщие */
-  .background{
-    position:absolute;
-    inset:0;
-    background: none;
-    z-index:0;
-    transition: opacity 1.2s ease, background-color 0.7s ease-out;
-  }
-
   body.switchZone{
     background: #000;
   }
@@ -166,55 +157,23 @@
     color: rgba(70,70,70,1.0);
   }
 
-  /*
-  .heart-container {
-      position: relative; 
-      display: block;
-      width: 88px;      
-      height: 47px;     
-      margin: 0 auto;
-      pointer-events: none;
-  }
-
-  .heart-container img {
-      position: absolute; 
-      top: 6px;
-      left: 0;
-      display: block;
-      height: 42px;    
-      width: 88px;     
-      object-fit: contain;
-      
-      opacity: 0;     
-      transition: none;
-  }
-
- Твой активный слой 
-  .heart-container img.active {
-      opacity: 1;
-  }
-  */
-
   .heart-sprite {
       display: block;
       margin: 0 auto;
-      width: 88px;      /* Твоя рабочая ширина в верстке */
-      height: 42px;     /* Твоя рабочая высота в верстке */
-      margin-top: 5px;  /* Твой микро-сдвиг вниз */
+      width: 88px;
+      height: 42px;
+      margin-top: 5px;
       
       background-image: url("./content/heart_sprite.png");
       background-repeat: no-repeat;
-      background-size: 100% auto; /* Растягиваем ширину спрайта под 88px, высота подстроится пропорционально */
-      background-position: 0 0;   /* Начало ленты */
-      
-      /* 20 кадров = 19 шагов переключения */
-      transition: background-position 0.4s steps(19);
+      background-size: 100% auto;
+      background-position: 0 0;
+      transition: background-position 0.4s steps(19); /* ~ 50 fps*/
       
       pointer-events: none;
       will-change: background-position;
   }
 
-  /* Состояние "Заполнено" */
   .heart-sprite.is-full {
       background-position: 0 100%; /* Прыжок в конец ленты */
   }
@@ -273,8 +232,6 @@
 </head>
 <body>
 
-<div id="mBackground" class="background" ></div>
-
 <div class="overlay" id="mOverlay">
   <div class="buttonblock" id="mButtonsContainer"> 
 
@@ -313,22 +270,8 @@
     <button id="endSpace"  class="bb" data-z="B" data-href="/space" data-state="close" data-mobile="false" >—</button>
     
      <!--   <button data-href="/aboutOld"    data-state="close" data-mobile="false" >[ &hearts; ]</button>-->
-     <!--
-    <button  id="endHeart"  class="bh" data-z="B" data-href="/about"    data-state="open" data-mobile="false" >
-        <img id="heartIcon" src="./content/heart.png" >
-    </button>
 
-
-    <button id="endHeart" data-href="/about" data-state="open" data-mobile="false">
-      <div class="heart-container">
-          <img id="heartStatic" src="./content/heart.png" class="active">
-          <img id="heartIn"     src="./content/heart_in.gif"> 
-          <img id="heartOut"    src="./content/heart_out.gif">
-          <img id="heartFull"   src="./content/heart_open.png">
-      </div>
-    </button>
-    -->
-
+     <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
     <button id="endHeart" data-href="/about" data-state="open">
         <div id="heartIcon" class="heart-sprite"></div>
     </button>
@@ -339,9 +282,6 @@
 <script>
 
 let isFull = false;
-let isAnimating = false;
-let playCounter = 0; 
-
 const debugMode = false
 
 const ua = navigator.userAgent.toLowerCase();
@@ -569,10 +509,17 @@ checkLastRow();
 
 
 function changeZone(state="open") {
-  const mBackground = document.getElementById("mBackground");
-  const bContainer = document.getElementById('mButtonsContainer');
 
-  const delayValue = 100; 
+  const sprite = document.getElementById('heartIcon');
+  const bContainer = document.getElementById('mButtonsContainer');
+  
+  const delayIcon = 50;
+  const delayStyles = 0; 
+
+  setTimeout(() => {
+    //  класс CSS сам проиграет анимацию в обе стороны
+    sprite.classList.toggle('is-full');
+  }, delayIcon);
 
   const dButtons = Array.from(bContainer.querySelectorAll('button[data-z="D"]'))
     .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
@@ -584,7 +531,6 @@ function changeZone(state="open") {
     
     setTimeout(() => {
       document.body.classList.add("switchZone");
-      //mBackground.classList.add("switchZone")
 
       dButtons.forEach(b => { 
           b.classList.add('dOpen');
@@ -594,13 +540,12 @@ function changeZone(state="open") {
           b.classList.add('wLock');
       });
 
-    }, delayValue);
+    }, delayStyles);
 
   }else{
 
     setTimeout(() => {
       document.body.classList.remove("switchZone");
-      //mBackground.classList.remove("switchZone")
 
       dButtons.forEach(b => { 
           b.classList.remove('dOpen');
@@ -611,12 +556,10 @@ function changeZone(state="open") {
           b.classList.remove('wLock');
       });
 
-    }, delayValue);
+    }, delayStyles);
   }
 
 }
-
-//let useA = true; // Флаг чередования слоев
 
 buttons.forEach(btn => {
   btn.addEventListener('click', async (ev) => {
@@ -625,71 +568,12 @@ buttons.forEach(btn => {
 
     if (targetHref === "/about") {
         ev.preventDefault();
-        
-        const sprite = document.getElementById('heartIcon');
-        
-        // Переключаем класс — CSS сам проиграет анимацию в обе стороны
-        sprite.classList.toggle('is-full');
-        
+                
         isFull = !isFull;
         if (typeof changeZone === "function") changeZone(isFull ? "open" : "close");
         
         return;
     }
-    /*
-    if (targetHref === "/about") {
-      ev.preventDefault();
-      if (isAnimating) return;
-
-      const imgStatic = document.getElementById('heartStatic');
-      const imgIn = document.getElementById('heartIn');
-      const imgOut = document.getElementById('heartOut');
-      const imgFull = document.getElementById('heartFull');
-
-      isAnimating = true;
-      const durationValue = isMobile ? 500 : 400; 
-
-      if (!isFull) {
-          // 1. Сбрасываем GIF просто переназначив src (без таймстемпа)
-          imgIn.src = "./content/heart_in.gif"; // Без таймстемпа
-
-          // 2. Пауза 50мс — даем Safari "раздуплиться"
-          setTimeout(() => {
-              imgStatic.classList.remove('active');
-              imgIn.classList.add('active');
-              
-              isFull = true;
-              if (typeof changeZone === "function") changeZone("open");
-
-              setTimeout(() => {
-                  imgIn.classList.remove('active');
-                  imgFull.classList.add('active');
-                  isAnimating = false;
-              }, durationValue);
-
-          }, 50);
-
-      } else {
-          // 1. Сбрасываем Out гифку
-          imgOut.src = "./content/heart_out.gif"; // Без таймстемпа
-
-          setTimeout(() => {
-              imgFull.classList.remove('active');
-              imgOut.classList.add('active');
-              
-              isFull = false;
-              if (typeof changeZone === "function") changeZone("close");
-
-              setTimeout(() => {
-                  imgOut.classList.remove('active');
-                  imgStatic.classList.add('active');
-                  isAnimating = false;
-              }, durationValue);
-          }, 50);
-      }
-      return;
-    }
-    */
 
     // ЛОГИКА ДЛЯ CLOSE КНОПОК
     if (btn.dataset.state === 'close') {
@@ -726,23 +610,6 @@ buttons.forEach(btn => {
 
   });
 });
-
-/*
-function preloadAssets(urls) {
-  urls.forEach(url => {
-    const img = new Image();
-    img.src = url;
-  });
-}
-
-// Запускаем сразу при загрузке страницы
-
-preloadAssets([
-  "./content/heart_in.gif",
-  "./content/heart_out.gif",
-  "./content/heart_open.png"
-]);
-*/
 
 function onKeyCommand(e) {
 
