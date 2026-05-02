@@ -163,18 +163,19 @@
                 color 0.6s ease;
     color: rgba(70,70,70,1.0);
   }
-
+  
+  /*
   .heart-container {
-      position: relative; /* Чтобы картинки внутри накладывались друг на друга */
+      position: relative; 
       display: block;
       width: 88px;      
-      height: 47px;     /* Итоговая высота блока для верстки */
+      height: 47px;     
       margin: 0 auto;
       pointer-events: none;
   }
 
   .heart-container img {
-      position: absolute; /* Накладываем их друг на друга */
+      position: absolute; 
       top: 6px;
       left: 0;
       display: block;
@@ -182,13 +183,38 @@
       width: 88px;     
       object-fit: contain;
       
-      opacity: 0;       /* Скрыты по умолчанию */
-      transition: none; /* Мгновенная подмена без мерцания */
+      opacity: 0;     
+      transition: none;
   }
 
-  /* Твой активный слой */
+ Твой активный слой 
   .heart-container img.active {
       opacity: 1;
+  }
+  */
+
+  .heart-sprite {
+      display: block;
+      margin: 0 auto;
+      width: 88px;      /* Твоя рабочая ширина в верстке */
+      height: 42px;     /* Твоя рабочая высота в верстке */
+      margin-top: 5px;  /* Твой микро-сдвиг вниз */
+      
+      background-image: url("./content/heart_sprite.png");
+      background-repeat: no-repeat;
+      background-size: 100% auto; /* Растягиваем ширину спрайта под 88px, высота подстроится пропорционально */
+      background-position: 0 0;   /* Начало ленты */
+      
+      /* 20 кадров = 19 шагов переключения */
+      transition: background-position 0.4s steps(19);
+      
+      pointer-events: none;
+      will-change: background-position;
+  }
+
+  /* Состояние "Заполнено" */
+  .heart-sprite.is-full {
+      background-position: 0 100%; /* Прыжок в конец ленты */
   }
 
   /* Классы для мобильной */
@@ -289,7 +315,7 @@
     <button  id="endHeart"  class="bh" data-z="B" data-href="/about"    data-state="open" data-mobile="false" >
         <img id="heartIcon" src="./content/heart.png" >
     </button>
-    -->
+
 
     <button id="endHeart" data-href="/about" data-state="open" data-mobile="false">
       <div class="heart-container">
@@ -299,7 +325,11 @@
           <img id="heartFull"   src="./content/heart_open.png">
       </div>
     </button>
+    -->
 
+    <button id="endHeart" data-href="/about" data-state="open">
+        <div id="heartIcon" class="heart-sprite"></div>
+    </button>
 
   </div>
 </div>
@@ -590,6 +620,20 @@ buttons.forEach(btn => {
     const targetHref = btn.dataset.href;
 
     if (targetHref === "/about") {
+        ev.preventDefault();
+        
+        const sprite = document.getElementById('heartIcon');
+        
+        // Переключаем класс — CSS сам проиграет анимацию в обе стороны
+        sprite.classList.toggle('is-full');
+        
+        isFull = !isFull;
+        if (typeof changeZone === "function") changeZone(isFull ? "open" : "close");
+        
+        return;
+    }
+    /*
+    if (targetHref === "/about") {
       ev.preventDefault();
       if (isAnimating) return;
 
@@ -641,7 +685,7 @@ buttons.forEach(btn => {
       }
       return;
     }
-
+    */
 
     // ЛОГИКА ДЛЯ CLOSE КНОПОК
     if (btn.dataset.state === 'close') {
