@@ -182,7 +182,7 @@
       width: 88px;     
       object-fit: contain;
       
-      opacity: 0;       /* Скрыты по умолчанию */
+      opacity: 0.01;       /* Скрыты по умолчанию */
       transition: none; /* Мгновенная подмена без мерцания */
   }
 
@@ -597,6 +597,8 @@ buttons.forEach(btn => {
         const imgOut = document.getElementById('heartOut');
         const imgFull = document.getElementById('heartFull');
 
+        const durationValue = 650;
+
         isAnimating = true;
         btn.style.pointerEvents = "none";
         btn.style.opacity = "1";
@@ -621,7 +623,7 @@ buttons.forEach(btn => {
                 imgFull.classList.add('active');
                 isAnimating = false;
                 btn.style.pointerEvents = "auto";
-            }, 400);
+            }, durationValue);
 
         } else {
             restartGif(imgOut, "./content/heart_out.gif");
@@ -637,7 +639,7 @@ buttons.forEach(btn => {
                 imgStatic.classList.add('active');
                 isAnimating = false;
                 btn.style.pointerEvents = "auto";
-            }, 400);
+            }, durationValue);
         }
         return;
     }
