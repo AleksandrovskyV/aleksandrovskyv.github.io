@@ -84,7 +84,8 @@
   /* СТРОГО ПО ИСХОДНИКУ: у BB только цвет, у остальных — всё */
   .buttonblock button.bb, .buttonblockMobile button.bb { transition: color 0.6s ease; }
 
-  .buttonblock button.bw:not([data-st="close"]){
+  .buttonblock button.bw:not([data-st="close"]), 
+  .buttonblockMobile button.bw:not([data-st="close"]) {
     pointer-events: auto; cursor: pointer; 
   }
 
