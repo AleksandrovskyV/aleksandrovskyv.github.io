@@ -21,31 +21,39 @@
 <script>
 </script>
 
-
 <title>вский.space</title>
-
 <link rel="canonical" href="https://vsky.space/">
-
 <link rel="icon" href="/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/content/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/content/favicon-32x32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/content/apple-touch-icon.png">
 
-
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   html, body {
     height: 100%;
-    background: #000;
+    background: #e5e5e5;
     margin: 0;
     padding: 0;
+  }
+
+  /* Общщие */
+  .background{
+    position:absolute;
+    inset:0;
+    background:#e5e5e5;
+    z-index:0;
+    transition: opacity 1.2s ease, background-color 0.7s ease-out;
+  }
+
+  .background.switchZone{
+    background:#000;
   }
 
   /* Классы для Desktop */
 
   .overlay{
     position:fixed;
-
     inset:0;
     display:flex;
     align-items:center;
@@ -77,9 +85,13 @@
     background: rgba(0,0,0,0.0);
     border: 0;
     cursor:pointer;
-    transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1);
+    transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color 0.9s ease-out;
     will-change: opacity, transform;
     z-index: 99;
+
+    -webkit-user-select: none;
+    user-select: none;
+
   }
 
   /* Общее для всех */
@@ -104,6 +116,39 @@
       transform: scale(0.99); 
       color: rgba(50,50,50,1.0); 
     }
+  }
+
+  .buttonblock button.bb,
+  .buttonblockMobile button.bb {
+    cursor: default;
+    pointer-events: none;
+    color: #9b9b9b;
+  }
+
+  .buttonblock button.bd,
+  .buttonblockMobile button.bd {
+    cursor: default;
+    pointer-events: none;
+    color: #e5e5e5;
+  }
+
+  .buttonblock button.bd.dOpen,
+  .buttonblockMobile button.bd.dOpen {
+    pointer-events: auto;
+    cursor: pointer;
+    color: gray;
+  }
+
+  .buttonblock button.bw,
+  .buttonblockMobile button.bw {
+    pointer-events: none;
+    color: #9b9b9b;
+  }
+
+  .buttonblock button.bw.wLock,
+  .buttonblockMobile button.bw.wLock {
+    pointer-events: auto;
+    color: rgba(70,70,70,1.0);
   }
 
   #heartIcon {
@@ -150,12 +195,6 @@
     pointer-events: none !important;
   }
 
-  /* после завершения анимации мы дополнительно ставим visibility:hidden (JS) —
-     это защищает от :hover и от фокусировки через клавиатуру */
-  .background{
-    position:absolute;inset:0;background:#000;z-index:0;transition:opacity 1.2s ease;
-  }
-
   /* маленькие устройства — уменьшаем отступ и шрифт */
   @media (max-width:420px){
     .buttonblock,
@@ -176,61 +215,57 @@
 </head>
 <body>
 
+<div id="mBackground" class="background" ></div>
 
 <div class="overlay" id="mOverlay">
   <div class="buttonblock" id="mButtonsContainer"> 
+
+    <button id="startW" class="bw" data-z="W" data-href="/identity" data-state="close" data-mobile="false" >identity</button>
+    <button id="startD" class="bd" data-z="D" data-href="/wolume"   data-state="open"  data-mobile="false" >~</button>
+
     <!-- mobile special -->
-    <button data-href="/chat"     data-state="open"  data-mobile="true" >chat___</button>
-    <button data-href="/день"     data-state="open"  data-mobile="true" >день</button>
-    <button data-href="/триптих"  data-state="open"  data-mobile="true" >триптих</button>
+    <button data-href="/chat"     class="bd" data-z="D" data-state="open"  data-mobile="true" >chat___</button>
+    <button data-href="/день"     class="bd" data-z="D" data-state="open"  data-mobile="true" >день</button>
+    <button data-href="/триптих"  class="bd" data-z="D" data-state="open"  data-mobile="true" >триптих</button>
 
     <!-- combine between web and mobile  -->
-    <button data-href="/негативы" data-state="open"  data-mobile="false" >негативы</button>
-    <button data-href="/exegesis" data-state="open"  data-mobile="false" >.exe</button>
-    <button data-href="/wolume"   data-state="open"  data-mobile="false" >~</button>
+    <button data-href="/негативы" class="bd" data-z="D" data-state="open"  data-mobile="false" >негативы</button>
+    <button data-href="/exegesis" class="bd" data-z="D" data-state="open"  data-mobile="false" >.exe</button>
 
-    <button data-href="/identity" data-state="close" data-mobile="false" >identity</button>
+    <button data-href="/renders"  class="bw" data-z="W" data-state="close" data-mobile="false" >_enders</button>
+    <button data-href="/снимки"   class="bw" data-z="W" data-state="close" data-mobile="false" >снимки</button>
+    <button data-href="/графика"  class="bw" data-z="W" data-state="close" data-mobile="false" >графика</button>
   
-
-    <button data-href="/renders"  data-state="close" data-mobile="false" >_enders</button>
-    <button data-href="/снимки"   data-state="close" data-mobile="false" >снимки</button>
-    <button data-href="/графика"  data-state="close" data-mobile="false" >графика</button>
+    <button data-href="/bread"    class="bw" data-z="W" data-state="close" data-mobile="false" >bread</button>
+    <button data-href="/haloguys" class="bw" data-z="W" data-state="close" data-mobile="false" >[ haloguys ]</button>
+    <button data-href="/покпокки" class="bw" data-z="W" data-state="close" data-mobile="false" >покпокки</button>
   
-    <button data-href="/bread"    data-state="close" data-mobile="false" >bread</button>
-    <button data-href="/haloguys" data-state="close" data-mobile="false" >[ haloguys ]</button>
-    <button data-href="/покпокки" data-state="close" data-mobile="false" >покпокки</button>
-  
-    <button data-href="/работа"   data-state="close" data-mobile="false" >работа</button>
-    <button data-href="/process"  data-state="close" data-mobile="false" >_cess</button>
+    <button data-href="/работа"   class="bw" data-z="W" data-state="close" data-mobile="false" >работа</button>
+    <button data-href="/process"  class="bw" data-z="W" data-state="close" data-mobile="false" >_cess</button>
 
-    <button data-href="/const"    data-state="close" data-mobile="false" >/</button>
+    <button data-href="/const"    class="bb" data-z="B" data-state="close" data-mobile="false" >/</button>
 
-    <!-- disable on mobile  ? -->
+    <!-- disable on mobile -->
 
-    <button data-href="/fe"       data-state="open" data-mobile="false" data-mhidden="true" >fe</button>
-    <button data-href="/flipbook" data-state="open" data-mobile="false" data-mhidden="true" >flipbook</button>
+    <button data-href="/fe"       class="bd" data-z="D" data-state="open" data-mobile="false" data-mhidden="true" >fe</button>
+    <button data-href="/flipbook" class="bd" data-z="D" data-state="open" data-mobile="false" data-mhidden="true" >flipbook</button>
 
-    <!-- ends  ? -->
+    <!-- end block -->
 
-    <button data-href="/space"    data-state="close" data-mobile="false" >—</button>
+    <button id="endSpace"  class="bb" data-z="B" data-href="/space" data-state="close" data-mobile="false" >—</button>
     
-    <button data-href="/about"    data-state="open" data-mobile="false" >
+     <!--   <button data-href="/aboutOld"    data-state="close" data-mobile="false" >[ &hearts; ]</button>-->
+    <button  id="endHeart"  class="bh" data-z="B" data-href="/about"    data-state="open" data-mobile="false" >
         <img id="heartIcon" src="./content/heart.png" >
     </button>
 
-   <!--   <button data-href="/aboutOld"    data-state="close" data-mobile="false" >[ &hearts; ]</button>-->
-
-
   </div>
-
-  <div class="background" id="mBackground"></div>
 </div>
 
 <script>
 
   let isFull = false;
   let isAnimating = false;
-
 
   const debugMode = false
 
@@ -265,11 +300,6 @@
     }
   });
 
-
-  /* ========== Автоматическая подстройка размера шрифта в зависимости от кол-ва кнопок ==========
-     простая эвристика: чем больше кнопок — тем меньше шрифт (можно настроить под себя).
-  */
-
   function debugOffsets() {
     const btns = document.getElementById('mButtonsContainer').children;
     if (btns.length < 2) return console.log("Недостаточно кнопок");
@@ -292,15 +322,18 @@
     });
   }
 
-  (function adjustFontByCount(){
+  /* ========== Автоматическая подстройка размера шрифта в зависимости от кол-ва кнопок ==========
+     простая эвристика: чем больше кнопок — тем меньше шрифт (можно настроить под себя).
+  */
+
+  function adjustFontByCount(){
     const n = buttons.length;
 
     //web - 4.6 
     const base = isMobile ? 4.4 : 4.6;
     const sizeRem = Math.max(0.9, base - (n - 3) * 0.12);
     buttons.forEach(b => b.style.fontSize = sizeRem + 'rem');
-  })();
-
+  };
 
   function removeBtnsOnMobile() {
     if (!isMobile) return;
@@ -446,6 +479,7 @@
   }
 
   // Вызов при загрузке
+  adjustFontByCount();
   shuffleButtonsWithRules();
 
   if (isMobile) {
@@ -455,6 +489,54 @@
     
   }
   checkLastRow();
+
+
+
+  function changeZone(state="open") {
+    const mBackground = document.getElementById("mBackground");
+    const bContainer = document.getElementById('mButtonsContainer');
+
+    const delayValue = 100; 
+
+    const dButtons = Array.from(bContainer.querySelectorAll('button[data-z="D"]'))
+      .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
+
+    const wButtons = Array.from(bContainer.querySelectorAll('button[data-z="W"]'))
+      .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
+
+    if(state === "open"){
+      
+      setTimeout(() => {
+        mBackground.classList.add("switchZone")
+
+        dButtons.forEach(b => { 
+            b.classList.add('dOpen');
+        });
+
+        wButtons.forEach(b => { 
+            b.classList.add('wLock');
+        });
+
+      }, delayValue);
+
+    }else{
+
+      setTimeout(() => {
+        mBackground.classList.remove("switchZone")
+
+        dButtons.forEach(b => { 
+            b.classList.remove('dOpen');
+
+        });
+
+        wButtons.forEach(b => { 
+            b.classList.remove('wLock');
+        });
+
+      }, delayValue);
+    }
+
+  }
 
   buttons.forEach(btn => {
     btn.addEventListener('click', async (ev) => {
@@ -472,10 +554,13 @@
 
 
         const animationDuration = 400; 
+        
 
         if (!isFull) {
           heartImg.src = "./content/heart_in.gif" + t;
-          isFull = true; // Стейт меняем сразу
+          isFull = true; // Стейт меняем сразу  
+
+          changeZone("open");
           
           setTimeout(() => {
             isAnimating = false;
@@ -487,7 +572,10 @@
         } else {
           heartImg.src = "./content/heart_out.gif" + t;
           isFull = false;
+
           
+          changeZone("close");
+
           setTimeout(() => {
             isAnimating = false;
             heartImg.src = "./content/heart.png";
@@ -541,7 +629,6 @@ function onKeyCommand(e) {
   console.log("Press", e.code);
   e.preventDefault();
   e.stopImmediatePropagation(); // Чтобы другие скрипты не мешали
-
 
   if (e.code === "Backquote") {
     if (window.location.protocol === "file:") {
