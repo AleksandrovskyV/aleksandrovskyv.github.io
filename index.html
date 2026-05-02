@@ -611,7 +611,8 @@ buttons.forEach(btn => {
 
         if (!isFull) {
             // 1. Сбрасываем и готовим текущий слой
-            imgIn.src = "./content/heart_in.gif" + t;
+            //imgIn.src = "./content/heart_in.gif" + t;
+            imgIn.src = "./content/heart_in.gif"; // Без таймстемпа
             otherIn.classList.remove('active'); // Гасим второй на всякий случай
 
             // 2. Пауза 50мс для Safari
@@ -634,7 +635,8 @@ buttons.forEach(btn => {
 
         } else {
             // С OUT проблем меньше, работаем по старой схеме
-            imgOut.src = "./content/heart_out.gif" + t;
+            //imgOut.src = "./content/heart_out.gif" + t;
+            imgIn.src = "./content/heart_out.gif"; // Без таймстемпа
 
             setTimeout(() => {
                 imgFull.classList.remove('active');
