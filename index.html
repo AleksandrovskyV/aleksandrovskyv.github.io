@@ -583,12 +583,14 @@ function changeZone(state="open") {
 
 }
 
+let useA = true; // Флаг чередования слоев
+
 buttons.forEach(btn => {
   btn.addEventListener('click', async (ev) => {
     
     const targetHref = btn.dataset.href;
 
-    let useA = true; // Флаг чередования слоев
+    
 
     if (targetHref === "/about") {
         ev.preventDefault();
