@@ -38,7 +38,7 @@
   }
   .container img {
     width:100%;
-    max-width:1600px;
+    max-width: 1400px;
     height:auto;
     display:block;
     background:black;
@@ -166,11 +166,8 @@ async function loadSequentially(list) {
       
       // Устанавливаем ширину ровно 1400
       img.width = TARGET_WIDTH;
-      // Устанавливаем высоту пропорционально
       img.height = item.h * scaleFactor;
 
-      // Чтобы CSS (max-width: 1600px) не мешал точному соответствию 1400px, 
-      // можно явно ограничить стиль:
       img.style.width = TARGET_WIDTH + "px";
       img.style.height = "auto"; 
       
