@@ -99,7 +99,15 @@
     color: rgba(50,50,50,1.0); 
   }
 
-
+  #heartIcon {
+      display: block;  /* Убираем лишние отступы снизу (baseline) */
+      height: 42px;    /* Чистая высота графики */
+      width: 88px;     /* Ширина согласно пропорции 500х240 */
+      padding-top: 5px; /* Добор до системных 47px */
+      margin: 0 auto;
+      object-fit: contain;
+      pointer-events: none; /* Чтобы клик всегда шел на кнопку, а не на картинку */
+  }
   /* Классы для мобильной */
 
   .overlayMobile{
@@ -206,15 +214,24 @@
     <!-- ends  ? -->
 
     <button data-href="/space"    data-state="close" data-mobile="false" >—</button>
-    <button data-href="/about"    data-state="close" data-mobile="false" >[ &hearts; ]</button>
+    
+    <button data-href="/about"    data-state="open" data-mobile="false" >
+        <img id="heartIcon" src="./content/heart.png" >
+    </button>
 
+   <!--   <button data-href="/aboutOld"    data-state="close" data-mobile="false" >[ &hearts; ]</button>-->
 
 
   </div>
+
   <div class="background" id="mBackground"></div>
 </div>
 
 <script>
+
+  let isFull = false;
+  let isAnimating = false;
+
 
   const debugMode = false
 
@@ -228,7 +245,8 @@
   const heart = buttons.find(b => b.dataset.href === "/about");
   
   if (!isMobile) {
-    heart.textContent = '[ ❤ ]';
+    // замена на изображение
+    //heart.textContent = '[ ❤ ]'; // теперь у нас png+gif
   } else {
     overlay.classList.replace('overlay', 'overlayMobile');
     buttonContainer.classList.replace('buttonblock', 'buttonblockMobile');
@@ -252,6 +270,29 @@
   /* ========== Автоматическая подстройка размера шрифта в зависимости от кол-ва кнопок ==========
      простая эвристика: чем больше кнопок — тем меньше шрифт (можно настроить под себя).
   */
+
+  function debugOffsets() {
+    const btns = document.getElementById('mButtonsContainer').children;
+    if (btns.length < 2) return console.log("Недостаточно кнопок");
+
+    const last = btns[btns.length - 1];
+    const preLast = btns[btns.length - 2];
+
+    console.log({
+      last: {
+        tag: last.dataset.href || 'no-href',
+        offset: last.offsetTop,
+        height: last.offsetHeight
+      },
+      preLast: {
+        tag: preLast.dataset.href || 'no-href',
+        offset: preLast.offsetTop,
+        height: preLast.offsetHeight
+      },
+      diff: Math.abs(last.offsetTop - preLast.offsetTop)
+    });
+  }
+
   (function adjustFontByCount(){
     const n = buttons.length;
 
@@ -336,10 +377,12 @@
     const btns = Array.from(buttonContainer.children);
     if (!btns.length) return 0;
 
+    //debugOffsets();
+
     const lastTop = btns[btns.length - 1].offsetTop;
     const lastRowBtns = btns.filter(btn => btn.offsetTop === lastTop);
 
-    //console.log(`На последней строке: ${lastRowBtns.length}`);
+    console.log(`На последней строке: ${lastRowBtns.length}`);
     return lastRowBtns.length;
   }
 
@@ -417,6 +460,48 @@
   buttons.forEach(btn => {
     btn.addEventListener('click', async (ev) => {
       
+      const targetHref = btn.dataset.href;
+
+      // ИСКЛЮЧЕНИЕ ДЛЯ HEART ICON
+      if (targetHref === "/about") {
+        ev.preventDefault();
+        if (isAnimating) return; // Блокировка от спам-кликов
+
+        const heartImg = document.getElementById('heartIcon');
+        const t = "?t=" + Date.now();
+        isAnimating = true;
+
+
+        const animationDuration = 400; 
+
+        if (!isFull) {
+          heartImg.src = "./content/heart_in.gif" + t;
+          isFull = true; // Стейт меняем сразу
+          
+          setTimeout(() => {
+            isAnimating = false;
+            // Подмена на PNG не обязательна мгновенно, 
+            // GIF уже замер. Можно подменить для надежности:
+            heartImg.src = "./content/heart_open.png"; 
+          }, animationDuration);
+
+        } else {
+          heartImg.src = "./content/heart_out.gif" + t;
+          isFull = false;
+          
+          setTimeout(() => {
+            isAnimating = false;
+            heartImg.src = "./content/heart.png";
+          }, animationDuration);
+        }
+
+
+        return; // Прерываем функцию, чтобы не сработал переход по ссылке
+      }
+
+      // ЛОГИКА ДЛЯ CLOSE КНОПОК
+
+
       if (btn.dataset.state === 'close') {
         ev.preventDefault();
         return false;
