@@ -182,7 +182,7 @@
       width: 88px;     
       object-fit: contain;
       
-      opacity: 0.01;       /* Скрыты по умолчанию */
+      opacity: 0;       /* Скрыты по умолчанию */
       transition: none; /* Мгновенная подмена без мерцания */
   }
 
@@ -595,48 +595,47 @@ buttons.forEach(btn => {
         if (isAnimating) return;
 
         const imgStatic = document.getElementById('heartStatic');
-        const imgIn = document.getElementById('heartIn');
         const imgOut = document.getElementById('heartOut');
         const imgFull = document.getElementById('heartFull');
+        
+        // Выбираем текущий слой IN согласно флагу useA
+        const imgIn = useA ? document.getElementById('heartIn_A') : document.getElementById('heartIn_B');
+        const otherIn = useA ? document.getElementById('heartIn_B') : document.getElementById('heartIn_A');
 
         isAnimating = true;
         btn.style.opacity = "1";
         const t = "?t=" + Date.now();
-
-        // На iOS увеличиваем тайминг до 450-500, так как есть задержка старта
         const durationValue = isMobile ? 500 : 400; 
 
         if (!isFull) {
-            // 1. Сначала ОБНОВЛЯЕМ ПУТЬ (но иконка всё еще невидима)
+            // 1. Сбрасываем и готовим текущий слой
             imgIn.src = "./content/heart_in.gif" + t;
+            otherIn.classList.remove('active'); // Гасим второй на всякий случай
 
-            // 2. Даем Safari 50мс, чтобы он начал декодировать GIF в фоне
+            // 2. Пауза 50мс для Safari
             setTimeout(() => {
                 imgStatic.classList.remove('active');
-                imgIn.classList.add('active'); // Теперь показываем
+                imgIn.classList.add('active');
                 
                 isFull = true;
-                // changeZone("open");
+                useA = !useA; // Переключаем на следующий раз
 
-                // 3. Ждем завершения (отсчитываем от момента показа)
                 setTimeout(() => {
                     imgIn.classList.remove('active');
                     imgFull.classList.add('active');
                     isAnimating = false;
                 }, durationValue);
 
-            }, 50); // Микро-пауза для "прогрева" декодера
+            }, 50);
 
         } else {
-            // Для OUT делаем то же самое
+            // С OUT проблем меньше, работаем по старой схеме
             imgOut.src = "./content/heart_out.gif" + t;
 
             setTimeout(() => {
                 imgFull.classList.remove('active');
                 imgOut.classList.add('active');
-                
                 isFull = false;
-                // changeZone("close");
 
                 setTimeout(() => {
                     imgOut.classList.remove('active');
