@@ -84,6 +84,10 @@
   /* СТРОГО ПО ИСХОДНИКУ: у BB только цвет, у остальных — всё */
   .buttonblock button.bb, .buttonblockMobile button.bb { transition: color 0.6s ease; }
 
+  .buttonblock button.bw:not([data-st="close"]){
+    pointer-events: auto; cursor: pointer; 
+  }
+
   /* АКТИВНЫЕ СОСТОЯНИЯ */
   .buttonblock button.bd.dOpen, .buttonblockMobile button.bd.dOpen {
     pointer-events: auto; cursor: pointer; color: rgba(128, 128, 128, 1);
@@ -96,7 +100,6 @@
     pointer-events: auto; cursor: grab; color: rgba(70,70,70,1.0);
   }
 
-  /* Эффект нажатия (добавил смену цвета до 50,50,50 для идентичности) */
   .buttonblock button.bw.wLock:active, .buttonblockMobile button.bw.wLock:active,
   .buttonblock button.bb.bLock:active, .buttonblockMobile button.bb.bLock:active {
     cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
@@ -143,7 +146,7 @@
     <button data-href="/снимки"   class="bw" data-z="W" data-st="close" data-mb="false" >снимки</button>
     <button data-href="/графика"  class="bw" data-z="W" data-st="close" data-mb="false" >графика</button>
   
-    <button data-href="/bread"    class="bw" data-z="W" data-st="close" data-mb="false" >bread</button>
+    <button data-href="/bread"    class="bw" data-z="W" data-st="open" data-mb="false" >bread</button>
     <button data-href="/haloguys" class="bw" data-z="W" data-st="close" data-mb="false" >[ haloguys ]</button>
     <button data-href="/покпокки" class="bw" data-z="W" data-st="close" data-mb="false" >покпокки</button>
   
