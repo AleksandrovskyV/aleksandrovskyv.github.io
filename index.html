@@ -582,7 +582,7 @@ function changeZone(state="open") {
 
 }
 
-let useA = true; // Флаг чередования слоев
+//let useA = true; // Флаг чередования слоев
 
 buttons.forEach(btn => {
   btn.addEventListener('click', async (ev) => {
@@ -590,45 +590,56 @@ buttons.forEach(btn => {
     const targetHref = btn.dataset.href;
 
     if (targetHref === "/about") {
-        ev.preventDefault();
-        if (isAnimating) return;
+      ev.preventDefault();
+      if (isAnimating) return;
 
-        const imgStatic = document.getElementById('heartStatic');
-        const imgIn = document.getElementById('heartIn');
-        const imgOut = document.getElementById('heartOut');
-        const imgFull = document.getElementById('heartFull');
+      const imgStatic = document.getElementById('heartStatic');
+      const imgIn = document.getElementById('heartIn');
+      const imgOut = document.getElementById('heartOut');
+      const imgFull = document.getElementById('heartFull');
 
-        isAnimating = true;
-        const durationValue = isMobile ? 500 : 400; 
+      isAnimating = true;
+      const durationValue = isMobile ? 500 : 400; 
 
-        if (!isFull) {
-            // МГНОВЕННО показываем то, что уже в кэше и в DOM
-            imgStatic.classList.remove('active');
-            imgIn.classList.add('active');
-            
-            isFull = true;
-            changeZone("open");
+      if (!isFull) {
+          // 1. Сбрасываем GIF просто переназначив src (без таймстемпа)
+          imgIn.src = imgIn.src; 
 
-            setTimeout(() => {
-                imgIn.classList.remove('active');
-                imgFull.classList.add('active');
-                isAnimating = false;
-            }, durationValue);
+          // 2. Пауза 50мс — даем Safari "раздуплиться"
+          setTimeout(() => {
+              imgStatic.classList.remove('active');
+              imgIn.classList.add('active');
+              
+              isFull = true;
+              if (typeof changeZone === "function") changeZone("open");
 
-        } else {
-            imgFull.classList.remove('active');
-            imgOut.classList.add('active');
-            
-            isFull = false;
-            changeZone("close");
+              setTimeout(() => {
+                  imgIn.classList.remove('active');
+                  imgFull.classList.add('active');
+                  isAnimating = false;
+              }, durationValue);
 
-            setTimeout(() => {
-                imgOut.classList.remove('active');
-                imgStatic.classList.add('active');
-                isAnimating = false;
-            }, durationValue);
-        }
-        return;
+          }, 50);
+
+      } else {
+          // 1. Сбрасываем Out гифку
+          imgOut.src = imgOut.src;
+
+          setTimeout(() => {
+              imgFull.classList.remove('active');
+              imgOut.classList.add('active');
+              
+              isFull = false;
+              if (typeof changeZone === "function") changeZone("close");
+
+              setTimeout(() => {
+                  imgOut.classList.remove('active');
+                  imgStatic.classList.add('active');
+                  isAnimating = false;
+              }, durationValue);
+          }, 50);
+      }
+      return;
     }
 
 
