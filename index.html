@@ -597,7 +597,7 @@ buttons.forEach(btn => {
         const imgOut = document.getElementById('heartOut');
         const imgFull = document.getElementById('heartFull');
 
-        const durationValue = 650;
+        const durationValue = isMobile ? 650 : 400;
 
         isAnimating = true;
         //btn.style.pointerEvents = "none";
@@ -615,7 +615,7 @@ buttons.forEach(btn => {
             imgStatic.classList.remove('active');
             imgIn.classList.add('active');
             
-            changeZone("open");
+            //changeZone("open");
             isFull = true;
 
             setTimeout(() => {
@@ -631,7 +631,7 @@ buttons.forEach(btn => {
             imgFull.classList.remove('active');
             imgOut.classList.add('active');
             
-            changeZone("close");
+            //changeZone("close");
             isFull = false;
 
             setTimeout(() => {
