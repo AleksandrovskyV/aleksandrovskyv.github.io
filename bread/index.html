@@ -67,7 +67,7 @@ width: 64px; height: 64px;
 <body>
 
 <div id="mainContainer" class="bContainer" >
-  <img id="firstImage" src="/files/bread/b_1_hq.png" >
+  <img id="firstImage" src="/files/bread/b_1_lq.png" >
 </div>
 
 <div id="loaderIcon">
@@ -95,36 +95,48 @@ if(isMobile){
 }
 
 async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
+  // 1. Сначала ВСЕГДА грузим LQ (она в 8 раз легче)
+  imgEl.src = "/files/bread/b_1_lq.png";
+
   let attempts = 0;
+  let loaded = false;
 
   while (attempts < maxRetries) {
-    // Если картинка уже полностью загружена
     if (imgEl.complete && imgEl.naturalHeight !== 0) {
-
-      //imgEl.style.opacity = 1;
-      imgEl.classList.add('open');
-      
-      return imgEl;
+      loaded = true;
+      break;
     }
-
     try {
-      await new Promise((resolve, reject) => {
-        imgEl.onload = () => resolve();
-        imgEl.onerror = () => reject();
+      await new Promise((res, rej) => {
+        imgEl.onload = res;
+        imgEl.onerror = rej;
       });
-
-      //imgEl.style.opacity = 1;
-      imgEl.classList.add('open');
-      return imgEl;
-
+      loaded = true;
+      break;
     } catch {
       attempts++;
-      console.warn(`Ошибка загрузки первой картинки, попытка ${attempts}`);
       await new Promise(r => setTimeout(r, delay));
     }
   }
 
-  console.error("Не удалось загрузить первую картинку после всех попыток");
+  if (loaded) {
+    imgEl.classList.add('open'); // Показали размытую, но быструю картинку
+
+    // 2. Если это ПК, начинаем тихонько подменять на HQ
+    if (!isMobile) {
+      const hqImg = new Image(); // Создаем невидимый элемент в памяти
+      hqImg.src = "/files/bread/b_1_hq.png";
+      
+      hqImg.onload = () => {
+        // Когда HQ скачалась в кэш, подменяем src у реального элемента
+        // Благодаря кэшу замена произойдет мгновенно и без мерцания
+        imgEl.src = hqImg.src; 
+        console.log("HQ подгружено");
+      };
+    }
+    return imgEl;
+  }
+
   return null;
 }
 
