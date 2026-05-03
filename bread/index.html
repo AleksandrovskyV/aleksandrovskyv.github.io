@@ -105,6 +105,7 @@ window.addEventListener("pagehide", hideFirstImage);
 
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
+    window.scrollTo(0, 0);   // ← вот это
     showFirstImage();
   }
 });
