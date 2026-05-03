@@ -71,7 +71,7 @@ width: 64px; height: 64px;
 </div>
 
 <div id="loaderIcon">
-  <img src="/content/loading.gif">
+  <img src="./content/loading.gif">
 </div>
 
 <script>
@@ -175,7 +175,19 @@ async function loadSequentially(list) {
       break;
     }
   }
-  loader.style.display = "none";
+  
+  loaderIcon.style.display = "none";
+}
+
+function initPage() {
+
+  loadFirstImageWithRetries(firstImg).then(() => loadSequentially(images));
+
+  document.addEventListener("keydown", onKeyCommand);
+
+  window.addEventListener('focus', () => {
+      console.log("Фокус вернулся");
+  });
 }
 
 function onKeyCommand(e) {
@@ -193,17 +205,6 @@ function onKeyCommand(e) {
     }
   }
   return
-}
-
-function initPage() {
-
-  loadFirstImageWithRetries(firstImg).then(() => loadSequentially(images));
-
-  document.addEventListener("keydown", onKeyCommand);
-
-  window.addEventListener('focus', () => {
-      console.log("Фокус вернулся");
-  });
 }
 
 
