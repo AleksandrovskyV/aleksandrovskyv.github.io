@@ -20,62 +20,51 @@
 <link rel="apple-touch-icon" href="https://vsky.space/content/fav/f_br_alt.png?v=bread1">
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-html, body {
-  width: 100%;
-  background: #e5e5e5;
+* {margin: 0; padding: 0; box-sizing: border-box;}
+
+html, body { width: 100%;
+background: #e5e5e5;
 }
 
 .bContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: none;
+display: flex;
+flex-direction: column;
+align-items: center;
+background: none;
 }
 
 .bContainer img {
-  width:100%;
-  max-width: 1400px;
-  height:auto;
-  display:block;
-  background:none;
-  pointer-events:none;
-  opacity:0;
-  transition: opacity 0.5s ease;
+width:100%;
+max-width: 1400px;
+height:auto;
+display:block;
+background:none;
+pointer-events:none;
+opacity:0;
+transition: opacity 2.0s ease;
 }
 
-.bContainer img.open {
-  opacity:1.0;
-}
+.bContainer img.open { opacity:1.0; }
 
 #mainContainer {
-  /* Интерполяция между 1600 и 2000 */
-  padding: 0 clamp(5vw, calc(-35vw + 800px), 15vw);
+/* Интерполяция между 1600 и 2000 */
+padding: 0 clamp(5vw, calc(-35vw + 800px), 15vw);
 }
 
 #loaderIcon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 10px 0; 
-  /* не fixed, чтобы двигался вниз по мере вставки img */
+display: flex;
+justify-content: center;
+align-items: center;
+margin: 10px 0; 
+/* не fixed, чтобы двигался вниз по мере вставки img */
 }
 #loaderIcon img {
-  width: 64px;
-  height: 64px;
+width: 64px; height: 64px;
 }
-
-
-
 </style>
 
 </head>
 <body>
-
 
 <div id="mainContainer" class="bContainer" >
   <img id="firstImage" src="/files/bread/b_1.png" >
@@ -189,11 +178,7 @@ async function loadSequentially(list) {
   loader.style.display = "none";
 }
 
-loadFirstImageWithRetries(firstImg).then(() => loadSequentially(images));
-
-
 function onKeyCommand(e) {
-
   console.log("Press", e.code);
   
   if (e.code === "Escape"){ // ESC
@@ -207,15 +192,23 @@ function onKeyCommand(e) {
       window.location.href = "https://vsky.space";
     }
   }
-
   return
 }
 
-document.addEventListener("keydown", onKeyCommand);
+function initPage() {
 
-window.addEventListener('focus', () => {
-    console.log("Фокус вернулся");
-});
+  loadFirstImageWithRetries(firstImg).then(() => loadSequentially(images));
+
+  document.addEventListener("keydown", onKeyCommand);
+
+  window.addEventListener('focus', () => {
+      console.log("Фокус вернулся");
+  });
+}
+
+
+// Init Block
+initPage();
 
 </script>
 
