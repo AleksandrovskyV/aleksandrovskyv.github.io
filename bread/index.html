@@ -173,13 +173,12 @@ async function loadSequentiallyOld(list) {
     try {
       const img = await loadImage(item.src);
       
-      // 1. Оставляем атрибуты для "подсказки" браузеру о пропорциях
       const scaleFactor = TARGET_WIDTH / item.w;
       img.width = TARGET_WIDTH;
       img.height = item.h * scaleFactor;
 
       img.style.width = "100%";
-      img.style.maxWidth = "1400px"; // Это позволит им сжиматься при ресайзе
+      img.style.maxWidth = "1400px";
       img.style.height = "auto"; 
       
       img.style.opacity = 1;
@@ -214,8 +213,6 @@ async function loadSequentially(list) {
       // Общие стили для сохранения пропорций
       element.style.width = "100%";
       element.style.maxWidth = `${TARGET_WIDTH}px`;
-      
-      // ВОТ ЭТА СТРОКА РЕШАЕТ ВСЁ:
       element.style.aspectRatio = `${item.w} / ${item.h}`; 
       element.style.height = "auto"; 
 
