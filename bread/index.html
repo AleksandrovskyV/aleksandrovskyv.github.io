@@ -99,10 +99,14 @@ if(isMobile){
   mainContainer.style.padding = "0vw";
 }
 
+// Восстанавливаем прозрачност при обратном переходе
 window.addEventListener("pageshow", (event) => {
-  // Если страница загружена из Back-Forward Cache (нажали "Назад")
   if (event.persisted) {
     firstImg.classList.remove('open');
+    
+    requestAnimationFrame(() => {
+        firstImg.classList.add('open');
+    });
   }
 });
 
