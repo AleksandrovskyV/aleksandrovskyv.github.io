@@ -16,7 +16,7 @@
 <meta name="twitter:site" content="@AleksandrovskyV">
 
 <title>bread</title>
-<link rel="icon" href="/content/fav/f_br.png" type="image/png">
+<link rel="icon" href="./content/fav/f_br.png" type="image/png">
 <link rel="apple-touch-icon" href="https://vsky.space/content/fav/f_br_alt.png?v=bread1">
 
 <style>
@@ -35,6 +35,7 @@ html, body {
   align-items: center;
   background: none;
 }
+
 .container img {
   width:100%;
   max-width: 1400px;
@@ -43,8 +44,13 @@ html, body {
   background:none;
   pointer-events:none;
   opacity:0;
-  transition: opacity 0.5s;
+  transition: opacity 0.5s ease;
 }
+
+.container img.open {
+  opacity:1.0;
+}
+
 .loading_container {
   display: flex;
   justify-content: center;
@@ -69,32 +75,30 @@ html, body {
 
 
 <div id="mainContainer" class="container" >
-  <img src="/files/bread/b_1.png" style="opacity:1;">
+  <img id="firstImage"src="./files/bread/b_1.png" >
 </div>
 
 <div id="loader" class="loading_container" >
-  <img src="/content/loading.gif">
+  <img src="./content/loading.gif">
 </div>
 
 <script>
  
-// script proto for 1400 fix
-
 const images = [
-  {src: "/files/bread/b_2.png", w: 2800, h: 2207},
-  {src: "/files/bread/b_3.png", w: 2800, h: 6636},
-  {src: "/files/bread/b_4.png", w: 870,  h: 406},
+  {src: "./files/bread/b_2.png", w: 2800, h: 2207},
+  {src: "./files/bread/b_3.png", w: 2800, h: 6636},
+  {src: "./files/bread/b_4.png", w: 870,  h: 406},
 ];
 
-const container = document.getElementById("mainContainer");
-const firstImg = document.querySelector('#mainContainer img');
+const mainContainer = document.getElementById("mainContainer");
+const firstImg = document.getElementById("firstImage");
 const loader = document.getElementById("loader");
 
 const ua = navigator.userAgent.toLowerCase();
 const isMobile = /iphone|ipad|android/.test(ua);
 
 if(isMobile){
-  container.style.padding = "0vw";
+  mainContainer.style.padding = "0vw";
 }
 
 async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
@@ -103,7 +107,10 @@ async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
   while (attempts < maxRetries) {
     // Если картинка уже полностью загружена
     if (imgEl.complete && imgEl.naturalHeight !== 0) {
-      imgEl.style.opacity = 1; // показываем
+
+      //imgEl.style.opacity = 1;
+      imgEl.classList.add('open');
+      
       return imgEl;
     }
 
@@ -113,7 +120,8 @@ async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
         imgEl.onerror = () => reject();
       });
 
-      imgEl.style.opacity = 1;
+      //imgEl.style.opacity = 1;
+      imgEl.classList.add('open');
       return imgEl;
 
     } catch {
@@ -169,7 +177,7 @@ async function loadSequentially(list) {
       img.style.height = "auto"; 
       
       img.style.opacity = 1;
-      container.appendChild(img);
+      mainContainer.appendChild(img);
     } catch (e) {
       console.error(e);
       break;
@@ -178,7 +186,6 @@ async function loadSequentially(list) {
   loader.style.display = "none";
 }
 
-// Используем перед загрузкой последовательного списка
 loadFirstImageWithRetries(firstImg).then(() => loadSequentially(images));
 
 
