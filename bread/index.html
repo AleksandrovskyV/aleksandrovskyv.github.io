@@ -219,6 +219,8 @@ async function loadSequentially(list) {
 
 function safeAddClass(){
     console.log("safeAddClass");
+    void firstImg.offsetHeight
+    
     if ( !firstImg.classList.contains('open') ) { 
       firstImg.classList.add('open');
     }
@@ -230,8 +232,8 @@ function initPage() {
 
   loadFirstImageWithRetries(firstImg).then((firstLoaded) => {
     if (firstLoaded) {
-      console.log("первая загружена");
       
+      console.log("первая загружена");
       safeAddClass();
 
       if(loaderIcon) loaderIcon.hidden = false; 
