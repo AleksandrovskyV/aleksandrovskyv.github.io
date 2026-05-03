@@ -27,14 +27,14 @@ html, body { width: 100%;
 background: #e5e5e5;
 }
 
-.bContainer {
+.container {
 display: flex;
 flex-direction: column;
 align-items: center;
-background: none;
+background: #f5bd49;
 }
 
-.bContainer img {
+.container img {
 width:100%;
 max-width: 1400px;
 height:auto;
@@ -45,7 +45,7 @@ opacity:0;
 transition: opacity 2.0s ease;
 }
 
-.bContainer img.open { opacity:1.0; }
+.container img.open { opacity:1.0; }
 
 #mainContainer {
 /* Интерполяция между 1600 и 2000 */
@@ -67,7 +67,7 @@ width: 64px; height: 64px;
 </head>
 <body>
 
-<div id="mainContainer" class="bContainer" >
+<div id="mainContainer" class="container" >
   <img id="firstImage" src="/files/bread/b_1_lq.png" >
 </div>
 
