@@ -217,9 +217,16 @@ async function loadSequentially(list) {
   
 }
 
+function safeReturn(){
+    console.log("safeReturn");
+    if ( !firstImg.classList.contains('open') ) { 
+      firstImg.classList.add('open');
+    }
+}
+
 function initPage() {
 
-  if (isInitialized || mainContainer.children.length > 1) return console.log("ini return");
+  if (isInitialized || mainContainer.children.length > 1) return safeReturn();
   isInitialized = true;
 
   const loaderIcon = document.getElementById('loaderIcon');
@@ -227,13 +234,7 @@ function initPage() {
   loadFirstImageWithRetries(firstImg).then((firstLoaded) => {
     if (firstLoaded) {
       console.log("первая загружена");
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          firstLoaded.classList.add('open');
-          console.log("Класс open добавлен физически");
-        });
-      });
+      firstImg.classList.add('open');
 
       if(loaderIcon) loaderIcon.hidden = false; 
       loadSequentially(images);
@@ -244,10 +245,14 @@ function initPage() {
     if(loaderIcon) loaderIcon.hidden = true;
   });
 
+
+
   document.addEventListener("keydown", onKeyCommand);
 
   window.addEventListener('focus', () => { console.log("Фокус вернулся");
   });
+  
+  safeReturn();
 }
 
 function onKeyCommand(e) {
@@ -269,6 +274,7 @@ function onKeyCommand(e) {
 
 // Init Block
 initPage();
+
 
 </script>
 
