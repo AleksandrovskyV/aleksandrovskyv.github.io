@@ -217,8 +217,8 @@ async function loadSequentially(list) {
   
 }
 
-function safeReturn(){
-    console.log("safeReturn");
+function safeAddClass(){
+    console.log("safeAddClass");
     if ( !firstImg.classList.contains('open') ) { 
       firstImg.classList.add('open');
     }
@@ -231,7 +231,8 @@ function initPage() {
   loadFirstImageWithRetries(firstImg).then((firstLoaded) => {
     if (firstLoaded) {
       console.log("первая загружена");
-      firstImg.classList.add('open');
+      
+      safeAddClass();
 
       if(loaderIcon) loaderIcon.hidden = false; 
       loadSequentially(images);
