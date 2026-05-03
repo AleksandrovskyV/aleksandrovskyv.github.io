@@ -226,9 +226,6 @@ function safeReturn(){
 
 function initPage() {
 
-  if (isInitialized || mainContainer.children.length > 1) return safeReturn();
-  isInitialized = true;
-
   const loaderIcon = document.getElementById('loaderIcon');
 
   loadFirstImageWithRetries(firstImg).then((firstLoaded) => {
@@ -251,7 +248,7 @@ function initPage() {
 
   window.addEventListener('focus', () => { console.log("Фокус вернулся");
   });
-  
+
   safeReturn();
 }
 
