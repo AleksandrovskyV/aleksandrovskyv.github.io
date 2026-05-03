@@ -210,11 +210,15 @@ async function loadSequentially(list) {
         // Загружаем картинку
         element = await loadImage(item.src);
       }
-      
+    
       // Общие стили для сохранения пропорций
       element.style.width = "100%";
       element.style.maxWidth = `${TARGET_WIDTH}px`;
-      element.style.height = `${calculatedHeight}px`; // Фиксируем высоту для пропорции
+      
+      // ВОТ ЭТА СТРОКА РЕШАЕТ ВСЁ:
+      element.style.aspectRatio = `${item.w} / ${item.h}`; 
+      element.style.height = "auto"; 
+
       element.style.opacity = 1;
       element.style.display = "block";
 
