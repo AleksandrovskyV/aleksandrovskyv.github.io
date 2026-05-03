@@ -50,12 +50,12 @@ opacity:0;
 }
 .container img.open { 
 transition: opacity 2.0s ease;
-opacity:1.0; 
+opacity: 1.0; 
 }
 
 #mainContainer {
 /* Интерполяция между 1600 и 2000 */
-padding: 0 clamp(5vw, calc(-35vw + 800px), 15vw);
+margin: 0 clamp(5vw, calc(-35vw + 800px), 15vw);
 }
 
 #loaderIcon {
@@ -83,15 +83,21 @@ width: 64px; height: 64px;
 
 <script>
 
-// Восстанавливаем прозрачност при обратном переходе
 const firstImg = document.getElementById('firstImage');
 const mainContainer = document.getElementById('mainContainer');
 
+const ua = navigator.userAgent.toLowerCase();
+const isMobile = /iphone|ipad|android/.test(ua);
+
+const TARGET_WIDTH = 1400;
 let isInitialized = false;
+
+if(isMobile) mainContainer.style.margin = "0vw";
 
 function showFirstImage() {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
+      console.log("showFirstImage")
       firstImg.classList.add('open');
     });
   });
@@ -105,25 +111,20 @@ window.addEventListener("pagehide", hideFirstImage);
 
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
-    window.scrollTo(0, 0);   // ← вот это
+    window.scrollTo(0, 0);
     showFirstImage();
   }
 });
 
-const ua = navigator.userAgent.toLowerCase();
-const isMobile = /iphone|ipad|android/.test(ua);
-
-if(isMobile) mainContainer.style.padding = "0vw";
-
 const images = [
-  {type: "color", color: "#f5bd49", w: 2800, h: 2207},
+  {type: "spacer", w: 2800, h: 2207},
   {src: "/files/bread/b_3_hq.png", w: 2800, h: 6636},
   {src: "/files/bread/b_4_hq.png", w: 870,  h: 406},
-  {type: "color", color: "#f5bd49", w: 2800, h: 1400},
+  {type: "spacer", w: 2800, h: 1400},
 ];
 
 async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
-  // 1. Сначала ВСЕГДА грузим LQ (она в 8 раз легче)
+  // 1. грузим LQ (она в 8 раз легче)
   imgEl.src = "/files/bread/b_1_lq.png";
 
   let attempts = 0;
@@ -148,9 +149,9 @@ async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
   }
 
   if (loaded) {
-    // 2. Если это ПК, начинаем тихонько подменять на HQ
+    // 2. Если это ПК, меняем на HQ
     if (!isMobile) {
-      const hqImg = new Image(); // Создаем невидимый элемент в памяти
+      const hqImg = new Image(); //  невидимый элемент в памяти
       hqImg.src = "/files/bread/b_1_hq.png";
       
       hqImg.onload = () => {
@@ -188,18 +189,16 @@ function loadImage(src, maxRetries = 5, delay = 1000) {
   });
 }
 
-async function loadSequentially(list) {
-  const TARGET_WIDTH = 1400; 
-
+async function loadSequentially(list) { 
   for (const item of list) {
     try {
       let element;
       const scaleFactor = TARGET_WIDTH / item.w;
       const calculatedHeight = item.h * scaleFactor;
 
-      if (item.type === "color") {
+      if (item.type === "spacer") {
         element = document.createElement("div");
-        element.style.backgroundColor = item.color;
+        element.style.backgroundColor = "#f5bd49";
       } else {
         element = await loadImage(item.src);
       }
@@ -225,15 +224,14 @@ async function loadSequentially(list) {
   
 }
 
-function safeAddClass(){
-    console.log("safeAddClass");
+function aClassToFtImage(){
     void firstImg.offsetHeight
 
     if ( !firstImg.classList.contains('open') ) { 
       firstImg.classList.add('open');
-      console.log("safeAddClass Addd");
+      console.log("aClassToFtImage - add Class");
     }else{
-      console.log("safeAddClass ", firstImg);
+      console.log("aClassToFtImage - class already adding");
     }
 }
 
@@ -245,7 +243,7 @@ function initPage() {
     if (firstLoaded) {
       
       console.log("первая загружена");
-      safeAddClass();
+      aClassToFtImage();
 
       if(loaderIcon) loaderIcon.hidden = false; 
       loadSequentially(images);
