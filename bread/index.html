@@ -59,6 +59,11 @@ align-items: center;
 margin: 10px 0; 
 /* не fixed, чтобы двигался вниз по мере вставки img */
 }
+
+#loaderIcon.hide {
+  display: none !important;
+}
+
 #loaderIcon img {
 width: 64px; height: 64px;
 }
@@ -71,7 +76,7 @@ width: 64px; height: 64px;
   <img id="firstImage" src="/files/bread/b_1_lq.png" >
 </div>
 
-<div id="loaderIcon">
+<div id="loaderIcon" class="hide">
   <img src="./content/loading.gif">
 </div>
 
@@ -166,32 +171,6 @@ function loadImage(src, maxRetries = 5, delay = 1000) {
   });
 }
 
-async function loadSequentiallyOld(list) {
-  const TARGET_WIDTH = 1400; 
-
-  for (const item of list) {
-    try {
-      const img = await loadImage(item.src);
-      
-      const scaleFactor = TARGET_WIDTH / item.w;
-      img.width = TARGET_WIDTH;
-      img.height = item.h * scaleFactor;
-
-      img.style.width = "100%";
-      img.style.maxWidth = "1400px";
-      img.style.height = "auto"; 
-      
-      img.style.opacity = 1;
-      mainContainer.appendChild(img);
-    } catch (e) {
-      console.error(e);
-      break;
-    }
-  }
-
-  loaderIcon.style.display = "none";
-}
-
 async function loadSequentially(list) {
   const TARGET_WIDTH = 1400; 
 
@@ -206,7 +185,6 @@ async function loadSequentially(list) {
         element = document.createElement("div");
         element.style.backgroundColor = item.color;
       } else {
-        // Загружаем картинку
         element = await loadImage(item.src);
       }
     
@@ -225,12 +203,17 @@ async function loadSequentially(list) {
       break;
     }
   }
-  loaderIcon.style.display = "none"; // Исправлено имя переменной
+  loaderIcon.classList.add('hide'); 
 }
 
 function initPage() {
 
-  loadFirstImageWithRetries(firstImg).then(() => loadSequentially(images));
+
+  loadFirstImageWithRetries(firstImg).then(() => {
+    
+    loaderIcon.classList.remove('hide'); 
+    loadSequentially(images);
+  });
 
   document.addEventListener("keydown", onKeyCommand);
 
