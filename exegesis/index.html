@@ -79,16 +79,16 @@ margin: 0 clamp(5vw, calc(-35vw + 800px), 15vw);
   height: 64px;
   background-image: url("/content/load_sprite.png");
   background-repeat: no-repeat;
-  background-size: 100% auto;
+  /* Важно: фиксируем ширину 64px, высота сама станет 640px */
+  background-size: 64px auto; 
   
-  /* Название | Длительность | Тип перехода | Повтор */
   animation: playSprite 0.8s steps(10) infinite;
-  will-change: background-position;
 }
 
 @keyframes playSprite {
   from { background-position: 0 0; }
-  to { background-position: 0 100%; }
+  /* Сдвигаем ровно на 10 кадров по 64px вниз */
+  to { background-position: 0 -640px; }
 }
 
 </style>
