@@ -99,6 +99,13 @@ if(isMobile){
   mainContainer.style.padding = "0vw";
 }
 
+window.addEventListener("pageshow", (event) => {
+  // Если страница загружена из Back-Forward Cache (нажали "Назад")
+  if (event.persisted) {
+    firstImg.classList.remove('open');
+  }
+});
+
 async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
   // 1. Сначала ВСЕГДА грузим LQ (она в 8 раз легче)
   imgEl.src = "/files/bread/b_1_lq.png";
@@ -125,7 +132,7 @@ async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
   }
 
   if (loaded) {
-    imgEl.classList.add('open'); // Показали размытую, но быструю картинку
+    imgEl.classList.add('open'); 
 
     // 2. Если это ПК, начинаем тихонько подменять на HQ
     if (!isMobile) {
