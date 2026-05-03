@@ -77,9 +77,10 @@ width: 64px; height: 64px;
 <script>
  
 const images = [
-  {src: "/files/bread/b_2.png", w: 2800, h: 2207},
+  {type: "color", color: "#e5e5e5", w: 2800, h: 2207}, // Блок вместо b_2
   {src: "/files/bread/b_3.png", w: 2800, h: 6636},
   {src: "/files/bread/b_4.png", w: 870,  h: 406},
+  {type: "color", color: "#e5e5e5", w: 2800, h: 2207}, // Блок вместо b_2
 ];
 
 const mainContainer = document.getElementById('mainContainer');
@@ -152,7 +153,7 @@ function loadImage(src, maxRetries = 5, delay = 1000) {
   });
 }
 
-async function loadSequentially(list) {
+async function loadSequentiallyOld(list) {
   const TARGET_WIDTH = 1400; 
 
   for (const item of list) {
@@ -175,8 +176,42 @@ async function loadSequentially(list) {
       break;
     }
   }
-  
+
   loaderIcon.style.display = "none";
+}
+
+async function loadSequentially(list) {
+  const TARGET_WIDTH = 1400; 
+
+  for (const item of list) {
+    try {
+      let element;
+      const scaleFactor = TARGET_WIDTH / item.w;
+      const calculatedHeight = item.h * scaleFactor;
+
+      if (item.type === "color") {
+        // Создаем цветной блок
+        element = document.createElement("div");
+        element.style.backgroundColor = item.color;
+      } else {
+        // Загружаем картинку
+        element = await loadImage(item.src);
+      }
+      
+      // Общие стили для сохранения пропорций
+      element.style.width = "100%";
+      element.style.maxWidth = `${TARGET_WIDTH}px`;
+      element.style.height = `${calculatedHeight}px`; // Фиксируем высоту для пропорции
+      element.style.opacity = 1;
+      element.style.display = "block";
+
+      mainContainer.appendChild(element);
+    } catch (e) {
+      console.error(e);
+      break;
+    }
+  }
+  loaderIcon.style.display = "none"; // Исправлено имя переменной
 }
 
 function initPage() {
@@ -185,8 +220,7 @@ function initPage() {
 
   document.addEventListener("keydown", onKeyCommand);
 
-  window.addEventListener('focus', () => {
-      console.log("Фокус вернулся");
+  window.addEventListener('focus', () => { console.log("Фокус вернулся");
   });
 }
 
