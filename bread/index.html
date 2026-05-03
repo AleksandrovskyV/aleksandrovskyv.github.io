@@ -37,6 +37,15 @@ flex-direction: column;
 align-items: center;
 background: none;
 }
+
+.container > * {
+  width: 100%;
+  max-width: 1400px;
+  height: auto;
+  display: block;
+  opacity: 1;
+}
+
 .container img {
 width:100%;
 max-width: 1400px;
@@ -203,14 +212,7 @@ async function loadSequentially(list) {
         element = await loadImage(item.src);
       }
     
-      // Общие стили для сохранения пропорций
-      element.style.width = "100%";
-      element.style.maxWidth = `${TARGET_WIDTH}px`;
       element.style.aspectRatio = `${item.w} / ${item.h}`; 
-      element.style.height = "auto"; 
-
-      element.style.opacity = 1;
-      element.style.display = "block";
 
       mainContainer.appendChild(element);
     } catch (e) {
