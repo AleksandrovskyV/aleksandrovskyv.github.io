@@ -24,7 +24,7 @@
 * {margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body { width: 100%;
-  background: black;
+background: black;
 }
 
 [hidden] {
@@ -72,11 +72,11 @@ margin: 0 clamp(5vw, calc(-35vw + 800px), 15vw);
 }
 
 #loaderIcon {
+/* не fixed, чтобы двигался вниз по мере вставки img */
 display: flex;
 justify-content: center;
 align-items: center;
 margin: 10px 0; 
-/* не fixed, чтобы двигался вниз по мере вставки img */
 }
 #loaderIcon img {
 width: 64px; height: 64px;
