@@ -19,6 +19,7 @@
 <link rel="icon" href="/content/fav/f_ex.png" type="image/png">
 <link rel="apple-touch-icon" sizes="180x180" href="/content/fav/f_ex_alt.png">
 <link rel="preload" href="/content/loading.gif" as="image">
+<link rel="preload" href="/content/load_sprite.png" as="image">
 
 <style>
 * {margin: 0; padding: 0; box-sizing: border-box; }
@@ -71,16 +72,37 @@ transition: opacity 2s ease;
 margin: 0 clamp(5vw, calc(-35vw + 800px), 15vw);
 }
 
-#loaderIcon {
+#loaderGif {
 /* не fixed, чтобы двигался вниз по мере вставки img */
 display: flex;
 justify-content: center;
 align-items: center;
 margin: 10px 0; 
 }
-#loaderIcon img {
+#loaderGif img {
 width: 64px; height: 64px;
 }
+
+/* 10 кадров 128x1280px */
+#loadSprite {
+  display: block;
+  margin: 0 auto;
+  width: 64px;
+  height: 64px;
+  background-image: url("/content/load_sprite.png");
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  
+  /* Название | Длительность | Тип перехода | Повтор */
+  animation: playSprite 0.8s steps(9) infinite;
+  will-change: background-position;
+}
+
+@keyframes playSprite {
+  from { background-position: 0 0; }
+  to { background-position: 0 100%; }
+}
+
 </style>
 
 </head>
@@ -90,7 +112,9 @@ width: 64px; height: 64px;
   <img id="firstImage" src="/files/exegesis/e_1_alt2.png" >
 </div>
 
-<div id="loaderIcon" hidden>
+<div id="loadSprite" hidden></div>
+
+<div id="loaderGif" hidden>
   <img src="/content/loading.gif">
 </div>
 
@@ -98,6 +122,7 @@ width: 64px; height: 64px;
 
 const firstImg = document.getElementById('firstImage');
 const mainContainer = document.getElementById('mainContainer');
+const loader = document.getElementById('loadSprite'); // loaderGif
 
 const ua = navigator.userAgent.toLowerCase();
 const isMobile = /iphone|ipad|android/.test(ua);
@@ -227,8 +252,8 @@ async function loadSequentially(list) {
     }
   }
 
-  const loaderIcon = document.getElementById('loaderIcon');
-  if(loaderIcon) loaderIcon.hidden = true; 
+  
+  if(loader) loader.hidden = true; 
   
 }
 
@@ -245,21 +270,19 @@ function aClassToFtImage(){
 
 function initPage() {
 
-  const loaderIcon = document.getElementById('loaderIcon');
-
   loadFirstImageWithRetries(firstImg).then((firstLoaded) => {
     if (firstLoaded) {
       
       //console.log("первая загружена");
       aClassToFtImage();
 
-      if(loaderIcon) loaderIcon.hidden = false; 
+      if(loader) loader.hidden = false; 
       loadSequentially(images);
 
     }
   }).catch(err => {
     console.error("Ошибка загрузки:", err);
-    if(loaderIcon) loaderIcon.hidden = true;
+    if(loader) loader.hidden = true;
   });
 
 
