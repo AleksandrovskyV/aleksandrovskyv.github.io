@@ -226,8 +226,14 @@ function initPage() {
 
   loadFirstImageWithRetries(firstImg).then((firstLoaded) => {
     if (firstLoaded) {
-      console.log("первая загружена", firstLoaded);
-      firstLoaded.classList.add('open'); 
+      console.log("первая загружена");
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          firstLoaded.classList.add('open');
+          console.log("Класс open добавлен физически");
+        });
+      });
 
       if(loaderIcon) loaderIcon.hidden = false; 
       loadSequentially(images);
