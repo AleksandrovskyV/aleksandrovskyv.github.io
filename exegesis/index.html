@@ -18,7 +18,6 @@
 <title>exegesis</title>
 <link rel="icon" href="/content/fav/f_ex.png" type="image/png">
 <link rel="apple-touch-icon" sizes="180x180" href="/content/fav/f_ex_alt.png">
-<link rel="preload" href="/content/loading.gif" as="image">
 <link rel="preload" href="/content/load_sprite.png" as="image">
 
 <style>
@@ -70,17 +69,6 @@ transition: opacity 2s ease;
 #mainContainer {
 /* Интерполяция между 1600 и 2000 */
 margin: 0 clamp(5vw, calc(-35vw + 800px), 15vw);
-}
-
-#loaderGif {
-/* не fixed, чтобы двигался вниз по мере вставки img */
-display: flex;
-justify-content: center;
-align-items: center;
-margin: 10px 0; 
-}
-#loaderGif img {
-width: 64px; height: 64px;
 }
 
 /* 10 кадров 128x1280px */
