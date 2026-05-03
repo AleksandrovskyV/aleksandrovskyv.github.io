@@ -1,3 +1,8 @@
+/* стили для корневого index.html */
+/* Сейчас эти стили не используются */
+/* По сути это бэкап перед сжатием */
+
+
 *{box-sizing:border-box;margin:0;padding:0}
 html, body {
   height: 100%;
