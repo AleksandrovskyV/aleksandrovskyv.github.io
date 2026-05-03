@@ -21,7 +21,7 @@
 <link rel="preload" href="/content/loading.gif" as="image">
 
 <style>
-* {margin: 0; padding: 0; box-sizing: border-box;}
+* {margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body { width: 100%;
 background: #e5e5e5;
@@ -241,7 +241,7 @@ function initPage() {
   loadFirstImageWithRetries(firstImg).then((firstLoaded) => {
     if (firstLoaded) {
       
-      console.log("первая загружена");
+      //console.log("первая загружена");
       aClassToFtImage();
 
       if(loaderIcon) loaderIcon.hidden = false; 
