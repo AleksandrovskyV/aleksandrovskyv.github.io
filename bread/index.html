@@ -29,14 +29,15 @@ html, body {
   width: 100%;
   background: #e5e5e5;
 }
-.container {
+
+.bContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
   background: none;
 }
 
-.container img {
+.bContainer img {
   width:100%;
   max-width: 1400px;
   height:auto;
@@ -47,20 +48,8 @@ html, body {
   transition: opacity 0.5s ease;
 }
 
-.container img.open {
+.bContainer img.open {
   opacity:1.0;
-}
-
-.loading_container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 10px 0; 
-  /* не fixed, чтобы двигался вниз по мере вставки img */
-}
-.loading_container img {
-  width: 64px; /* или любой размер gif */
-  height: 64px;
 }
 
 #mainContainer {
@@ -68,17 +57,31 @@ html, body {
   padding: 0 clamp(5vw, calc(-35vw + 800px), 15vw);
 }
 
+#loaderIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0; 
+  /* не fixed, чтобы двигался вниз по мере вставки img */
+}
+#loaderIcon img {
+  width: 64px;
+  height: 64px;
+}
+
+
+
 </style>
 
 </head>
 <body>
 
 
-<div id="mainContainer" class="container" >
-  <img id="firstImage"src="./files/bread/b_1.png" >
+<div id="mainContainer" class="bContainer" >
+  <img id="firstImage" src="/files/bread/b_1.png" >
 </div>
 
-<div id="loader" class="loading_container" >
+<div id="loaderIcon">
   <img src="./content/loading.gif">
 </div>
 
@@ -90,9 +93,9 @@ const images = [
   {src: "./files/bread/b_4.png", w: 870,  h: 406},
 ];
 
-const mainContainer = document.getElementById("mainContainer");
-const firstImg = document.getElementById("firstImage");
-const loader = document.getElementById("loader");
+const mainContainer = document.getElementById('mainContainer');
+const firstImg = document.getElementById('firstImage');
+const loaderIcon = document.getElementById('loaderIcon');
 
 const ua = navigator.userAgent.toLowerCase();
 const isMobile = /iphone|ipad|android/.test(ua);
