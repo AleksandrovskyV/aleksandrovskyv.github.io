@@ -35,7 +35,7 @@ display: none !important;
 display: flex;
 flex-direction: column;
 align-items: center;
-background: #f5bd49;
+background: none;
 }
 .container img {
 width:100%;
@@ -198,7 +198,7 @@ async function loadSequentially(list) {
 
       if (item.type === "spacer") {
         element = document.createElement("div");
-        //element.style.backgroundColor = "#f5bd49";
+        element.style.backgroundColor = "#f5bd49";
       } else {
         element = await loadImage(item.src);
       }
