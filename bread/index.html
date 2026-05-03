@@ -98,7 +98,6 @@ const mainContainer = document.getElementById('mainContainer');
 const ua = navigator.userAgent.toLowerCase();
 const isMobile = /iphone|ipad|android/.test(ua);
 
-const TARGET_WIDTH = 1400;
 let isInitialized = false;
 
 if(isMobile) mainContainer.style.margin = "0vw";
@@ -202,8 +201,6 @@ async function loadSequentially(list) {
   for (const item of list) {
     try {
       let element;
-      const scaleFactor = TARGET_WIDTH / item.w;
-      const calculatedHeight = item.h * scaleFactor;
 
       if (item.type === "spacer") {
         element = document.createElement("div");
