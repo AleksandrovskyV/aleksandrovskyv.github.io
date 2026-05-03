@@ -71,26 +71,26 @@ transition: opacity 2s ease;
 margin: 0 clamp(5vw, calc(-35vw + 800px), 15vw);
 }
 
-/* 10 кадров 128x1280px */
+/* 10 кадров 128x1280px  */
+/* 11 это копия 1 кадра, но в изображении по сообрежениям он удалён*/
 #loadSprite {
-  display: block;
-  margin: 0 auto;
-  width: 64px;
-  height: 64px;
-  background-image: url("/content/load_sprite.png");
-  background-repeat: no-repeat;
-  /* Важно: фиксируем ширину 64px, высота сама станет 640px */
-  background-size: 64px auto; 
+  display: block; margin: 0 auto;
+  width: 64px; height: 64px;
   
-  animation: playSprite 0.8s steps(10) infinite;
+  /* Картинку переносим в маску */
+  -webkit-mask-image: url("/content/load_sprite.png");
+  mask-image: url("/content/load_sprite.png");
+  -webkit-mask-size: 64px 640px;
+  mask-size: 64px 640px;
+  
+  background-color: #fff; /* ЛЮБОЙ ЦВЕТ ЗДЕСЬ */
+  animation: playMask 0.8s steps(10) infinite;
 }
 
 @keyframes playSprite {
   from { background-position: 0 0; }
-  /* Сдвигаем ровно на 10 кадров по 64px вниз */
   to { background-position: 0 -640px; }
 }
-
 </style>
 
 </head>
