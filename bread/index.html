@@ -31,6 +31,11 @@ background: #e5e5e5;
 display: none !important;
 }
 
+@keyframes customFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .container {
 display: flex;
 flex-direction: column;
@@ -46,10 +51,18 @@ display:block;
 background:none;
 pointer-events:none;
 opacity:0;
-transition: opacity 2.0s ease;
+/*transition: opacity 2.0s ease; */
 }
 
-.container img.open { opacity:1.0; }
+.container img.fade-on-load {
+  animation: customFadeIn 1.5s ease forwards;
+}
+
+/* .container img.open { opacity:1.0; } */
+.container img.open {
+  opacity: 1;
+  transition: opacity 1.5s ease; /* А здесь transition уместен */
+}
 
 #mainContainer {
 /* Интерполяция между 1600 и 2000 */
@@ -72,7 +85,7 @@ width: 64px; height: 64px;
 <body>
 
 <div id="mainContainer" class="container" >
-  <img id="firstImage" src="/files/bread/b_1_lq.png" >
+  <img id="firstImage" src="/files/bread/b_1_lq.png" class="fade-on-load">
 </div>
 
 <div id="loaderIcon" hidden>
@@ -103,16 +116,11 @@ if(isMobile){
 let isInitialized = false;
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
-    console.log("Восстановлено из BFCache");
-    
-    // Мягко перезапускаем анимацию первой картинки без перезагрузки данных
-    firstImg.style.transition = 'none';
-    firstImg.classList.remove('open');
-    
-    void firstImg.offsetWidth; // Принудительный Reflow
-    
-    firstImg.style.transition = 'opacity 2.0s ease';
-    firstImg.classList.add('open');
+    // Если вернулись назад, просто "перетыкаем" анимацию
+    const img = document.getElementById('firstImage');
+    img.style.animation = 'none';
+    void img.offsetWidth; // Магия reflow
+    img.style.animation = 'customFadeIn 1.5s ease forwards';
   }
 });
 
@@ -142,7 +150,7 @@ async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
   }
 
   if (loaded) {
-    imgEl.classList.add('open'); 
+    //imgEl.classList.add('open'); 
 
     // 2. Если это ПК, начинаем тихонько подменять на HQ
     if (!isMobile) {
