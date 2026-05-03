@@ -27,6 +27,10 @@ html, body { width: 100%;
 background: #e5e5e5;
 }
 
+[hidden] {
+display: none !important;
+}
+
 .container {
 display: flex;
 flex-direction: column;
@@ -60,10 +64,6 @@ margin: 10px 0;
 /* не fixed, чтобы двигался вниз по мере вставки img */
 }
 
-#loaderIcon.hide {
-  display: none !important;
-}
-
 #loaderIcon img {
 width: 64px; height: 64px;
 }
@@ -76,7 +76,7 @@ width: 64px; height: 64px;
   <img id="firstImage" src="/files/bread/b_1_lq.png" >
 </div>
 
-<div id="loaderIcon" class="hide">
+<div id="loaderIcon" hidden>
   <img src="./content/loading.gif">
 </div>
 
@@ -203,7 +203,7 @@ async function loadSequentially(list) {
       break;
     }
   }
-  loaderIcon.classList.add('hide'); 
+  loaderIcon.hidden = true; 
 }
 
 function initPage() {
@@ -211,7 +211,7 @@ function initPage() {
 
   loadFirstImageWithRetries(firstImg).then(() => {
     
-    loaderIcon.classList.remove('hide'); 
+    loaderIcon.hidden = false; 
     loadSequentially(images);
   });
 
