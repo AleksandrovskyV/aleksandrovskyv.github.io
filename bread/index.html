@@ -31,18 +31,12 @@ background: #e5e5e5;
 display: none !important;
 }
 
-@keyframes customFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 .container {
 display: flex;
 flex-direction: column;
 align-items: center;
 background: none;
 }
-
 .container img {
 width:100%;
 max-width: 1400px;
@@ -51,18 +45,8 @@ display:block;
 background:none;
 pointer-events:none;
 opacity:0;
-/*transition: opacity 2.0s ease; */
 }
-
-.container img.fade-on-load {
-  animation: customFadeIn 2.0s ease forwards;
-}
-
-/* .container img.open { opacity:1.0; } */
-.container img.open {
-  opacity: 1;
-  transition: opacity 1.5s ease; /* А здесь transition уместен */
-}
+.container img.open { opacity:1.0; }
 
 #mainContainer {
 /* Интерполяция между 1600 и 2000 */
@@ -85,7 +69,7 @@ width: 64px; height: 64px;
 <body>
 
 <div id="mainContainer" class="container" >
-  <img id="firstImage" src="/files/bread/b_1_lq.png" class="fade-on-load">
+  <img id="firstImage" src="/files/bread/b_1_lq.png" >
 </div>
 
 <div id="loaderIcon" hidden>
@@ -93,40 +77,34 @@ width: 64px; height: 64px;
 </div>
 
 <script>
- 
+
+// Восстанавливаем прозрачност при обратном переходе
+const firstImg = document.getElementById('firstImage');
+const mainContainer = document.getElementById('mainContainer');
+
+let isInitialized = false;
+window.addEventListener("pagehide", () => {
+  firstImg.classList.remove('open');
+  firstImg.style.opacity = '0';
+});
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) {
+    firstImg.classList.remove('open');
+    firstImg.style.opacity = '0';
+  }
+});
+
+const ua = navigator.userAgent.toLowerCase();
+const isMobile = /iphone|ipad|android/.test(ua);
+
+if(isMobile) mainContainer.style.padding = "0vw";
+
 const images = [
   {type: "color", color: "#f5bd49", w: 2800, h: 2207},
   {src: "/files/bread/b_3_hq.png", w: 2800, h: 6636},
   {src: "/files/bread/b_4_hq.png", w: 870,  h: 406},
   {type: "color", color: "#f5bd49", w: 2800, h: 1400},
 ];
-
-const mainContainer = document.getElementById('mainContainer');
-const firstImg = document.getElementById('firstImage');
-const loaderIcon = document.getElementById('loaderIcon');
-
-const ua = navigator.userAgent.toLowerCase();
-const isMobile = /iphone|ipad|android/.test(ua);
-
-if(isMobile){
-  mainContainer.style.padding = "0vw";
-}
-
-// Восстанавливаем прозрачност при обратном переходе
-let isInitialized = false;
-window.addEventListener("pagehide", () => {
-  firstImg.style.animation = 'none';
-  firstImg.style.opacity = '0';
-});
-window.addEventListener("pageshow", (event) => {
-  if (event.persisted) {
-    firstImg.style.animation = 'none';
-    firstImg.style.opacity = '0';
-    
-    void firstImg.offsetWidth; // Force reflow
-    firstImg.style.animation = 'customFadeIn 2.0s ease forwards';
-  }
-});
 
 async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
   // 1. Сначала ВСЕГДА грузим LQ (она в 8 раз легче)
@@ -154,8 +132,6 @@ async function loadFirstImageWithRetries(imgEl, maxRetries = 5, delay = 1000) {
   }
 
   if (loaded) {
-    //imgEl.classList.add('open'); 
-
     // 2. Если это ПК, начинаем тихонько подменять на HQ
     if (!isMobile) {
       const hqImg = new Image(); // Создаем невидимый элемент в памяти
@@ -231,22 +207,30 @@ async function loadSequentially(list) {
       break;
     }
   }
-  loaderIcon.hidden = true; 
+
+  const loaderIcon = document.getElementById('loaderIcon');
+  if(loaderIcon) loaderIcon.hidden = true; 
+  
 }
 
 function initPage() {
 
-  if (isInitialized || mainContainer.children.length > 1) return;
+  if (isInitialized || mainContainer.children.length > 1) return console.log("ini return");
   isInitialized = true;
+
+  const loaderIcon = document.getElementById('loaderIcon');
 
   loadFirstImageWithRetries(firstImg).then((firstLoaded) => {
     if (firstLoaded) {
-      loaderIcon.hidden = false;
-      loadSequentially(images); 
+      firstLoaded.classList.add('open'); 
+
+      if(loaderIcon) loaderIcon.hidden = false; 
+      loadSequentially(images);
+
     }
   }).catch(err => {
     console.error("Ошибка загрузки:", err);
-    loaderIcon.hidden = true;
+    if(loaderIcon) loaderIcon.hidden = true;
   });
 
   document.addEventListener("keydown", onKeyCommand);
@@ -271,7 +255,6 @@ function onKeyCommand(e) {
   }
   return
 }
-
 
 // Init Block
 initPage();
