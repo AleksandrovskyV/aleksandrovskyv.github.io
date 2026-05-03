@@ -55,7 +55,7 @@ opacity:0;
 }
 
 .container img.fade-on-load {
-  animation: customFadeIn 1.5s ease forwards;
+  animation: customFadeIn 2.0s ease forwards;
 }
 
 /* .container img.open { opacity:1.0; } */
@@ -114,13 +114,17 @@ if(isMobile){
 
 // Восстанавливаем прозрачност при обратном переходе
 let isInitialized = false;
+window.addEventListener("pagehide", () => {
+  firstImg.style.animation = 'none';
+  firstImg.style.opacity = '0';
+});
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
-    // Если вернулись назад, просто "перетыкаем" анимацию
-    const img = document.getElementById('firstImage');
-    img.style.animation = 'none';
-    void img.offsetWidth; // Магия reflow
-    img.style.animation = 'customFadeIn 1.5s ease forwards';
+    firstImg.style.animation = 'none';
+    firstImg.style.opacity = '0';
+    
+    void firstImg.offsetWidth; // Force reflow
+    firstImg.style.animation = 'customFadeIn 2.0s ease forwards';
   }
 });
 
