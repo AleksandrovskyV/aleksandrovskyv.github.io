@@ -83,13 +83,13 @@ margin: 0 clamp(5vw, calc(-35vw + 800px), 15vw);
   -webkit-mask-size: 64px 640px;
   mask-size: 64px 640px;
   
-  background-color: #fff; /* ЛЮБОЙ ЦВЕТ ЗДЕСЬ */
+  background-color: #493a26; /* ЛЮБОЙ ЦВЕТ ЗДЕСЬ */
   animation: playMask 0.8s steps(10) infinite;
 }
 
-@keyframes playSprite {
-  from { background-position: 0 0; }
-  to { background-position: 0 -640px; }
+@keyframes playMask {
+  from { -webkit-mask-position: 0 0; mask-position: 0 0; }
+  to { -webkit-mask-position: 0 -640px; mask-position: 0 -640px; }
 }
 </style>
 
