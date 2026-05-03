@@ -86,12 +86,13 @@ const mainContainer = document.getElementById('mainContainer');
 let isInitialized = false;
 window.addEventListener("pagehide", () => {
   firstImg.classList.remove('open');
-  //firstImg.style.opacity = '0';
+  firstImg.style.opacity = '0';
 });
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
+    firstImg.style.opacity = '0';
     firstImg.classList.remove('open');
-    //firstImg.style.opacity = '0';
+    firstImg.style.opacity = '0';
   }
 });
 
