@@ -54,12 +54,16 @@ display:block;
 background:none;
 pointer-events:none;
 transition: none;
-opacity:0;
-
+opacity:1;
 }
-.container img.open { 
-transition: opacity 2.0s ease;
-opacity: 1.0; 
+
+#firstImage {
+opacity: 0;
+}
+
+#firstImage.open {
+opacity: 1;
+transition: opacity 2s ease;
 }
 
 #mainContainer {
@@ -209,7 +213,7 @@ async function loadSequentially(list) {
       }
       
       element.style.aspectRatio = `${item.w} / ${item.h}`;
-      element.style.opacity = 1;
+      //element.style.opacity = 1;
 
       mainContainer.appendChild(element);
     } catch (e) {
