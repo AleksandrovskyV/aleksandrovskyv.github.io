@@ -85,12 +85,12 @@ const mainContainer = document.getElementById('mainContainer');
 let isInitialized = false;
 window.addEventListener("pagehide", () => {
   firstImg.classList.remove('open');
-  firstImg.style.opacity = '0';
+  //firstImg.style.opacity = '0';
 });
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
     firstImg.classList.remove('open');
-    firstImg.style.opacity = '0';
+    //firstImg.style.opacity = '0';
   }
 });
 
@@ -218,7 +218,7 @@ function initPage() {
 
   loadFirstImageWithRetries(firstImg).then((firstLoaded) => {
     if (firstLoaded) {
-      console.log("первая загружена");
+      console.log("первая загружена", firstLoaded);
       firstLoaded.classList.add('open'); 
 
       if(loaderIcon) loaderIcon.hidden = false; 
