@@ -92,9 +92,10 @@ window.addEventListener("pagehide", () => {
   firstImg.classList.remove('open');
   //firstImg.style.opacity = '0';
 });
+
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
-    if(firstImg.classList.contains('open'){
+    if ( firstImg.classList.contains('open') ) { 
       firstImg.classList.remove('open');
       //firstImg.style.opacity = '0';
     }
