@@ -100,13 +100,19 @@ if(isMobile){
 }
 
 // Восстанавливаем прозрачност при обратном переходе
+let isInitialized = false;
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
+    console.log("Восстановлено из BFCache");
+    
+    // Мягко перезапускаем анимацию первой картинки без перезагрузки данных
+    firstImg.style.transition = 'none';
     firstImg.classList.remove('open');
     
-    requestAnimationFrame(() => {
-        firstImg.classList.add('open');
-    });
+    void firstImg.offsetWidth; // Принудительный Reflow
+    
+    firstImg.style.transition = 'opacity 2.0s ease';
+    firstImg.classList.add('open');
   }
 });
 
@@ -218,11 +224,17 @@ async function loadSequentially(list) {
 
 function initPage() {
 
+  if (isInitialized || mainContainer.children.length > 1) return;
+  isInitialized = true;
 
-  loadFirstImageWithRetries(firstImg).then(() => {
-    
-    loaderIcon.hidden = false; 
-    loadSequentially(images);
+  loadFirstImageWithRetries(firstImg).then((firstLoaded) => {
+    if (firstLoaded) {
+      loaderIcon.hidden = false;
+      loadSequentially(images); 
+    }
+  }).catch(err => {
+    console.error("Ошибка загрузки:", err);
+    loaderIcon.hidden = true;
   });
 
   document.addEventListener("keydown", onKeyCommand);
