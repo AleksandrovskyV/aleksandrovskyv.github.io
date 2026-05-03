@@ -44,10 +44,14 @@ height:auto;
 display:block;
 background:none;
 pointer-events:none;
+transition: none;
 opacity:0;
-transition: opacity 2.0s ease;
+
 }
-.container img.open { opacity:1.0; }
+.container img.open { 
+transition: opacity 2.0s ease;
+opacity:1.0; 
+}
 
 #mainContainer {
 /* Интерполяция между 1600 и 2000 */
@@ -86,13 +90,14 @@ const mainContainer = document.getElementById('mainContainer');
 let isInitialized = false;
 window.addEventListener("pagehide", () => {
   firstImg.classList.remove('open');
-  firstImg.style.opacity = '0';
+  //firstImg.style.opacity = '0';
 });
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
-    firstImg.style.opacity = '0';
-    firstImg.classList.remove('open');
-    firstImg.style.opacity = '0';
+    if(firstImg.classList.contains('open'){
+      firstImg.classList.remove('open');
+      //firstImg.style.opacity = '0';
+    }
   }
 });
 
