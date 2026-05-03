@@ -88,17 +88,24 @@ const firstImg = document.getElementById('firstImage');
 const mainContainer = document.getElementById('mainContainer');
 
 let isInitialized = false;
-window.addEventListener("pagehide", () => {
+
+function showFirstImage() {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      firstImg.classList.add('open');
+    });
+  });
+}
+
+function hideFirstImage() {
   firstImg.classList.remove('open');
-  //firstImg.style.opacity = '0';
-});
+}
+
+window.addEventListener("pagehide", hideFirstImage);
 
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
-    if ( firstImg.classList.contains('open') ) { 
-      firstImg.classList.remove('open');
-      //firstImg.style.opacity = '0';
-    }
+    showFirstImage();
   }
 });
 
