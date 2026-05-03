@@ -1,9 +1,5 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
 
-<head>
-
-<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Diffirent Computer-Generated Imagery..." />
 
@@ -25,50 +21,50 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/content/apple-touch-icon.png">
 
 <style>
-  *{box-sizing:border-box; margin:0; padding:0}
-  html,body{overflow:hidden; height:100%;background:#000;color:#ccc;font-family:system-ui,Segoe UI,Roboto,Arial}
-  .overlay{
-    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-    z-index:1000;
-  }
+*{box-sizing:border-box; margin:0; padding:0}
 
-  /* после завершения анимации мы дополнительно ставим visibility:hidden (JS) —
-     это защищает от :hover и от фокусировки через клавиатуру */
-  .background{
-    position:absolute;inset:0;background:#000;z-index:-100;transition:opacity 1.2s ease;
-  }
+html,body{overflow:hidden; height:100%;background:#000;color:#ccc;font-family:system-ui,Segoe UI,Roboto,Arial}
 
-  .draggable {
-    position: fixed; /* сразу исключаем их из потока */
-    visibility: hidden; /* скрываем до расчёта размеров */
-    display: none; /* элемент полностью убран из потока */
-    pointer-events: auto;
-    user-select: none;
-  }
+.overlay{
+position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+z-index:1000;
+}
 
-  .draggable:focus {
-      outline: none;
-  }
-  #toMainBtn{
-    position:fixed;
-    display: none;
-    top:12px; left:24px;
-    padding:24px;
-    font-size:2.0rem;
-    color: gray;
-    background: rgba(0,0,0,0.45);
-    border: 0;
-    cursor:pointer;
-    z-index: 999;
-    transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1);
-  }
-  #toMainBtn:hover{opacity:0.5;}
+/* после завершения анимации мы дополнительно ставим visibility:hidden (JS) —
+   это защищает от :hover и от фокусировки через клавиатуру */
+.background{
+position:absolute;inset:0;background:#000;z-index:-100;transition:opacity 1.2s ease;
+}
 
+.draggable {
+position: fixed; /* сразу исключаем их из потока */
+visibility: hidden; /* скрываем до расчёта размеров */
+display: none; /* элемент полностью убран из потока */
+pointer-events: auto;
+user-select: none;
+}
+
+.draggable:focus {
+    outline: none;
+}
+#toMainBtn{
+position:fixed;
+display: none;
+top:12px; left:24px;
+padding:24px;
+font-size:2.0rem;
+color: gray;
+background: rgba(0,0,0,0.45);
+border: 0;
+cursor:pointer;
+z-index: 999;
+transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1);
+}
+#toMainBtn:hover{opacity:0.5;}
 
 </style>
 
 </head>
-
 <body>
 
 
@@ -90,9 +86,8 @@
 
 <button id="toMainBtn" data-href="/"><</button>
 
-
-
 <script>
+
 const toMainBtn = document.getElementById("toMainBtn");
 const body = document.getElementById("body");
 
