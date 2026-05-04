@@ -58,13 +58,13 @@
     will-change: opacity, transform; z-index: 99; user-select: none; background: transparent;
   }
 
-  .buttonblock button[data-st="close"], .buttonblockMobile button[data-st="close"] { color: rgba(70,70,70,1.0); }
+  .buttonblock button[data-st="lock"], .buttonblockMobile button[data-st="lock"] { color: rgba(70,70,70,1.0); }
 
   /* 3. ЭФФЕКТЫ ПК */
   @media (hover: hover) {
-    .buttonblock button:not([data-st="close"]):hover, .buttonblockMobile button:not([data-st="close"]):hover { opacity: .5; }
-    .buttonblock button[data-st="close"], .buttonblockMobile button[data-st="close"] { cursor: grab; }
-    .buttonblock button[data-st="close"]:active, .buttonblockMobile button[data-st="close"]:active {
+    .buttonblock button:not([data-st="lock"]):hover, .buttonblockMobile button:not([data-st="lock"]):hover { opacity: .5; }
+    .buttonblock button[data-st="lock"], .buttonblockMobile button[data-st="lock"] { cursor: grab; }
+    .buttonblock button[data-st="lock"]:active, .buttonblockMobile button[data-st="lock"]:active {
       cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
     }
   }
@@ -84,8 +84,8 @@
   /* СТРОГО ПО ИСХОДНИКУ: у BB только цвет, у остальных — всё */
   .buttonblock button.bb, .buttonblockMobile button.bb { transition: color 0.6s ease; }
 
-  .buttonblock button.bw:not([data-st="close"]), 
-  .buttonblockMobile button.bw:not([data-st="close"]) {
+  .buttonblock button.bw:not([data-st="lock"]), 
+  .buttonblockMobile button.bw:not([data-st="lock"]) {
     pointer-events: auto; cursor: pointer; 
   }
 
@@ -138,29 +138,30 @@
     <button id="cbtn"     data-g="D" data-st="open"  data-mb="true"  data-href="/день"     class="bd" >день</button>
     <button id="dbtn"     data-g="D" data-st="open"  data-mb="true"  data-href="/триптих"  class="bd" >триптих</button>
 
-    <!-- combine between web and mobile  -->
-    <button id="ebtn"     data-g="D" data-st="open"  data-mb="false" data-href="/негативы" class="bd" >негативы</button>
-    <button id="fbtn"     data-g="D" data-st="open"  data-mb="false" data-href="/exegesis" class="bd" >.exe</button>
-
-    <button id="gbtn"     data-g="W" data-st="close" data-mb="false" data-href="/renders"  class="bw" >_enders</button>
-    <button id="hbtn"     data-g="W" data-st="close" data-mb="false" data-href="/снимки"   class="bw" >снимки</button>
-    <button id="ibtn"     data-g="W" data-st="close" data-mb="false" data-href="/графика"  class="bw" >графика</button>
-  
-    <button id="jbtn"     data-g="W" data-st="open"  data-mb="false" data-href="/bread"    class="bw" >bread</button>
-    <button id="kbtn"     data-g="W" data-st="close" data-mb="false" data-href="/haloguys" class="bw" >[ haloguys ]</button>
-    <button id="lbtn"     data-g="W" data-st="close" data-mb="false" data-href="/покпокки" class="bw" >покпокки</button>
-  
-    <button id="mbtn"     data-g="W" data-st="close" data-mb="false" data-href="/работа"   class="bw" >работа</button>
-    <button id="nbtn"     data-g="W" data-st="close" data-mb="false" data-href="/process"  class="bw" >_cess</button>
-
-    <button id="obtn"     data-g="B" data-st="close" data-mb="false" data-href="/const"    class="bb" >/</button>
-
     <!-- disable on mobile -->
     <button id="pbtn"     data-g="D" data-st="open"  data-mb="false" data-href="/fe"       class="bd" data-mh="true" >fe</button>
     <button id="qbtn"     data-g="D" data-st="open"  data-mb="false" data-href="/flipbook" class="bd" data-mh="true" >flipbook</button>
 
+
+    <!-- combine between web and mobile  -->
+    <button id="ebtn"     data-g="D" data-st="open"  data-mb="false" data-href="/негативы" class="bd" >негативы</button>
+    <button id="fbtn"     data-g="D" data-st="open"  data-mb="false" data-href="/exegesis" class="bd" >.exe</button>
+
+    <button id="gbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/renders"  class="bw" >_enders</button>
+    <button id="hbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/снимки"   class="bw" >снимки</button>
+    <button id="ibtn"     data-g="W" data-st="lock" data-mb="false" data-href="/графика"  class="bw" >графика</button>
+  
+    <button id="jbtn"     data-g="W" data-st="open"  data-mb="false" data-href="/bread"    class="bw" >bread</button>
+    <button id="kbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/haloguys" class="bw" >[ haloguys ]</button>
+    <button id="lbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/покпокки" class="bw" >покпокки</button>
+  
+    <button id="mbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/работа"   class="bw" >работа</button>
+    <button id="nbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/process"  class="bw" >_cess</button>
+
+    <button id="obtn"     data-g="B" data-st="lock" data-mb="false" data-href="/const"    class="bb" >/</button>
+
     <!-- end block -->
-    <button id="preBtn"   data-g="B" data-st="close" data-mb="false" data-href="/space"    class="bb">—</button>
+    <button id="preBtn"   data-g="B" data-st="lock" data-mb="false" data-href="/space"    class="bb" >—</button>
 
      <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
     <button id="lastBtn" data-href="/about" data-st="open">
@@ -245,24 +246,23 @@ function removeDeskBtnOnMobile() {
   });
 }
 
-function removeOverflowingCloseButtons() {
-  // метод удаления кнопок в мобильной версии
+function removeOverflowLockBtns() {
+  // удаление lock кнопок для мобильной
 
   const container = buttonContainer;
   const maxHeight = overlay.clientHeight;
 
-
   // Пока контент не помещается
   while (container.scrollHeight > maxHeight) {
-    // Берём все кнопки close, кроме исключений
 
-    const closeButtons = Array.from(container.querySelectorAll('button[data-st="close"]'))
-      .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn');
+    // Берём все кнопки lock, кроме исключений
+    const lockButtons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
+      .filter(btn => btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn');
 
-    if (closeButtons.length === 0) break; // Больше нечего удалять
+    if (lockButtons.length === 0) break; // Больше нечего удалять
 
     // Удаляем последнюю подходящую кнопку
-    const btnToRemove = closeButtons.pop();
+    const btnToRemove = lockButtons.pop();
     container.removeChild(btnToRemove);
   }
 }
@@ -324,12 +324,12 @@ function checkLastRow() {
     
     // Если в хвосте 1 или 2 кнопки — чистим
     if (n > 0 && n <= 2) {
-      const closeButtons = Array.from(buttonContainer.querySelectorAll('button[data-st="close"]'))
+      const lockButtons = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
         .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn');
 
-      if (closeButtons.length === 0) break;
+      if (lockButtons.length === 0) break;
 
-      closeButtons[closeButtons.length - 1].remove();
+      lockButtons[lockButtons.length - 1].remove();
     } else {
       break;
     }
@@ -517,12 +517,12 @@ function connectActionsToBtns(){
       if (btn.id === 'lastBtn') {
           ev.preventDefault();
           isFull = !isFull;
-          if (typeof changeZone === "function") changeZone(isFull ? "open" : "close");
+          if (typeof changeZone === "function") changeZone(isFull ? "open" : "lock");
           return;
       }
 
-      // ЛОГИКА ДЛЯ CLOSE КНОПОК
-      if (btn.dataset.st === 'close') {
+      // прерываем для кнопок в статусе lock 
+      if (btn.dataset.st === 'lock') {
         ev.preventDefault();
         return false;
       }
@@ -570,7 +570,7 @@ function initPage() {
 
   if (isMobile) {
     removeDeskBtnOnMobile();
-    removeOverflowingCloseButtons();
+    removeOverflowLockBtns();
   }
 
   checkLastRow();
