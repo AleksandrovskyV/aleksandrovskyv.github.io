@@ -58,23 +58,23 @@ body.invert{background: #000;}
 }
 
 /* Общее для всех */
-.buttonblock button[data-st="close"],
-.buttonblockMobile button[data-st="close"] {
+.buttonblock button[data-st="lock"],
+.buttonblockMobile button[data-st="lock"] {
   color: rgba(70,70,70,1.0);
 }
 
 /* 3. ЭФФЕКТЫ ТОЛЬКО ДЛЯ ПК (с мышкой) */
 @media (hover: hover) {
-  .buttonblock button:not([data-st="close"]):hover,
-  .buttonblockMobile button:not([data-st="close"]):hover {
+  .buttonblock button:not([data-st="lock"]):hover,
+  .buttonblockMobile button:not([data-st="lock"]):hover {
     opacity: .5;
   }
 
-  .buttonblock button[data-st="close"] {
+  .buttonblock button[data-st="lock"] {
     cursor: grab;
   }
 
-  .buttonblock button[data-st="close"]:active {
+  .buttonblock button[data-st="lock"]:active {
     cursor: grabbing;
     transform: scale(0.99); 
     color: rgba(50,50,50,1.0); 

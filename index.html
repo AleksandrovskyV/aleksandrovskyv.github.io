@@ -166,17 +166,19 @@
     <!-- end block -->
     <button id="preBtn"   data-g="B" data-st="lock" data-mb="false" data-href="/space"    class="bb" >—</button>
 
-     <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
-    <button id="lastBtn"  data-st="open" data-href="/about" >
+    <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
+    <!-- инициализация спрайта перенесена в js -->
+    <button id="lastBtn"  data-st="open" data-href="/about" >[ &hearts; ]</button>
+    
+    <!--  <button id="lastBtn"  data-st="open" data-href="/about" >
         <div id="heartIcon" class="heart-sprite"></div>
     </button>
+    -->
 
   </div>
 </div>
 
 <script>
-
-const debugMode = false
 const ua = navigator.userAgent.toLowerCase();
 const isMobile = /iphone|ipad|android/.test(ua);
 
@@ -188,7 +190,21 @@ if (isMobile) {
   overlay.classList.replace('overlay', 'overlayMobile');
   buttonContainer.classList.replace('buttonblock', 'buttonblockMobile');
 }
-  
+
+// Замена текста на спрайт по готовности картинки
+(function(btn, src) {
+  const img = new Image();
+  const replace = () => {
+    btn.textContent = "";
+    const div = document.createElement('div');
+    div.id = "heartIcon";
+    div.className = "heart-sprite";
+    btn.appendChild(div);
+  };
+  img.src = src;
+  if (img.complete) replace(); else img.onload = replace;
+})(document.getElementById('lastBtn'), "/content/heart_sprite.png");
+
 // ВОССТАНОВЛЕНИЕ ПОСЛЕ ВОЗВРАТА НАЗАД
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
