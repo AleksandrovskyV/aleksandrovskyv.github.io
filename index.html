@@ -397,6 +397,21 @@ function changeZone(state = "open") {
   const delayStyles = 0; 
   const delayText = 500;
 
+  const first =  document.getElementById('startW');
+
+  if (state === "open") {
+      first.dataset.href = "/identity"
+      first.dataset.z = "D"
+      first.classList.replace('bw', 'bd');
+      first.textContent = "\u00A0";
+  } else {
+      first.dataset.href = "/wolume"
+      first.dataset.z = "W"
+      first.textContent = "\u00A0";
+      first.classList.replace('bd', 'bw');
+  }
+
+
   // Используем прямые команды вместо toggle
   // исключает риск рассинхрона стейта при спам-кликах
   setTimeout(() => {
@@ -408,7 +423,6 @@ function changeZone(state = "open") {
     isAnimating = false;
   }, delayIcon);
 
-
   const dButtons = Array.from(bContainer.querySelectorAll('button[data-z="D"]'))
     .filter(btn => btn.id !== 'endHeart');
 
@@ -418,16 +432,10 @@ function changeZone(state = "open") {
   const bButtons = Array.from(bContainer.querySelectorAll('button[data-z="B"]'))
     .filter(btn => btn.id !== 'endHeart');
 
-  
-  const first =  document.getElementById('startW');
 
   if (state === "open") {
     setTimeout(() => {
       document.body.classList.add("invert");
-      
-
-      first.dataset.href = "/identity"
-      first.textContent = "\u00A0";
       
       setTimeout(() => {
         first.textContent = "*";
@@ -443,9 +451,6 @@ function changeZone(state = "open") {
     setTimeout(() => {
       document.body.classList.remove("invert");
       
-      first.dataset.href = "/wolume"
-      first.textContent = "\u00A0";
-
       setTimeout(() => {
         first.textContent = "~";
       }, delayText);
