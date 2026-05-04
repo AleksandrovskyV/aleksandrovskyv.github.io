@@ -124,10 +124,13 @@ display: none !important;
 .h_icon { display: block; margin: 5px auto 0; width: 88px; height: 42px; }
 
 .h_sprite {
-  background-image: url("/content/heart_sprite.png") no-repeat 0 0 / 100% auto;
+  /* Используем просто background, чтобы работала прозрачность (альфа) */
+  background: url("/content/heart_sprite.png") no-repeat 0 0;
+  background-size: 100% auto;
   transition: background-position 0.4s steps(19);
   will-change: background-position;
 }
+
 .h_sprite svg { display: none; }
 .h_sprite.complete { background-position: 0 100%; }
 
