@@ -34,7 +34,7 @@
   html, body {
     height: 100%;
     background: #e5e5e5;
-    transition: background-color 0.7s ease-out;
+    transition: background-color 0.8s ease;
   }
   body.invert{background: #000;}
 
@@ -93,7 +93,7 @@
   .buttonblock button.bd.dOpen, .buttonblockMobile button.bd.dOpen {
     pointer-events: auto; cursor: pointer; color: rgba(128, 128, 128, 1);
     /* Здесь 0.9s для цвета, как ты настраивал */
-    transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color 0.9s ease-out;
+    transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color 1.6s ;
   }
 
   .buttonblock button.bw.wLock, .buttonblockMobile button.bw.wLock,
@@ -133,7 +133,6 @@
 
     <button id="startW" class="bw" data-z="W" data-href="/wolume"   data-st="open"  data-mb="false" >~</button>
     <button id="startD" class="bd" data-z="D" data-href="/identity" data-st="close" data-mb="false" >identity</button>
-    
 
     <!-- mobile special -->
     <button data-href="/chat"     class="bd" data-z="D" data-st="open"  data-mb="true" >chat___</button>
