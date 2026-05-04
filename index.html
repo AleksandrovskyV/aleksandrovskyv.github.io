@@ -124,7 +124,7 @@ display: none !important;
 .h_icon { display: block; margin: 5px auto 0; width: 88px; height: 42px; }
 
 .h_sprite {
-  background: #e5e5e5 url("/content/heart_sprite.png") no-repeat 0 0 / 100% auto;
+  background-image: url("/content/heart_sprite.png") no-repeat 0 0 / 100% auto;
   transition: background-position 0.4s steps(19);
   will-change: background-position;
 }
@@ -205,7 +205,6 @@ display: none !important;
         </div>
     </button>
 
-
   </div>
 </div>
 
@@ -225,7 +224,6 @@ if (isMobile) {
   img.onload = () => {
     //const icon = document.getElementById(id);
     //icon.classList.replace('heart-base', 'heart-sprite');
-
     document.getElementById(id).classList.add('h_sprite');
   };
   img.src = src;
