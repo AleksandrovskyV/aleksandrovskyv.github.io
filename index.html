@@ -153,8 +153,6 @@ display: none !important;
 </head>
 <body>
 
-<!--<img src="/content/heart_sprite.png" style="display:none" alt="" decoding="async"> -->
-
 <div class="overlay" id="mOverlay">
   <div class="buttonblock" id="mButtonsContainer"> 
 
@@ -222,12 +220,11 @@ if (isMobile) {
 // Замена static на sprite по готовности картинки
 (function(id, src) {
   const img = new Image();
-  img.onload = () => {
-    //const icon = document.getElementById(id);
-    //icon.classList.replace('heart-base', 'heart-sprite');
-    document.getElementById(id).classList.add('h_sprite');
-  };
   img.src = src;
+  // Ждем готовности картинки к отрисовке
+  img.decode().then(() => {
+    document.getElementById(id).classList.add('h_sprite');
+  }).catch(() => { /* если картинка битая, останется SVG */ });
 })('heartIcon', "/content/heart_sprite.png");
 
 // ВОССТАНОВЛЕНИЕ ПОСЛЕ ВОЗВРАТА НАЗАД
