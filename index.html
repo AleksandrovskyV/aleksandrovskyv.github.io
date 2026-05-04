@@ -20,7 +20,14 @@
 
 <meta vdebugmode="ios">
 
-<script></script>
+<script>
+  const ua = navigator.userAgent.toLowerCase();
+  window.isMobile = /iphone|ipad|android/.test(ua);
+
+  if (window.isMobile) {
+    document.documentElement.classList.add('is-mobile');
+  }
+</script>
 
 <title>вский.space</title>
 
@@ -32,101 +39,110 @@
 
 
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  html, body {
-    height: 100%;
-    background: #e5e5e5;
-    transition: background-color 0.8s ease;
-  }
-  body.invert{background: #000;}
+*{box-sizing:border-box;margin:0;padding:0}
+html, body {
+  height: 100%;
+  background: #e5e5e5;
+  transition: background-color 0.8s ease;
+}
+body.invert{background: #000;}
 
-  [hidden] {
-  display: none !important;
-  }
+[hidden] {
+display: none !important;
+}
 
-  /* 1. КОНТЕЙНЕРЫ (Геометрия) */
-  .overlay, .overlayMobile {
-    position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:1000;
-  }
-  .overlayMobile { top: env(safe-area-inset-top, 0); bottom: env(safe-area-inset-bottom, 0); }
+/* 1. КОНТЕЙНЕРЫ (Геометрия) */
+.overlay, .overlayMobile {
+  position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:1000;
+}
+.overlayMobile { top: env(safe-area-inset-top, 0); bottom: env(safe-area-inset-bottom, 0); }
 
-  .buttonblock, .buttonblockMobile {
-    display:flex; flex-wrap:wrap; gap:16px; justify-content: space-between; background:transparent;
-  }
-  .buttonblock { width: min(90vw, 700px); height: min(90vh, 680px); align-content:center; padding:20px; }
-  .buttonblockMobile { padding: env(safe-area-inset-top, 12px) env(safe-area-inset-right, 12px) env(safe-area-inset-bottom, 12px) env(safe-area-inset-left, 12px); }
+.buttonblock, .buttonblockMobile {
+  display:flex; flex-wrap:wrap; gap:16px; justify-content: space-between; background:transparent;
+}
+.buttonblock { width: min(90vw, 700px); height: min(90vh, 680px); align-content:center; padding:20px; }
+.buttonblockMobile { padding: env(safe-area-inset-top, 12px) env(safe-area-inset-right, 12px) env(safe-area-inset-bottom, 12px) env(safe-area-inset-left, 12px); }
 
-  /* 2. БАЗОВАЯ КНОПКА (Объединяем только фундамент) */
-  .buttonblock button, .buttonblockMobile button {
-    flex: 0 0 auto; display:inline-flex; align-items:center; justify-content:center;
-    padding:12px; font-size:1.25rem; color: gray; border: 0; cursor:pointer;
-    transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color .6s ease;
-    will-change: opacity, transform; z-index: 99; user-select: none; background: transparent;
-  }
+/* 2. БАЗОВАЯ КНОПКА (Объединяем только фундамент) */
+.buttonblock button, .buttonblockMobile button {
+  flex: 0 0 auto; display:inline-flex; align-items:center; justify-content:center;
+  padding:12px; font-size:1.25rem; color: gray; border: 0; cursor:pointer;
+  transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color .6s ease;
+  will-change: opacity, transform; z-index: 99; user-select: none; background: transparent;
+}
 
-  .buttonblock button[data-st="lock"], .buttonblockMobile button[data-st="lock"] { color: rgba(70,70,70,1.0); }
+.buttonblock button[data-st="lock"], .buttonblockMobile button[data-st="lock"] { color: rgba(70,70,70,1.0); }
 
-  /* 3. ЭФФЕКТЫ ПК */
-  @media (hover: hover) {
-    .buttonblock button:not([data-st="lock"]):hover, .buttonblockMobile button:not([data-st="lock"]):hover { opacity: .5; }
-    .buttonblock button[data-st="lock"], .buttonblockMobile button[data-st="lock"] { cursor: grab; }
-    .buttonblock button[data-st="lock"]:active, .buttonblockMobile button[data-st="lock"]:active {
-      cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
-    }
-  }
-
-  /* 4. ЗОНЫ (BD, BW, BB) */
-  .buttonblock button.bd, .buttonblockMobile button.bd,
-  .buttonblock button.bw, .buttonblockMobile button.bw,
-  .buttonblock button.bb, .buttonblockMobile button.bb {
-    cursor: default; pointer-events: none;
-  }
-
-  /* Цвета покоя */
-  .buttonblock button.bd, .buttonblockMobile button.bd { color: rgba(128, 128, 128, 0); }
-  .buttonblock button.bb, .buttonblockMobile button.bb,
-  .buttonblock button.bw, .buttonblockMobile button.bw { color: #9b9b9b; }
-
-  /* СТРОГО ПО ИСХОДНИКУ: у BB только цвет, у остальных — всё */
-  .buttonblock button.bb, .buttonblockMobile button.bb { transition: color 0.6s ease; }
-
-  .buttonblock button.bw:not([data-st="lock"]), 
-  .buttonblockMobile button.bw:not([data-st="lock"]) {
-    pointer-events: auto; cursor: pointer; 
-  }
-
-  /* АКТИВНЫЕ СОСТОЯНИЯ */
-  .buttonblock button.bd.dOpen, .buttonblockMobile button.bd.dOpen {
-    pointer-events: auto; cursor: pointer; color: rgba(128, 128, 128, 1);
-    /* Здесь 0.9s для цвета, как ты настраивал */
-    transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color 1.6s ;
-  }
-
-  .buttonblock button.bw.wLock, .buttonblockMobile button.bw.wLock,
-  .buttonblock button.bb.bLock, .buttonblockMobile button.bb.bLock {
-    pointer-events: auto; cursor: grab; color: rgba(70,70,70,1.0);
-  }
-
-  .buttonblock button.bw.wLock:active, .buttonblockMobile button.bw.wLock:active,
-  .buttonblock button.bb.bLock:active, .buttonblockMobile button.bb.bLock:active {
+/* 3. ЭФФЕКТЫ ПК */
+@media (hover: hover) {
+  .buttonblock button:not([data-st="lock"]):hover, .buttonblockMobile button:not([data-st="lock"]):hover { opacity: .5; }
+  .buttonblock button[data-st="lock"], .buttonblockMobile button[data-st="lock"] { cursor: grab; }
+  .buttonblock button[data-st="lock"]:active, .buttonblockMobile button[data-st="lock"]:active {
     cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
   }
+}
 
-  /* 5. HEART SPRITE */
-  .heart-sprite {
-    display: block; margin: 0 auto; width: 88px; height: 42px; margin-top: 5px;
-    background-image: url("/content/heart_sprite.png"); background-repeat: no-repeat;
-    background-size: 100% auto; background-position: 0 0;
-    transition: background-position 0.4s steps(19); will-change: background-position;
-  }
-  .heart-sprite.is-full { background-position: 0 100%; }
+/* 4. ЗОНЫ (BD, BW, BB) */
+.buttonblock button.bd, .buttonblockMobile button.bd,
+.buttonblock button.bw, .buttonblockMobile button.bw,
+.buttonblock button.bb, .buttonblockMobile button.bb {
+  cursor: default; pointer-events: none;
+}
 
-  .hidden-btn { opacity: 0 !important; pointer-events: none !important; }
+/* Цвета покоя */
+.buttonblock button.bd, .buttonblockMobile button.bd { color: rgba(128, 128, 128, 0); }
+.buttonblock button.bb, .buttonblockMobile button.bb,
+.buttonblock button.bw, .buttonblockMobile button.bw { color: #9b9b9b; }
 
-  @media (max-width:420px){
-    .buttonblock, .buttonblockMobile { gap:10px; padding:12px; }
-    .buttonblock button, .buttonblockMobile button { padding:10px 14px; font-size:1rem; }
-  }
+/* СТРОГО ПО ИСХОДНИКУ: у BB только цвет, у остальных — всё */
+.buttonblock button.bb, .buttonblockMobile button.bb { transition: color 0.6s ease; }
+
+.buttonblock button.bw:not([data-st="lock"]), 
+.buttonblockMobile button.bw:not([data-st="lock"]) {
+  pointer-events: auto; cursor: pointer; 
+}
+
+/* АКТИВНЫЕ СОСТОЯНИЯ */
+.buttonblock button.bd.dOpen, .buttonblockMobile button.bd.dOpen {
+  pointer-events: auto; cursor: pointer; color: rgba(128, 128, 128, 1);
+  /* Здесь 0.9s для цвета, как ты настраивал */
+  transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color 1.6s ;
+}
+
+.buttonblock button.bw.wLock, .buttonblockMobile button.bw.wLock,
+.buttonblock button.bb.bLock, .buttonblockMobile button.bb.bLock {
+  pointer-events: auto; cursor: grab; color: rgba(70,70,70,1.0);
+}
+
+.buttonblock button.bw.wLock:active, .buttonblockMobile button.bw.wLock:active,
+.buttonblock button.bb.bLock:active, .buttonblockMobile button.bb.bLock:active {
+  cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
+}
+
+/* 5. HEART SPRITE */
+/* base64-image.de */
+.heart-static {
+display: block; margin: 0 auto; width: 88px; height: 42px; margin-top: 5px;
+background-image: url(data:image/png;base64,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);
+
+background-size: 100% auto;
+background-repeat: no-repeat;  
+}
+
+.heart-sprite {
+  display: block; margin: 0 auto; width: 88px; height: 42px; margin-top: 5px;
+  background-image: url("/content/heart_sprite.png"); background-repeat: no-repeat;
+  background-size: 100% auto; background-position: 0 0;
+  transition: background-position 0.4s steps(19); will-change: background-position;
+}
+.heart-sprite.is-full { background-position: 0 100%; }
+
+.hidden-btn { opacity: 0 !important; pointer-events: none !important; }
+
+@media (max-width:420px){
+  .buttonblock, .buttonblockMobile { gap:10px; padding:12px; }
+  .buttonblock button, .buttonblockMobile button { padding:10px 14px; font-size:1rem; }
+}
 </style>
 
 </head>
@@ -172,10 +188,9 @@
 
     <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
     <!-- инициализация спрайта перенесена в js -->
-    <button id="lastBtn" data-st="open" data-href="/about">[ &hearts; ]<div id="heartIcon" class="heart-sprite" hidden></div></button>
-    
-    <!--  <button id="lastBtn"  data-st="open" data-href="/about" >
-        <div id="heartIcon" class="heart-sprite"></div>
+
+    <button id="lastBtn"  data-st="open" data-href="/about" >
+        <div id="heartIcon" class="heart-static"></div>
     </button>
     -->
 
@@ -183,9 +198,6 @@
 </div>
 
 <script>
-const ua = navigator.userAgent.toLowerCase();
-const isMobile = /iphone|ipad|android/.test(ua);
-
 const overlay = document.getElementById('mOverlay');
 const buttonContainer = document.getElementById('mButtonsContainer');
 const buttons = Array.from(buttonContainer.querySelectorAll('button'));
@@ -195,16 +207,15 @@ if (isMobile) {
   buttonContainer.classList.replace('buttonblock', 'buttonblockMobile');
 }
 
-// Замена текста на спрайт по готовности картинки
-(function(btnId, src) {
+// Замена static на sprite по готовности картинки
+(function(id, src) {
   const img = new Image();
-  img.onload = () => { 
-    const btn = document.getElementById(btnId);
-    btn.firstChild.textContent = ""; 
-    document.getElementById('heartIcon').hidden = false;
+  img.onload = () => {
+    const icon = document.getElementById(id);
+    icon.classList.replace('heart-static', 'heart-sprite');
   };
   img.src = src;
-})('lastBtn', "/content/heart_sprite.png");
+})('heartIcon', "/content/heart_sprite.png");
 
 // ВОССТАНОВЛЕНИЕ ПОСЛЕ ВОЗВРАТА НАЗАД
 window.addEventListener("pageshow", (event) => {
