@@ -129,41 +129,41 @@
 <div class="overlay" id="mOverlay">
   <div class="buttonblock" id="mButtonsContainer"> 
 
-    <!-- z=zone ; mb = mobile -->
+    <!-- g=group ; mb=mobile ; mh=mobilehidden-->
 
-    <button id="startW" class="bw" data-z="W" data-href="/wolume"   data-st="open"  data-mb="false" >~</button>
+    <button id="firstBtn" data-g="W" data-st="open" data-mb="false"  data-href="/wolume"   class="bw" >~</button>
 
     <!-- mobile special -->
-    <button data-href="/chat"     class="bd" data-z="D" data-st="open"  data-mb="true" >chat___</button>
-    <button data-href="/день"     class="bd" data-z="D" data-st="open"  data-mb="true" >день</button>
-    <button data-href="/триптих"  class="bd" data-z="D" data-st="open"  data-mb="true" >триптих</button>
+    <button id="bbtn"     data-g="D" data-st="open"  data-mb="true"  data-href="/chat"     class="bd" >chat___</button>
+    <button id="cbtn"     data-g="D" data-st="open"  data-mb="true"  data-href="/день"     class="bd" >день</button>
+    <button id="dbtn"     data-g="D" data-st="open"  data-mb="true"  data-href="/триптих"  class="bd" >триптих</button>
 
     <!-- combine between web and mobile  -->
-    <button data-href="/негативы" class="bd" data-z="D" data-st="open"  data-mb="false" >негативы</button>
-    <button data-href="/exegesis" class="bd" data-z="D" data-st="open"  data-mb="false" >.exe</button>
+    <button id="ebtn"     data-g="D" data-st="open"  data-mb="false" data-href="/негативы" class="bd" >негативы</button>
+    <button id="fbtn"     data-g="D" data-st="open"  data-mb="false" data-href="/exegesis" class="bd" >.exe</button>
 
-    <button data-href="/renders"  class="bw" data-z="W" data-st="close" data-mb="false" >_enders</button>
-    <button data-href="/снимки"   class="bw" data-z="W" data-st="close" data-mb="false" >снимки</button>
-    <button data-href="/графика"  class="bw" data-z="W" data-st="close" data-mb="false" >графика</button>
+    <button id="gbtn"     data-g="W" data-st="close" data-mb="false" data-href="/renders"  class="bw" >_enders</button>
+    <button id="hbtn"     data-g="W" data-st="close" data-mb="false" data-href="/снимки"   class="bw" >снимки</button>
+    <button id="ibtn"     data-g="W" data-st="close" data-mb="false" data-href="/графика"  class="bw" >графика</button>
   
-    <button data-href="/bread"    class="bw" data-z="W" data-st="open" data-mb="false" >bread</button>
-    <button data-href="/haloguys" class="bw" data-z="W" data-st="close" data-mb="false" >[ haloguys ]</button>
-    <button data-href="/покпокки" class="bw" data-z="W" data-st="close" data-mb="false" >покпокки</button>
+    <button id="jbtn"     data-g="W" data-st="open"  data-mb="false" data-href="/bread"    class="bw" >bread</button>
+    <button id="kbtn"     data-g="W" data-st="close" data-mb="false" data-href="/haloguys" class="bw" >[ haloguys ]</button>
+    <button id="lbtn"     data-g="W" data-st="close" data-mb="false" data-href="/покпокки" class="bw" >покпокки</button>
   
-    <button data-href="/работа"   class="bw" data-z="W" data-st="close" data-mb="false" >работа</button>
-    <button data-href="/process"  class="bw" data-z="W" data-st="close" data-mb="false" >_cess</button>
+    <button id="mbtn"     data-g="W" data-st="close" data-mb="false" data-href="/работа"   class="bw" >работа</button>
+    <button id="nbtn"     data-g="W" data-st="close" data-mb="false" data-href="/process"  class="bw" >_cess</button>
 
-    <button data-href="/const"    class="bb" data-z="B" data-st="close" data-mb="false" >/</button>
+    <button id="obtn"     data-g="B" data-st="close" data-mb="false" data-href="/const"    class="bb" >/</button>
 
     <!-- disable on mobile -->
-    <button data-href="/fe"       class="bd" data-z="D" data-st="open" data-mb="false" data-mhidden="true" >fe</button>
-    <button data-href="/flipbook" class="bd" data-z="D" data-st="open" data-mb="false" data-mhidden="true" >flipbook</button>
+    <button id="pbtn"     data-g="D" data-st="open"  data-mb="false" data-href="/fe"       class="bd" data-mh="true" >fe</button>
+    <button id="qbtn"     data-g="D" data-st="open"  data-mb="false" data-href="/flipbook" class="bd" data-mh="true" >flipbook</button>
 
     <!-- end block -->
-    <button id="endSpace" class="bb" data-z="B" data-href="/space" data-st="close" data-mb="false" >—</button>
-     <!--   <button data-href="/aboutOld"    data-st="close" data-mb="false" >[ &hearts; ]</button>-->
+    <button id="preBtn"   data-g="B" data-st="close" data-mb="false" data-href="/space"    class="bb">—</button>
+
      <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
-    <button id="endHeart" data-href="/about" data-st="open">
+    <button id="lastBtn" data-href="/about" data-st="open">
         <div id="heartIcon" class="heart-sprite"></div>
     </button>
 
@@ -180,11 +180,7 @@ const overlay = document.getElementById('mOverlay');
 const buttonContainer = document.getElementById('mButtonsContainer');
 const buttons = Array.from(buttonContainer.querySelectorAll('button'));
 
-if (!isMobile) {
-  // замена на изображение > теперь у нас sprite
-  //const heart = buttons.find(b => b.dataset.href === "/about");
-  //heart.textContent = '[ ❤ ]'; 
-} else {
+if (isMobile) {
   overlay.classList.replace('overlay', 'overlayMobile');
   buttonContainer.classList.replace('buttonblock', 'buttonblockMobile');
 }
@@ -238,11 +234,11 @@ function adjustFontByCount(){
   buttons.forEach(b => b.style.fontSize = sizeRem + 'rem');
 };
 
-function removeBtnsOnMobile() {
+function removeDeskBtnOnMobile() {
   if (!isMobile) return;
 
   const container = document.getElementById('mButtonsContainer');
-  const btnsToRemove = container.querySelectorAll('button[data-mhidden="true"]');
+  const btnsToRemove = container.querySelectorAll('button[data-mh="true"]');
 
   btnsToRemove.forEach(btn => {
     btn.remove();
@@ -261,7 +257,7 @@ function removeOverflowingCloseButtons() {
     // Берём все кнопки close, кроме исключений
 
     const closeButtons = Array.from(container.querySelectorAll('button[data-st="close"]'))
-      .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
+      .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn');
 
     if (closeButtons.length === 0) break; // Больше нечего удалять
 
@@ -329,7 +325,7 @@ function checkLastRow() {
     // Если в хвосте 1 или 2 кнопки — чистим
     if (n > 0 && n <= 2) {
       const closeButtons = Array.from(buttonContainer.querySelectorAll('button[data-st="close"]'))
-        .filter(btn => btn.dataset.href !== '/space' && btn.dataset.href !== '/about');
+        .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn');
 
       if (closeButtons.length === 0) break;
 
@@ -347,15 +343,15 @@ function shuffleButtonsWithRules() {
   if (buttons.length <= 3) return; 
 
   // находим фиксированные 
-  const first =  document.getElementById('startW');
-  const pre_last = document.getElementById('endSpace'); // buttons.find(b => b.dataset.href === "/space");
-  const last = document.getElementById('endHeart');
+  const firstBtn =  document.getElementById('firstBtn');
+  const preBtn = document.getElementById('preBtn'); 
+  const lastBtn = document.getElementById('lastBtn');
 
   // кнопки, которые нельзя ставить последними перед фиксированными
-  const excl = buttons.filter(b => b.dataset.href === "/wolume" || b.dataset.href === "/const");
+  const excl = buttons.filter(b => b.dataset.href === "/const"); // b.dataset.href === "/wolume" || 
 
   // остальные кнопки
-  const rest = buttons.filter(b => ![first, last, pre_last].includes(b));
+  const rest = buttons.filter(b => ![firstBtn, lastBtn, preBtn].includes(b));
 
   // функция перемешивания Fisher–Yates
   function shuffle(array) {
@@ -376,10 +372,10 @@ function shuffleButtonsWithRules() {
   container.innerHTML = "";
 
   // вставляем кнопки 
-  container.appendChild(first);
+  container.appendChild(firstBtn);
   rest.forEach(btn => container.appendChild(btn));
-  container.appendChild(pre_last);
-  container.appendChild(last); 
+  container.appendChild(preBtn);
+  container.appendChild(lastBtn); 
 }
 
 let isFull = false;      // Хранит состояние зоны (открыта/закрыта)
@@ -397,18 +393,18 @@ function changeZone(state = "open") {
   const delayStyles = 0; 
   const delayText = 500;
 
-  const first =  document.getElementById('startW');
+  const firstBtn =  document.getElementById('firstBtn');
 
   if (state === "open") {
-      first.dataset.href = "/identity"
-      //first.dataset.z = "D"
-      //first.classList.replace('bw', 'bd');
-      //first.textContent = "\u00A0";
+      firstBtn.dataset.href = "/identity"
+      //firstBtn.dataset.g = "D"
+      //firstBtn.classList.replace('bw', 'bd');
+      //firstBtn.textContent = "\u00A0";
   } else {
-      first.dataset.href = "/wolume"
-      //first.dataset.z = "W"
-      //first.textContent = "\u00A0";
-      //first.classList.replace('bd', 'bw');
+      firstBtn.dataset.href = "/wolume"
+      //firstBtn.dataset.g = "W"
+      //firstBtn.textContent = "\u00A0";
+      //firstBtn.classList.replace('bd', 'bw');
   }
 
   // Используем прямые команды вместо toggle
@@ -422,14 +418,14 @@ function changeZone(state = "open") {
     isAnimating = false;
   }, delayIcon);
 
-  const dButtons = Array.from(bContainer.querySelectorAll('button[data-z="D"]'))
-    .filter(btn => btn.id !== 'endHeart');
+  const dButtons = Array.from(bContainer.querySelectorAll('button[data-g="D"]'))
+    .filter(btn => btn.id !== 'lastBtn');
 
-  const wButtons = Array.from(bContainer.querySelectorAll('button[data-z="W"]'))
-    .filter(btn => btn.id !== 'endHeart');
+  const wButtons = Array.from(bContainer.querySelectorAll('button[data-g="W"]'))
+    .filter(btn => btn.id !== 'lastBtn');
 
-  const bButtons = Array.from(bContainer.querySelectorAll('button[data-z="B"]'))
-    .filter(btn => btn.id !== 'endHeart');
+  const bButtons = Array.from(bContainer.querySelectorAll('button[data-g="B"]'))
+    .filter(btn => btn.id !== 'lastBtn');
 
 
   if (state === "open") {
@@ -437,7 +433,7 @@ function changeZone(state = "open") {
       document.body.classList.add("invert");
       
       setTimeout(() => {
-        //first.textContent = "*";
+        //firstBtn.textContent = "*";
       }, delayText);
 
       dButtons.forEach(b => b.classList.add('dOpen'));
@@ -451,7 +447,7 @@ function changeZone(state = "open") {
       document.body.classList.remove("invert");
       
       setTimeout(() => {
-        //first.textContent = "~";
+        //firstBtn.textContent = "~";
       }, delayText);
 
       dButtons.forEach(b => b.classList.remove('dOpen'));
@@ -517,8 +513,8 @@ function connectActionsToBtns(){
   buttons.forEach(btn => {
     btn.addEventListener('click', async (ev) => {
       
-      const endHeart = document.getElementById('endHeart');
-      if (btn.id === 'endHeart') {
+      const lastBtn = document.getElementById('lastBtn');
+      if (btn.id === 'lastBtn') {
           ev.preventDefault();
           isFull = !isFull;
           if (typeof changeZone === "function") changeZone(isFull ? "open" : "close");
@@ -573,7 +569,7 @@ function initPage() {
   shuffleButtonsWithRules();
 
   if (isMobile) {
-    removeBtnsOnMobile();
+    removeDeskBtnOnMobile();
     removeOverflowingCloseButtons();
   }
 
