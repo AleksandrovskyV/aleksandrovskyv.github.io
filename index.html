@@ -395,6 +395,7 @@ function changeZone(state = "open") {
   
   const delayIcon = 50;
   const delayStyles = 0; 
+  const delayText = 500;
 
   // Используем прямые команды вместо toggle
   // исключает риск рассинхрона стейта при спам-кликах
@@ -426,8 +427,12 @@ function changeZone(state = "open") {
       
 
       first.dataset.href = "/identity"
-      first.textContent = "*";
+      first.textContent = "\u00A0";
       
+      setTimeout(() => {
+        first.textContent = "*";
+      }, delayText);
+
       dButtons.forEach(b => b.classList.add('dOpen'));
       wButtons.forEach(b => b.classList.add('wLock'));
       bButtons.forEach(b => b.classList.add('bLock'));
@@ -439,7 +444,11 @@ function changeZone(state = "open") {
       document.body.classList.remove("invert");
       
       first.dataset.href = "/wolume"
-      first.textContent = "~";
+      first.textContent = "\u00A0";
+
+      setTimeout(() => {
+        first.textContent = "~";
+      }, delayText);
 
       dButtons.forEach(b => b.classList.remove('dOpen'));
       wButtons.forEach(b => b.classList.remove('wLock'));
