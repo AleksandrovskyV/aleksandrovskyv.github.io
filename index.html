@@ -132,7 +132,6 @@
     <!-- z=zone ; mb = mobile -->
 
     <button id="startW" class="bw" data-z="W" data-href="/wolume"   data-st="open"  data-mb="false" >~</button>
-    <button id="startD" class="bd" data-z="D" data-href="/identity" data-st="close" data-mb="false" >identity</button>
 
     <!-- mobile special -->
     <button data-href="/chat"     class="bd" data-z="D" data-st="open"  data-mb="true" >chat___</button>
@@ -347,15 +346,16 @@ function shuffleButtonsWithRules() {
   // слишком мало кнопок для перемешивания
   if (buttons.length <= 3) return; 
 
-  // находим фиксированные
-  const pre_a = buttons.find(b => b.dataset.href === "/space");
-  const last = buttons.find(b => b.dataset.href === "/about");
+  // находим фиксированные 
+  const first =  document.getElementById('startW');
+  const pre_last = document.getElementById('endSpace'); // buttons.find(b => b.dataset.href === "/space");
+  const last = document.getElementById('endHeart');
 
   // кнопки, которые нельзя ставить последними перед фиксированными
   const excl = buttons.filter(b => b.dataset.href === "/wolume" || b.dataset.href === "/const");
 
   // остальные кнопки
-  const rest = buttons.filter(b => ![last, pre_a].includes(b));
+  const rest = buttons.filter(b => ![first, last, pre_last].includes(b));
 
   // функция перемешивания Fisher–Yates
   function shuffle(array) {
@@ -375,10 +375,10 @@ function shuffleButtonsWithRules() {
 
   container.innerHTML = "";
 
+  // вставляем кнопки 
+  container.appendChild(first);
   rest.forEach(btn => container.appendChild(btn));
-
-  // вставляем фиксированные в конец 
-  container.appendChild(pre_a);
+  container.appendChild(pre_last);
   container.appendChild(last); 
 }
 
@@ -417,9 +417,17 @@ function changeZone(state = "open") {
   const bButtons = Array.from(bContainer.querySelectorAll('button[data-z="B"]'))
     .filter(btn => btn.id !== 'endHeart');
 
+  
+  const first =  document.getElementById('startW');
+
   if (state === "open") {
     setTimeout(() => {
       document.body.classList.add("invert");
+      
+
+      first.dataset.href = "/identity"
+      first.textContent = "*";
+      
       dButtons.forEach(b => b.classList.add('dOpen'));
       wButtons.forEach(b => b.classList.add('wLock'));
       bButtons.forEach(b => b.classList.add('bLock'));
@@ -429,6 +437,10 @@ function changeZone(state = "open") {
   } else {
     setTimeout(() => {
       document.body.classList.remove("invert");
+      
+      first.dataset.href = "/wolume"
+      first.textContent = "~";
+
       dButtons.forEach(b => b.classList.remove('dOpen'));
       wButtons.forEach(b => b.classList.remove('wLock'));
       bButtons.forEach(b => b.classList.remove('bLock'));
@@ -551,6 +563,7 @@ function initPage() {
     removeBtnsOnMobile();
     removeOverflowingCloseButtons();
   }
+
   checkLastRow();
   
   connectActionsToBtns();
