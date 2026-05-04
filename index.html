@@ -40,6 +40,10 @@
   }
   body.invert{background: #000;}
 
+  [hidden] {
+  display: none !important;
+  }
+
   /* 1. КОНТЕЙНЕРЫ (Геометрия) */
   .overlay, .overlayMobile {
     position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:1000;
@@ -168,7 +172,7 @@
 
     <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
     <!-- инициализация спрайта перенесена в js -->
-    <button id="lastBtn"  data-st="open" data-href="/about" >[ &hearts; ]</button>
+    <button id="lastBtn" data-st="open" data-href="/about">[ &hearts; ]<div id="heartIcon" class="heart-sprite" hidden></div></button>
     
     <!--  <button id="lastBtn"  data-st="open" data-href="/about" >
         <div id="heartIcon" class="heart-sprite"></div>
@@ -192,18 +196,15 @@ if (isMobile) {
 }
 
 // Замена текста на спрайт по готовности картинки
-(function(btn, src) {
+(function(btnId, src) {
   const img = new Image();
-  const replace = () => {
-    btn.textContent = "";
-    const div = document.createElement('div');
-    div.id = "heartIcon";
-    div.className = "heart-sprite";
-    btn.appendChild(div);
+  img.onload = () => { 
+    const btn = document.getElementById(btnId);
+    btn.firstChild.textContent = ""; 
+    document.getElementById('heartIcon').hidden = false;
   };
   img.src = src;
-  if (img.complete) replace(); else img.onload = replace;
-})(document.getElementById('lastBtn'), "/content/heart_sprite.png");
+})('lastBtn', "/content/heart_sprite.png");
 
 // ВОССТАНОВЛЕНИЕ ПОСЛЕ ВОЗВРАТА НАЗАД
 window.addEventListener("pageshow", (event) => {
