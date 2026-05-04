@@ -401,16 +401,15 @@ function changeZone(state = "open") {
 
   if (state === "open") {
       first.dataset.href = "/identity"
-      first.dataset.z = "D"
-      first.classList.replace('bw', 'bd');
-      first.textContent = "\u00A0";
+      //first.dataset.z = "D"
+      //first.classList.replace('bw', 'bd');
+      //first.textContent = "\u00A0";
   } else {
       first.dataset.href = "/wolume"
-      first.dataset.z = "W"
-      first.textContent = "\u00A0";
-      first.classList.replace('bd', 'bw');
+      //first.dataset.z = "W"
+      //first.textContent = "\u00A0";
+      //first.classList.replace('bd', 'bw');
   }
-
 
   // Используем прямые команды вместо toggle
   // исключает риск рассинхрона стейта при спам-кликах
@@ -438,7 +437,7 @@ function changeZone(state = "open") {
       document.body.classList.add("invert");
       
       setTimeout(() => {
-        first.textContent = "*";
+        //first.textContent = "*";
       }, delayText);
 
       dButtons.forEach(b => b.classList.add('dOpen'));
@@ -452,7 +451,7 @@ function changeZone(state = "open") {
       document.body.classList.remove("invert");
       
       setTimeout(() => {
-        first.textContent = "~";
+        //first.textContent = "~";
       }, delayText);
 
       dButtons.forEach(b => b.classList.remove('dOpen'));
