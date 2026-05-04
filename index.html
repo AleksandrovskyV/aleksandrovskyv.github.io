@@ -565,14 +565,12 @@ function connectActionsToBtns(){
 
 function initPage() {
 
+  if (isMobile) removeDeskBtnOnMobile();
+
   adjustFontByCount();
+
   shuffleButtonsWithRules();
-
-  if (isMobile) {
-    removeDeskBtnOnMobile();
-    removeOverflowLockBtns();
-  }
-
+  if (isMobile) removeOverflowLockBtns();
   checkLastRow();
   
   connectActionsToBtns();
