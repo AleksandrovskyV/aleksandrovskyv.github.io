@@ -105,8 +105,6 @@ gap: 16px;
   margin-left: auto; /* прижмет группу вправо */
 }
 
-
-
 /* 3. Buttons */
 .btnsWrap button {
   flex: 0 0 auto; display:inline-flex; align-items:center; justify-content:center;
@@ -316,47 +314,69 @@ function stickToBottomMobileCase() {
   }
 }
 
-function removeOverflowLockBtns() {
-  const mainWrapper = document.getElementById('mainWrapper');
-  const container = buttonContainer;
-  const maxHeight = mainWrapper.clientHeight;
-  
-  let wasRemoved = false;
 
-  // 1. Удаление лишних
-  while (container.scrollHeight > maxHeight) {
-    const lockButtons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
-      .filter(btn => btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn');
+const MOBILE_TARGET_ROW = 8;
 
-    if (lockButtons.length === 0) break;
-    lockButtons[lockButtons.length - 1].remove(); 
-    wasRemoved = true; // Запоминаем, что чистили
+function getRowData(type = 'count') {
+  //buttonContainer.offsetHeight; 
+  const elements = Array.from(buttonContainer.children);
+  if (!elements.length) return type === 'count' ? 0 : [];
+
+  if (type === 'count') {
+    return new Set(elements.map(el => el.offsetTop)).size;
   }
-
-  // --- ЛОГИКА ПРИЖАТИЯ ---
-  btnBlockHeightTemp = container.scrollHeight;
-  fillRatio = btnBlockHeightTemp / maxHeight;
-
-  const shouldStickRatio = (fillRatio > 0.7 && fillRatio < 0.95)
-  shouldStick = wasRemoved || shouldStickRatio;
-
-  // 2. ПРОВЕРКА EXCL (твой код без изменений)
-  const endGroup = document.getElementById('endGroup');
-  const obtn = document.getElementById('obtn');
-  if (obtn && endGroup && obtn.nextElementSibling === endGroup) {
-     const prevBtn = obtn.previousElementSibling;
-     if (prevBtn && prevBtn.id !== 'firstBtn') {
-       container.insertBefore(obtn, prevBtn); 
-     }
+  if (type === 'items') {
+    const lastTop = elements[elements.length - 1].offsetTop;
+    return elements.filter(el => Math.abs(el.offsetTop - lastTop) < 5);
   }
 }
 
-function getLastRowItems() {
-  const elements = Array.from(buttonContainer.children); 
-  if (!elements.length) return [];
+function removeOverflowBtnsMobile() {
+  if (!isMobile) return;
+  const container = buttonContainer;
 
-  const lastTop = elements[elements.length - 1].offsetTop;
-  return elements.filter(el => Math.abs(el.offsetTop - lastTop) < 5);
+  let iteration = 0;
+  while (getRowData('count') > MOBILE_TARGET_ROW) {
+    iteration++;
+    const currentRows = getRowData('count');
+    const lockButtons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
+      .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id));
+
+    if (lockButtons.length === 0) {
+      break;
+    }
+
+    let success = false;
+    for (let j = lockButtons.length - 1; j >= 0; j--) {
+      const btnToTry = lockButtons[j];
+      const nextSibling = btnToTry.nextElementSibling;
+      
+      btnToTry.remove();
+      const n = getRowData('count');
+
+      if (n >= MOBILE_TARGET_ROW) {
+        success = true;
+        break; 
+      } else {
+        container.insertBefore(btnToTry, nextSibling);
+      }
+    }
+
+    if (!success) {
+      break;
+    }
+  }
+
+  // Фикс слэша (/)
+  const endGroup = document.getElementById('endGroup');
+  const obtn = document.getElementById('obtn');
+  if (obtn && endGroup && obtn.nextElementSibling === endGroup) {
+    const prevBtn = obtn.previousElementSibling;
+    if (prevBtn && prevBtn.id !== 'firstBtn') {
+      console.log("[Slash] move");
+      container.insertBefore(obtn, prevBtn);
+    }
+  }
 }
 
 function checkLastRow() {
@@ -364,45 +384,85 @@ function checkLastRow() {
 
   function applyFix(items, mode = "mobile") {
     if (!endGroup || (mode === "mobile" && !isMobile)) return false;
-
+    
     let targets = [];
-
     if (mode === "result") {
-      // В режиме result берем только тех, кто РЯДОМ на строке
       targets = items.filter(el => el !== endGroup && el.id !== 'firstBtn' && el.id !== 'obtn');
     } else {
-      // В режиме mobile ищем кандидата СРЕДИ ВСЕХ кнопок вне группы
       targets = Array.from(buttonContainer.querySelectorAll('button'))
-        .filter(btn => 
-          btn.id !== 'firstBtn' && 
-          btn.id !== 'obtn' && 
-          !endGroup.contains(btn) &&
-          btn.innerText.length > 2
-        );
+        .filter(btn => btn.id !== 'firstBtn' && btn.id !== 'obtn' && !endGroup.contains(btn) && btn.innerText.length > 2);
     }
 
-    if (targets.length === 0) return false;
+    if (targets.length === 0){
+      console.log("[Fix Failure] КАНДИДАТОВ НЕТ");
+      return false;
+    }
 
-    if (mode === "result") {
-      targets.reverse().forEach(el => endGroup.prepend(el));
-    } else {
-      // Сортируем всех найденных кандидатов и берем самого короткого
+    // Режим MOBILE: работаем с одной кнопкой
+    if (mode === "mobile") {
       targets.sort((a, b) => a.innerText.length - b.innerText.length);
       const bestBuddy = targets[0];
+      const ghost = bestBuddy.cloneNode(true);
+      ghost.id = ""; ghost.style.opacity = "0"; ghost.style.pointerEvents = "none";
+      
+      bestBuddy.parentNode.insertBefore(ghost, bestBuddy);
       endGroup.prepend(bestBuddy);
+    } else { // Режим RESULT: работаем со всеми соседями
+      [...targets].reverse().forEach(el => endGroup.prepend(el));
     }
 
     endGroup.style.flex = "1 0 100%"; 
     endGroup.style.marginLeft = "0";
     endGroup.style.justifyContent = "space-between";
+
+    const currentCount = getRowData('count');
+
+    if (currentCount !== MOBILE_TARGET_ROW) {
+      console.log(`[Fix Failure] Нарушена сетка! Рядов: ${currentCount}. Откатываем...`);
+      for (let j = 0; j < 3; j++) {
+        const locks = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
+          .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
+        
+        if (locks.length > 0) {
+          locks[locks.length - 1].remove();
+          // Если после удаления всё встало на свои 8 строк
+          if (getRowData('count') === MOBILE_TARGET_ROW) {
+            console.log("[Успешно] Сетка восстановлена до 8 строк");
+            return true;
+          } 
+        }
+      }
+
+      // Если удаление lock-кнопок выше не помогло:
+      console.log("[Fix Failure] Не удалось спасти 8 строк. ОТКАТЫВАЕМ изменения.");
+      const buddyInGroup = endGroup.querySelector('button:not(#preBtn):not(#lastBtn)');
+      const ghost = Array.from(buttonContainer.children).find(el => el.style && el.style.opacity === "0");
+
+      if (buddyInGroup && ghost) {
+        ghost.replaceWith(buddyInGroup); 
+        console.log(`[Rollback] Кнопка ${buddyInGroup.id} вернулась на базу.`);
+      } else if (mode === "result") {
+        // Добавляем .reverse(), чтобы вернуть кнопки в правильном порядке
+        const neighbours = Array.from(endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)'));
+        neighbours.reverse().forEach(btn => buttonContainer.insertBefore(btn, endGroup));
+      }
+
+      // 3. СБРАСЫВАЕМ стили группы к дефолтным (как в CSS)
+      endGroup.style.flex = "";
+      endGroup.style.marginLeft = ""; 
+      endGroup.style.justifyContent = "";
+
+      return false; 
+    }
+
     return true;
   }
 
+  // Основная логика
   for (let i = 0; i < 3; i++) {
-    const rowItems = getLastRowItems();
-    const n = rowItems.length;
-    console.log("LastRowLength", n)
-
+    const rowItems = getRowData('items'); 
+    const n = rowItems.length; console.log("LastRowLength", n)
+  
     if (n === 1) {
       if (isMobile && applyFix(rowItems, "mobile")){
         mergeFromCheck = true;
@@ -419,6 +479,7 @@ function checkLastRow() {
       
       lockButtons[lockButtons.length - 1].remove();
       buttonContainer.offsetHeight;
+
     } else {
       applyFix(rowItems, "result");
       break;
@@ -695,11 +756,11 @@ function initPage() {
 
   // shuffling 
   shuffleButtonsWithRules();
-  if (isMobile) removeOverflowLockBtns();
+  removeOverflowBtnsMobile();
   checkLastRow(); 
 
   // clean and connection 
-  if (isMobile) stickToBottomMobileCase()
+  //if (isMobile) stickToBottomMobileCase()
 
   connectActionsToBtns();
   document.addEventListener("keydown", onKeyCommand);
