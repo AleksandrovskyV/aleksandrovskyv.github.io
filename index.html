@@ -312,12 +312,14 @@ function removeOverflowLockBtns() {
   const currentHeight = container.scrollHeight;
   const fillRatio = currentHeight / maxHeight;
 
+  const shouldStick = wasRemoved || (fillRatio > 0.7 && fillRatio < 0.95);
+
   // Если удаляли кнопки ИЛИ если кнопки заняли больше 75% экрана
-  if (wasRemoved || fillRatio > 0.7) {
-    console.log("прижымаем через правило", wasRemoved, fillRatio)
+  if (shouldStick) {
+    //console.log("прижымаем через правило", wasRemoved, fillRatio)
     mainWrapper.classList.add('stickToBot');
   } else {
-    console.log("убираем стик", wasRemoved, fillRatio)
+    //console.log("убираем стик", wasRemoved, fillRatio)
     mainWrapper.classList.remove('stickToBot');
   }
 
