@@ -53,6 +53,8 @@ display: flex; align-items: center;
 justify-content: center; z-index: 1000;
 }
 .mobile .fswrap {
+align-items: flex-end; 
+
 top: env(safe-area-inset-top, 0);
 left: env(safe-area-inset-left, 0);
 right: env(safe-area-inset-right, 0);
@@ -99,22 +101,7 @@ gap: 16px;
   margin-left: auto; /* прижмет группу вправо */
 }
 
-.top-spacer {
-  display: none; /* Скрыта на ПК */
-}
 
-.mobile .top-spacer {
-  display: block;
-  flex: 1 0 100%; /* Занимает всю ширину строки и всё свободное место по вертикали */
-  pointer-events: none;
-}
-
-/* Чтобы пружина сработала, btnsWrap на мобилке должен уметь растягиваться */
-.mobile .btnsWrap {
-  height: 100%; /* Теперь btnsWrap занимает весь fswrap */
-  align-content: flex-end; /* Все кнопки теперь липнут к низу */
-  width: 100%;
-}
 
 /* 3. Buttons */
 .btnsWrap button {
@@ -196,8 +183,6 @@ gap: 16px;
   <div id="mainButtons" class="btnsWrap" > 
 
     <!-- g=group ; mb=mobile ; mh=mobilehidden-->
-    
-    <div id="topSpacer" class="top-spacer"></div>
 
     <button id="firstBtn" data-g="W" data-st="open" data-mb="false"  data-href="/wolume"   class="bw" >~</button>
 
@@ -456,7 +441,6 @@ function shuffleButtonsWithRules() {
   const container = buttonContainer;
   const firstBtn = document.getElementById('firstBtn');
   const endGroup = document.getElementById('endGroup');
-  const topSpacer = document.getElementById('topSpacer');
 
   // Берем ВСЕ кнопки, которые НЕ входят в "неприкосновенные"
   const allBtns = Array.from(container.querySelectorAll('button'));
@@ -482,8 +466,6 @@ function shuffleButtonsWithRules() {
   // Пересобираем контейнер
   container.innerHTML = "";
 
-  if (topSpacer) container.appendChild(topSpacer);
-  
   container.appendChild(firstBtn);
   rest.forEach(btn => container.appendChild(btn));
   container.appendChild(endGroup); // Вставляем группу целиком
