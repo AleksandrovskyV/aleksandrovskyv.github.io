@@ -61,27 +61,24 @@ bottom: env(safe-area-inset-bottom, 0);
 
 .btnsWrap {
 display: flex; flex-wrap: wrap;
+gap: 16px;
 justify-content: space-between;
 background: transparent;
 
 /* Desktop */
 width: min(90vw, 700px); height: min(90vh, 680px);
 align-content: center; 
-gap: 16px;
 padding: 20px;
 }
 .mobile .btnsWrap {
-
-/* Mobile */
-width: auto; height: auto;
-align-content: normal;
-gap: 10px; 
-padding: env(safe-area-inset-top, 12px)
-         env(safe-area-inset-right, 12px)
-         env(safe-area-inset-bottom, 12px)
-         env(safe-area-inset-left, 12px);
+  /* Mobile */
+  width: auto; height: auto;
+  align-content: normal;
+  padding: env(safe-area-inset-top, 12px)
+           env(safe-area-inset-right, 12px)
+           env(safe-area-inset-bottom, 12px)
+           env(safe-area-inset-left, 12px);
 }
-
 
 /* 2. Buttons */
 .btnsWrap button {
@@ -89,11 +86,6 @@ padding: env(safe-area-inset-top, 12px)
   padding:12px; font-size:1.25rem; color: gray; border: 0; cursor:pointer;
   transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color .6s ease;
   will-change: opacity, transform; z-index: 99; user-select: none; background: transparent;
-}
-
-.mobile .btnsWrap button {
-  padding: 10px 14px;
-  font-size: 1rem;
 }
 
 .btnsWrap button[data-st="lock"] { color: rgba(70,70,70,1.0); }
@@ -135,6 +127,11 @@ padding: env(safe-area-inset-top, 12px)
   cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
 }
 .btn_hide { opacity: 0 !important; pointer-events: none !important; }
+
+@media (max-width:420px){
+  .btnsWrap { gap:10px; padding:12px; }
+  .btnsWrap button { padding:10px 14px; font-size:1rem; }
+}
 
 /* 3. Heart Sprite */
 /* base64-image.de */
