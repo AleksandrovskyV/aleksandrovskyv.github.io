@@ -149,6 +149,16 @@ gap: 16px;
 }
 .btn_hide { opacity: 0 !important; pointer-events: none !important; }
 
+/* Этот блок заставит последнюю строку тянуться к краям */
+.last-row-spacer {
+  display: block;
+  height: 0;
+  min-width: 1px; /* минимальный зазор */
+}
+
+/* Гарантируем, что pre и last всегда имеют высокий приоритет в очереди */
+#preBtn { order: 997; }
+#lastBtn { order: 999; }
 
 /* 3. Heart Sprite */
 /* base64-image.de */
@@ -358,7 +368,7 @@ function hideAllButtons() {
   });
 }
 
-function getLastRowInfo() {
+function getLastRowInfoOld() {
   const btns = Array.from(buttonContainer.children);
   if (!btns.length) return 0;
 
@@ -368,6 +378,19 @@ function getLastRowInfo() {
   const lastRowBtns = btns.filter(btn => btn.offsetTop === lastTop);
 
   console.log(`На последней строке: ${lastRowBtns.length}`);
+  return lastRowBtns.length;
+}
+
+
+function getLastRowInfo() {
+  // Берем и кнопки, и наш спейсер
+  const elements = Array.from(buttonContainer.children); 
+  if (!elements.length) return 0;
+
+  const lastTop = elements[elements.length - 1].offsetTop;
+  const lastRowBtns = elements.filter(el => el.tagName === 'BUTTON' && el.offsetTop === lastTop);
+  console.log(`На последней строке: ${lastRowBtns.length}`);
+
   return lastRowBtns.length;
 }
 
@@ -392,24 +415,17 @@ function checkLastRow() {
 
 function shuffleButtonsWithRules() {
   const container = buttonContainer;
-
-  // слишком мало кнопок для перемешивания
-  const buttons = Array.from(buttonContainer.querySelectorAll('button'));
-
+  const buttons = Array.from(container.querySelectorAll('button'));
   if (buttons.length <= 3) return; 
 
-  // находим фиксированные 
-  const firstBtn =  document.getElementById('firstBtn');
+  const firstBtn = document.getElementById('firstBtn');
   const preBtn = document.getElementById('preBtn'); 
   const lastBtn = document.getElementById('lastBtn');
 
-  // кнопки, которые нельзя ставить последними перед фиксированными
-  const excl = buttons.filter(b => b.dataset.href === "/const"); // b.dataset.href === "/wolume" || 
-
-  // остальные кнопки
+  // Твоя логика EXCL на месте
+  const excl = buttons.filter(b => b.dataset.href === "/const");
   const rest = buttons.filter(b => ![firstBtn, lastBtn, preBtn].includes(b));
 
-  // функция перемешивания Fisher–Yates
   function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -417,7 +433,6 @@ function shuffleButtonsWithRules() {
     }
   }
 
-  // перемешиваем, пока последний элемент локального массива не будет в excl
   let valid = false;
   while (!valid) {
     shuffle(rest);
@@ -426,10 +441,16 @@ function shuffleButtonsWithRules() {
   }
 
   container.innerHTML = "";
-
-  // вставляем кнопки 
   container.appendChild(firstBtn);
   rest.forEach(btn => container.appendChild(btn));
+  
+  // ДОБАВЛЯЕМ СПЕЙСЕР ПЕРЕД ПОСЛЕДНЕЙ ПАРОЙ
+  // Это "невидимка", которая раздвинет кнопки, если их мало на строке
+  const spacer = document.createElement('div');
+  spacer.id = "finalRowSpacer";
+  spacer.style.cssText = "flex: 1 1 auto; height: 0; pointer-events: none;";
+  container.appendChild(spacer);
+
   container.appendChild(preBtn);
   container.appendChild(lastBtn); 
 }
@@ -630,6 +651,7 @@ function initPage() {
   if (isMobile) removeOverflowLockBtns();
 
   checkLastRow();
+
   connectActionsToBtns();
 
   document.addEventListener("keydown", onKeyCommand);
