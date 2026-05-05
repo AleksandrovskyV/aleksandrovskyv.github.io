@@ -292,10 +292,35 @@ function removeDeskBtnOnMobile() {
   });
 }
 
+
+let shouldStick = false;
+let mergeFromCheck = false;
+
+let btnBlockHeightTemp = null;
+let fillRatio = false;
+
+function stickToBottomMobileCase() {
+  if(!isMobile) return
+
+  if(mergeFromCheck){
+    const currentH = buttonContainer.scrollHeight; 
+    const hChange = (btnBlockHeightTemp !== currentH);
+
+    if (fillRatio > 0.95 && hChange) shouldStick = true;
+  }
+  
+  if (shouldStick) {
+    mainWrapper.classList.add('stickToBot');
+  } else {
+    mainWrapper.classList.remove('stickToBot');
+  }
+}
+
 function removeOverflowLockBtns() {
   const mainWrapper = document.getElementById('mainWrapper');
   const container = buttonContainer;
   const maxHeight = mainWrapper.clientHeight;
+  
   let wasRemoved = false;
 
   // 1. Удаление лишних
@@ -309,19 +334,11 @@ function removeOverflowLockBtns() {
   }
 
   // --- ЛОГИКА ПРИЖАТИЯ ---
-  const currentHeight = container.scrollHeight;
-  const fillRatio = currentHeight / maxHeight;
+  btnBlockHeightTemp = container.scrollHeight;
+  fillRatio = btnBlockHeightTemp / maxHeight;
 
-  const shouldStick = wasRemoved || (fillRatio > 0.7 && fillRatio < 0.95);
-
-  // Если удаляли кнопки ИЛИ если кнопки заняли больше 75% экрана
-  if (shouldStick) {
-    //console.log("прижымаем через правило", wasRemoved, fillRatio)
-    mainWrapper.classList.add('stickToBot');
-  } else {
-    //console.log("убираем стик", wasRemoved, fillRatio)
-    mainWrapper.classList.remove('stickToBot');
-  }
+  const shouldStickRatio = (fillRatio > 0.7 && fillRatio < 0.95)
+  shouldStick = wasRemoved || shouldStickRatio;
 
   // 2. ПРОВЕРКА EXCL (твой код без изменений)
   const endGroup = document.getElementById('endGroup');
@@ -332,45 +349,6 @@ function removeOverflowLockBtns() {
        container.insertBefore(obtn, prevBtn); 
      }
   }
-}
-
-function hideAllButtons() {
-  return new Promise(resolve => {
-    let finished = 0;
-    const buttons = Array.from(buttonContainer.querySelectorAll('button'));
-
-    const total = buttons.length;
-
-    function onTransitionEnd(e) {
-      if (e.propertyName !== 'opacity') return;
-      finished++;
-      if (finished >= total) {
-        cleanup();
-        buttons.forEach(btn => btn.style.visibility = 'hidden');
-        resolve();
-      }
-    }
-
-    function cleanup(){
-      buttons.forEach(btn => btn.removeEventListener('transitionend', onTransitionEnd));
-    }
-
-    // привязываем слушатель И запускаем анимацию скрытия
-    buttons.forEach(btn => btn.addEventListener('transitionend', onTransitionEnd));
-    // небольшая задержка, чтобы гарантировано применился класс и началась анимация
-    requestAnimationFrame(() => {
-      buttons.forEach(btn => btn.classList.add('btn_hide'));
-    });
-
-    // safety fallback — если transitionend не сработает, через 1.2s всё равно продолжим
-    setTimeout(() => {
-      if (finished < total) {
-        cleanup();
-        buttons.forEach(btn => btn.style.visibility = 'hidden');
-        resolve();
-      }
-    }, 1400);
-  });
 }
 
 function getLastRowItems() {
@@ -426,8 +404,10 @@ function checkLastRow() {
     console.log("LastRowLength", n)
 
     if (n === 1) {
-      if (isMobile && applyFix(rowItems, "mobile")) break;
-
+      if (isMobile && applyFix(rowItems, "mobile")){
+        mergeFromCheck = true;
+        break;
+      } 
 
       const lockButtons = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
         .filter(btn => !['preBtn', 'lastBtn', 'firstBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
@@ -610,6 +590,45 @@ function onKeyCommand(e) {
   return
 }
 
+function hideAllButtons() {
+  return new Promise(resolve => {
+    let finished = 0;
+    const buttons = Array.from(buttonContainer.querySelectorAll('button'));
+
+    const total = buttons.length;
+
+    function onTransitionEnd(e) {
+      if (e.propertyName !== 'opacity') return;
+      finished++;
+      if (finished >= total) {
+        cleanup();
+        buttons.forEach(btn => btn.style.visibility = 'hidden');
+        resolve();
+      }
+    }
+
+    function cleanup(){
+      buttons.forEach(btn => btn.removeEventListener('transitionend', onTransitionEnd));
+    }
+
+    // привязываем слушатель И запускаем анимацию скрытия
+    buttons.forEach(btn => btn.addEventListener('transitionend', onTransitionEnd));
+    // небольшая задержка, чтобы гарантировано применился класс и началась анимация
+    requestAnimationFrame(() => {
+      buttons.forEach(btn => btn.classList.add('btn_hide'));
+    });
+
+    // safety fallback — если transitionend не сработает, через 1.2s всё равно продолжим
+    setTimeout(() => {
+      if (finished < total) {
+        cleanup();
+        buttons.forEach(btn => btn.style.visibility = 'hidden');
+        resolve();
+      }
+    }, 1400);
+  });
+}
+
 function connectActionsToBtns(){
   const buttons = Array.from(buttonContainer.querySelectorAll('button'));
 
@@ -670,16 +689,19 @@ function initPage() {
 
   console.log("isMobile?", isMobile);
 
+  // prepare
   if (isMobile) removeDeskBtnOnMobile();
-
   adjustFontByCount();
+
+  // shuffling 
   shuffleButtonsWithRules();
   if (isMobile) removeOverflowLockBtns();
+  checkLastRow(); 
 
-  checkLastRow(); //if (!isMobile) 
+  // clean and connection 
+  if (isMobile) stickToBottomMobileCase()
 
   connectActionsToBtns();
-
   document.addEventListener("keydown", onKeyCommand);
 
   window.addEventListener('focus', () => {
