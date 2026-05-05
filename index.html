@@ -99,6 +99,23 @@ gap: 16px;
   margin-left: auto; /* прижмет группу вправо */
 }
 
+.top-spacer {
+  display: none; /* Скрыта на ПК */
+}
+
+.mobile .top-spacer {
+  display: block;
+  flex: 1 0 100%; /* Занимает всю ширину строки и всё свободное место по вертикали */
+  pointer-events: none;
+}
+
+/* Чтобы пружина сработала, btnsWrap на мобилке должен уметь растягиваться */
+.mobile .btnsWrap {
+  height: 100%; /* Теперь btnsWrap занимает весь fswrap */
+  align-content: flex-end; /* Все кнопки теперь липнут к низу */
+  width: 100%;
+}
+
 /* 3. Buttons */
 .btnsWrap button {
   flex: 0 0 auto; display:inline-flex; align-items:center; justify-content:center;
@@ -179,6 +196,8 @@ gap: 16px;
   <div id="mainButtons" class="btnsWrap" > 
 
     <!-- g=group ; mb=mobile ; mh=mobilehidden-->
+    
+    <div id="topSpacer" class="top-spacer"></div>
 
     <button id="firstBtn" data-g="W" data-st="open" data-mb="false"  data-href="/wolume"   class="bw" >~</button>
 
@@ -405,7 +424,7 @@ function checkLastRow() {
     endGroup.style.justifyContent = "space-between";
     return true;
   }
-  
+
   for (let i = 0; i < 3; i++) {
     const rowItems = getLastRowItems();
     const n = rowItems.length;
@@ -436,8 +455,9 @@ function checkLastRow() {
 function shuffleButtonsWithRules() {
   const container = buttonContainer;
   const firstBtn = document.getElementById('firstBtn');
-  const endGroup = document.getElementById('endGroup'); // Цепляем группу
-  
+  const endGroup = document.getElementById('endGroup');
+  const topSpacer = document.getElementById('topSpacer');
+
   // Берем ВСЕ кнопки, которые НЕ входят в "неприкосновенные"
   const allBtns = Array.from(container.querySelectorAll('button'));
   const rest = allBtns.filter(b => b !== firstBtn && !endGroup.contains(b));
@@ -461,6 +481,9 @@ function shuffleButtonsWithRules() {
 
   // Пересобираем контейнер
   container.innerHTML = "";
+
+  if (topSpacer) container.appendChild(topSpacer);
+  
   container.appendChild(firstBtn);
   rest.forEach(btn => container.appendChild(btn));
   container.appendChild(endGroup); // Вставляем группу целиком
