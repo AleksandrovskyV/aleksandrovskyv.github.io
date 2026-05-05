@@ -93,7 +93,10 @@ gap: 16px;
   display: inline-flex;
   gap: inherit; 
   flex: 0 0 auto;
-  margin-left: auto; /* Это прижмет группу вправо, если в строке есть место */
+}
+
+.mobile .endBtnWrapper {
+  margin-left: auto; /* прижмет группу вправо */
 }
 
 /* 3. Buttons */
@@ -368,65 +371,73 @@ function getLastRowInfo() {
   const lastEl = elements[elements.length - 1];
   const lastTop = lastEl.offsetTop;
   const lastRowItems = elements.filter(el => Math.abs(el.offsetTop - lastTop) < 5);
-  
-  // Выводим детальный состав строки
-  const itemDetails = lastRowItems.map(el => el.id || el.tagName).join(', ');
-  console.log(`[Row Check] Y: ${lastTop}px | Items (${lastRowItems.length}): [${itemDetails}]`);
+  //console.log(`[Row Check] Y: ${lastTop}px | Items: ${lastRowItems.length}`);
 
   return lastRowItems.length;
+}
+
+function getLastRowItems() {
+  const elements = Array.from(buttonContainer.children); 
+  if (!elements.length) return [];
+
+  const lastTop = elements[elements.length - 1].offsetTop;
+  return elements.filter(el => Math.abs(el.offsetTop - lastTop) < 5);
 }
 
 function checkLastRow() {
   const endGroup = document.getElementById('endGroup');
 
-  function applyMobileFix() {
-    if (!isMobile || !endGroup) return false;
+  function applyFix(items, mode = "mobile") {
+    if (!endGroup || (mode === "mobile" && !isMobile)) return false;
 
-    const allBtns = Array.from(buttonContainer.querySelectorAll('button'))
-      .filter(btn => !['preBtn', 'lastBtn', 'firstBtn'].includes(btn.id) && !endGroup.contains(btn));
+    const neighbors = items.filter(el => el !== endGroup && el.id !== 'firstBtn');
+    if (neighbors.length === 0) return false;
 
-    const candidates = allBtns.filter(btn => btn.innerText.length > 2);
-    
-    if (candidates.length > 0) {
-      candidates.sort((a, b) => a.innerText.length - b.innerText.length);
-      const bestBuddy = candidates[0];
+    if (mode === "result") {
+
+      neighbors.reverse().forEach(el => endGroup.prepend(el));
+    } else {
+
+      const bestBuddy = neighbors
+        .filter(el => el.tagName === 'BUTTON' && el.innerText.length > 2)
+        .sort((a, b) => a.innerText.length - b.innerText.length)[0];
       
-      console.log(`[Hardcore] Фикс верстки: забираем ${bestBuddy.id} в группу`);
-      
-      endGroup.prepend(bestBuddy);          
-      endGroup.style.flex = "1 0 100%"; 
-      endGroup.style.marginLeft = "0";
-      endGroup.style.justifyContent = "space-between";
-      
-      return true;
+      if (!bestBuddy) return false;
+      endGroup.prepend(bestBuddy);
     }
-    return false;
+
+    // Финальный стиль "футера"
+    endGroup.style.flex = "1 0 100%"; 
+    endGroup.style.marginLeft = "0";
+    endGroup.style.justifyContent = "space-between";
+    return true;
   }
 
   for (let i = 0; i < 3; i++) {
-    const n = getLastRowInfo();
-    
-    if (n === 1) {
-      // Если это мобилка — пробуем сразу "подселить" соседа и растянуть ряд
-      if (isMobile && applyMobileFix()) break;
+    const rowItems = getLastRowItems();
+    const n = rowItems.length;
 
-      // Если не мобилка или подселение не вышло — обычное удаление
+    if (n === 1) {
+      if (isMobile && applyFix(rowItems, "mobile")) break;
+
+
       const lockButtons = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
         .filter(btn => !['preBtn', 'lastBtn', 'firstBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
 
-      if (lockButtons.length === 0) break;
+      if (lockButtons.length === 0) {
+        applyFix(rowItems, "result");
+        break;
+      }
       
-      const btnToRemove = lockButtons[lockButtons.length - 1];
-      console.log(`Попытка ${i}: Чистим хвост, удаляем [ID: ${btnToRemove.id}]`);
-      btnToRemove.remove();
+      lockButtons[lockButtons.length - 1].remove();
       buttonContainer.offsetHeight;
     } else {
-      // Если n > 1, но это мобилка — всё равно вызываем фикс, чтобы ряд был на всю ширину
-      applyMobileFix();
+      applyFix(rowItems, "result");
       break;
     }
   }
 }
+
 
 function shuffleButtonsWithRules() {
   const container = buttonContainer;
