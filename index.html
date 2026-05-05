@@ -258,27 +258,6 @@ window.addEventListener("pageshow", (event) => {
   }
 });
 
-function debugOffsets() {
-  const btns = document.getElementById('mainButtons').children;
-  if (btns.length < 2) return console.log("Недостаточно кнопок");
-
-  const last = btns[btns.length - 1];
-  const preLast = btns[btns.length - 2];
-
-  console.log({
-    last: {
-      tag: last.dataset.href || 'no-href',
-      offset: last.offsetTop,
-      height: last.offsetHeight
-    },
-    preLast: {
-      tag: preLast.dataset.href || 'no-href',
-      offset: preLast.offsetTop,
-      height: preLast.offsetHeight
-    },
-    diff: Math.abs(last.offsetTop - preLast.offsetTop)
-  });
-}
 
 /* ========== подстройка размера шрифта в зависимости от кол-ва кнопок ==========
    простая эвристика: чем больше кнопок — тем меньше шрифт (можно настроить под себя).
@@ -363,19 +342,6 @@ function hideAllButtons() {
   });
 }
 
-function getLastRowInfo() {
-  const elements = Array.from(buttonContainer.children); 
-  if (!elements.length) return 0;
-  //debugOffsets();
-
-  const lastEl = elements[elements.length - 1];
-  const lastTop = lastEl.offsetTop;
-  const lastRowItems = elements.filter(el => Math.abs(el.offsetTop - lastTop) < 5);
-  //console.log(`[Row Check] Y: ${lastTop}px | Items: ${lastRowItems.length}`);
-
-  return lastRowItems.length;
-}
-
 function getLastRowItems() {
   const elements = Array.from(buttonContainer.children); 
   if (!elements.length) return [];
@@ -405,8 +371,6 @@ function checkLastRow() {
       if (!bestBuddy) return false;
       endGroup.prepend(bestBuddy);
     }
-
-    // Финальный стиль "футера"
     endGroup.style.flex = "1 0 100%"; 
     endGroup.style.marginLeft = "0";
     endGroup.style.justifyContent = "space-between";
