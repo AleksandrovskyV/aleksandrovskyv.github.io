@@ -51,12 +51,12 @@ display: none !important;
 }
 
 /* 1. КОНТЕЙНЕРЫ (Геометрия) */
-.overlay {
+.fswrap {
   position: fixed; inset: 0;
   display: flex; align-items: center;
   justify-content: center; z-index: 1000;
 }
-.mobile .overlay {
+.mobile .fswrap {
   top: env(safe-area-inset-top, 0);
   left: env(safe-area-inset-left, 0);
   right: env(safe-area-inset-right, 0);
@@ -64,7 +64,11 @@ display: none !important;
 }
 
 .buttonblock, .buttonblockMobile {
-  display:flex; flex-wrap:wrap; gap:16px; justify-content: space-between; background:transparent;
+  display:flex; 
+  flex-wrap:wrap; 
+  gap:16px; 
+  justify-content: space-between; 
+  background:transparent;
 }
 .buttonblock { width: min(90vw, 700px); height: min(90vh, 680px); align-content:center; padding:20px; }
 .buttonblockMobile { padding: env(safe-area-inset-top, 12px) env(safe-area-inset-right, 12px) env(safe-area-inset-bottom, 12px) env(safe-area-inset-left, 12px); }
@@ -145,8 +149,8 @@ display: none !important;
 </head>
 <body>
 
-<div class="overlay" id="mOverlay">
-  <div class="buttonblock" id="mButtonsContainer"> 
+<div id="mainWrapper" class="fswrap" >
+  <div id="mButtonsContainer" class="buttonblock" > 
 
     <!-- g=group ; mb=mobile ; mh=mobilehidden-->
 
@@ -282,10 +286,10 @@ function removeDeskBtnOnMobile() {
 function removeOverflowLockBtns() {
   // удаление lock кнопок для мобильной
 
-  const overlay = document.getElementById('mOverlay');
-  
+  const mainWrapper = document.getElementById('mainWrapper');
+
   const container = buttonContainer;
-  const maxHeight = overlay.clientHeight;
+  const maxHeight = mainWrapper.clientHeight;
 
   // Пока контент не помещается
   while (container.scrollHeight > maxHeight) {
