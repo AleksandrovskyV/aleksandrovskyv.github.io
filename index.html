@@ -373,30 +373,43 @@ function checkLastRow() {
   function applyFix(items, mode = "mobile") {
     if (!endGroup || (mode === "mobile" && !isMobile)) return false;
 
-    const neighbors = items.filter(el => el !== endGroup && el.id !== 'firstBtn');
-    if (neighbors.length === 0) return false;
+    let targets = [];
 
     if (mode === "result") {
-
-      neighbors.reverse().forEach(el => endGroup.prepend(el));
+      // В режиме result берем только тех, кто РЯДОМ на строке
+      targets = items.filter(el => el !== endGroup && el.id !== 'firstBtn' && el.id !== 'obtn');
     } else {
+      // В режиме mobile ищем кандидата СРЕДИ ВСЕХ кнопок вне группы
+      targets = Array.from(buttonContainer.querySelectorAll('button'))
+        .filter(btn => 
+          btn.id !== 'firstBtn' && 
+          btn.id !== 'obtn' && 
+          !endGroup.contains(btn) &&
+          btn.innerText.length > 2
+        );
+    }
 
-      const bestBuddy = neighbors
-        .filter(el => el.tagName === 'BUTTON' && el.innerText.length > 2)
-        .sort((a, b) => a.innerText.length - b.innerText.length)[0];
-      
-      if (!bestBuddy) return false;
+    if (targets.length === 0) return false;
+
+    if (mode === "result") {
+      targets.reverse().forEach(el => endGroup.prepend(el));
+    } else {
+      // Сортируем всех найденных кандидатов и берем самого короткого
+      targets.sort((a, b) => a.innerText.length - b.innerText.length);
+      const bestBuddy = targets[0];
       endGroup.prepend(bestBuddy);
     }
+
     endGroup.style.flex = "1 0 100%"; 
     endGroup.style.marginLeft = "0";
     endGroup.style.justifyContent = "space-between";
     return true;
   }
-
+  
   for (let i = 0; i < 3; i++) {
     const rowItems = getLastRowItems();
     const n = rowItems.length;
+    console.log("LastRowLength", n)
 
     if (n === 1) {
       if (isMobile && applyFix(rowItems, "mobile")) break;
