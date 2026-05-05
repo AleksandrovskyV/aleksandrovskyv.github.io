@@ -14,8 +14,8 @@ html, body {
 
 body.invert{background: #000;}
 
-/* Классы для Desktop */
-.overlay{
+/* Класс для Desktop */
+.fswrap{
   position:fixed;
   inset:0;
   display:flex;
@@ -24,7 +24,7 @@ body.invert{background: #000;}
   z-index:1000;
 }
 
-.buttonblock{
+.btnsWrap{
   display:flex;
   flex-wrap:wrap;           
   gap:16px;
@@ -36,8 +36,37 @@ body.invert{background: #000;}
   background:transparent;
 }
 
-.buttonblock button,
-.buttonblockMobile button{
+/* Класс для Mobile */
+.fswrapMobile{
+  position: fixed;
+
+  top: env(safe-area-inset-top, 0);
+  left: env(safe-area-inset-left, 0);
+  right: env(safe-area-inset-right, 0);
+  bottom: env(safe-area-inset-bottom, 0);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.btnsWrapMobile{
+  padding: env(safe-area-inset-top, 12px)
+           env(safe-area-inset-right, 12px)
+           env(safe-area-inset-bottom, 12px)
+           env(safe-area-inset-left, 12px);
+
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  justify-content: space-between;
+  background:transparent;
+}
+
+
+.btnsWrap button,
+.btnsWrapMobile button{
   flex: 0 0 auto;  
   display:inline-flex;
   align-items:center;
@@ -58,48 +87,47 @@ body.invert{background: #000;}
 }
 
 /* Общее для всех */
-.buttonblock button[data-st="lock"],
-.buttonblockMobile button[data-st="lock"] {
+.btnsWrap button[data-st="lock"],
+.btnsWrapMobile button[data-st="lock"] {
   color: rgba(70,70,70,1.0);
 }
 
 /* 3. ЭФФЕКТЫ ТОЛЬКО ДЛЯ ПК (с мышкой) */
 @media (hover: hover) {
-  .buttonblock button:not([data-st="lock"]):hover,
-  .buttonblockMobile button:not([data-st="lock"]):hover {
+  .btnsWrap button:not([data-st="lock"]):hover,
+  .btnsWrapMobile button:not([data-st="lock"]):hover {
     opacity: .5;
   }
 
-  .buttonblock button[data-st="lock"] {
+  .btnsWrap button[data-st="lock"] {
     cursor: grab;
   }
 
-  .buttonblock button[data-st="lock"]:active {
+  .btnsWrap button[data-st="lock"]:active {
     cursor: grabbing;
     transform: scale(0.99); 
     color: rgba(50,50,50,1.0); 
   }
 }
 
-
 /* Both Buttons */
-.buttonblock button.bb,
-.buttonblockMobile button.bb {
+.btnsWrap button.bb,
+.btnsWrapMobile button.bb {
   cursor: default;
   pointer-events: none;
   transition: color 0.6s ease;
   color: #9b9b9b;
 }
 
-.buttonblock button.bb.bLock,
-.buttonblockMobile button.bb.bLock {
+.btnsWrap button.bb.bLock,
+.btnsWrapMobile button.bb.bLock {
   color: rgba(70,70,70,1.0);
 }
 
 
 /* Dark Buttons */
-.buttonblock button.bd,
-.buttonblockMobile button.bd {
+.btnsWrap button.bd,
+.btnsWrapMobile button.bd {
   cursor: default;
   pointer-events: none;
   transition: opacity .6s ease, 
@@ -108,8 +136,8 @@ body.invert{background: #000;}
   color: rgba(128, 128, 128, 0); 
 }
 
-.buttonblock button.bd.dOpen,
-.buttonblockMobile button.bd.dOpen {
+.btnsWrap button.bd.dOpen,
+.btnsWrapMobile button.bd.dOpen {
   pointer-events: auto;
   cursor: pointer;
   transition: opacity .6s ease, 
@@ -120,8 +148,8 @@ body.invert{background: #000;}
 }
 
 /* White Buttons */
-.buttonblock button.bw,
-.buttonblockMobile button.bw {
+.btnsWrap button.bw,
+.btnsWrapMobile button.bw {
   pointer-events: none;
   transition: opacity .6s ease, 
               transform .45s cubic-bezier(.2,.9,.2,1), 
@@ -129,8 +157,8 @@ body.invert{background: #000;}
   color: #9b9b9b;
 }
 
-.buttonblock button.bw.wLock,
-.buttonblockMobile button.bw.wLock {
+.btnsWrap button.bw.wLock,
+.btnsWrapMobile button.bw.wLock {
   pointer-events: auto;
   transition: opacity .6s ease, 
               transform .45s cubic-bezier(.2,.9,.2,1), 
@@ -138,55 +166,7 @@ body.invert{background: #000;}
   color: rgba(70,70,70,1.0);
 }
 
-.heart-sprite {
-    display: block;
-    margin: 0 auto;
-    width: 88px;
-    height: 42px;
-    margin-top: 5px;
-    
-    background-image: url("./content/heart_sprite.png");
-    background-repeat: no-repeat;
-    background-size: 100% auto;
-    background-position: 0 0;
-    transition: background-position 0.4s steps(19); /* ~ 50 fps*/
-    
-    pointer-events: none;
-    will-change: background-position;
-}
 
-.heart-sprite.is-full {
-    background-position: 0 100%; /* Прыжок в конец ленты */
-}
-
-/* Классы для мобильной */
-
-.overlayMobile{
-  position: fixed;
-
-  top: env(safe-area-inset-top, 0);
-  left: env(safe-area-inset-left, 0);
-  right: env(safe-area-inset-right, 0);
-  bottom: env(safe-area-inset-bottom, 0);
-  
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.buttonblockMobile{
-  padding: env(safe-area-inset-top, 12px)
-           env(safe-area-inset-right, 12px)
-           env(safe-area-inset-bottom, 12px)
-           env(safe-area-inset-left, 12px);
-
-  display:flex;
-  flex-wrap:wrap;
-  gap:16px;
-  justify-content: space-between;
-  background:transparent;
-}
 
 .hidden-btn{
   opacity: 0 !important;
@@ -195,15 +175,26 @@ body.invert{background: #000;}
 
 /* маленькие устройства — уменьшаем отступ и шрифт */
 @media (max-width:420px){
-  .buttonblock,
-  .buttonblockMobile {
+  .btnsWrap,
+  .btnsWrapMobile {
     gap:10px;
     padding:12px;
   }
 
-  .buttonblock button,
-  .buttonblockMobile button{
+  .btnsWrap button,
+  .btnsWrapMobile button{
     padding:10px 14px;
     font-size:1rem;
   }
 }
+
+/* 5. HEART SPRITE */
+.h_icon { display: block; margin: 5px auto 0; width: 88px; height: 42px; }
+.h_sprite {
+  background: url("/content/heart_sprite.png") no-repeat 0 0;
+  background-size: 100% auto;
+  transition: background-position 0.4s steps(19);
+  will-change: background-position;
+}
+.h_sprite svg { display: none; }
+.h_sprite.complete { background-position: 0 100%; }
