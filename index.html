@@ -46,7 +46,7 @@ body.invert{background: #000;}
 
 [hidden] { display: none !important; }
 
-/* 1. Geometry */
+/* 1. Main Geometry */
 .fswrap {
 position: fixed; inset: 0;
 display: flex; align-items: center;
@@ -59,9 +59,9 @@ right: env(safe-area-inset-right, 0);
 bottom: env(safe-area-inset-bottom, 0);
 }
 
+/* 2. Btns Geometry */
 .btnsWrap {
 display: flex; flex-wrap: wrap;
-gap: 16px;
 justify-content: space-between;
 background: transparent;
 
@@ -69,23 +69,44 @@ background: transparent;
 width: min(90vw, 700px); height: min(90vh, 680px);
 align-content: center; 
 padding: 20px;
-}
-.mobile .btnsWrap {
-  /* Mobile */
-  width: auto; height: auto;
-  align-content: normal;
-  padding: env(safe-area-inset-top, 12px)
-           env(safe-area-inset-right, 12px)
-           env(safe-area-inset-bottom, 12px)
-           env(safe-area-inset-left, 12px);
+gap: 16px;
 }
 
-/* 2. Buttons */
+@media (max-width:420px){ /* Web Adapt */
+  .btnsWrap { 
+    padding:12px; 
+    gap:10px; 
+  }
+}
+
+.mobile .btnsWrap {
+  width: auto; height: auto;
+  align-content: normal;
+  padding: max(12px, env(safe-area-inset-top))
+           max(12px, env(safe-area-inset-right))
+           max(12px, env(safe-area-inset-bottom))
+           max(12px, env(safe-area-inset-left));
+  gap: 10px; 
+}
+
+/* 3. Buttons */
 .btnsWrap button {
   flex: 0 0 auto; display:inline-flex; align-items:center; justify-content:center;
   padding:12px; font-size:1.25rem; color: gray; border: 0; cursor:pointer;
   transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color .6s ease;
   will-change: opacity, transform; z-index: 99; user-select: none; background: transparent;
+}
+
+@media (max-width:420px){ /* Web Adapt */
+  .btnsWrap button { 
+    padding:10px 14px; 
+    font-size:1rem; 
+  }
+}
+
+.mobile .btnsWrap button { 
+  padding: 10px 14px; 
+  font-size: 1rem; 
 }
 
 .btnsWrap button[data-st="lock"] { color: rgba(70,70,70,1.0); }
@@ -128,18 +149,6 @@ padding: 20px;
 }
 .btn_hide { opacity: 0 !important; pointer-events: none !important; }
 
-/* - Web adaptive */
-
-@media (max-width:420px) {
-  .mobile .btnsWrap { 
-    gap: 10px; 
-    padding: 12px; 
-  }
-  .mobile .btnsWrap button { 
-    padding: 10px 14px; 
-    font-size: 1rem; 
-  }
-}
 
 /* 3. Heart Sprite */
 /* base64-image.de */
