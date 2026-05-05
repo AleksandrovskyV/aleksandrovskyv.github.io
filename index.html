@@ -53,12 +53,15 @@ display: flex; align-items: center;
 justify-content: center; z-index: 1000;
 }
 .mobile .fswrap {
-align-items: flex-end; 
-
 top: env(safe-area-inset-top, 0);
 left: env(safe-area-inset-left, 0);
 right: env(safe-area-inset-right, 0);
 bottom: env(safe-area-inset-bottom, 0);
+}
+
+.mobile .fswrap.stick-to-bottom {
+  align-items: flex-end;
+  padding-bottom: max(30px, env(safe-area-inset-bottom, 20px));
 }
 
 /* 2. Btns Geometry */
@@ -292,35 +295,39 @@ function removeOverflowLockBtns() {
   const mainWrapper = document.getElementById('mainWrapper');
   const container = buttonContainer;
   const maxHeight = mainWrapper.clientHeight;
+  let wasRemoved = false;
 
-  // 1. Грубое удаление лишних кнопок
+  // 1. Удаление лишних
   while (container.scrollHeight > maxHeight) {
     const lockButtons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
       .filter(btn => btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn');
 
     if (lockButtons.length === 0) break;
     lockButtons[lockButtons.length - 1].remove(); 
+    wasRemoved = true; // Запоминаем, что чистили
   }
 
-  // 2. ПРОВЕРКА EXCL (после того как всё лишнее удалено)
-  const endGroup = document.getElementById('endGroup');
-  const obtn = document.getElementById('obtn'); // Наша кнопка /
+  // --- ЛОГИКА ПРИЖАТИЯ ---
+  const currentHeight = container.scrollHeight;
+  const fillRatio = currentHeight / maxHeight;
 
-  if (obtn && endGroup) {
-    // Если слэш оказался прямо перед группой (сосед слева)
-    if (obtn.nextElementSibling === endGroup) {
-      const prevBtn = obtn.previousElementSibling;
-      
-      // Если есть с кем поменяться (и это не firstBtn)
-      if (prevBtn && prevBtn.id !== 'firstBtn') {
-        console.log("[Excl Fix] Слэш оказался в конце, меняем местами с", prevBtn.id);
-        container.insertBefore(endGroup, obtn); // Ставим группу ПЕРЕД слэшем
-        container.insertBefore(obtn, prevBtn);  // Или просто слэш перед соседа
-        
-        // Самый чистый способ поменять местами A и B:
-        container.insertBefore(obtn, prevBtn); 
-      }
-    }
+  // Если удаляли кнопки ИЛИ если кнопки заняли больше 75% экрана
+  if (wasRemoved || fillRatio > 0.7) {
+    console.log("прижымаем через правило", wasRemoved, fillRatio)
+    mainWrapper.classList.add('stick-to-bottom');
+  } else {
+    console.log("убираем стик", wasRemoved, fillRatio)
+    mainWrapper.classList.remove('stick-to-bottom');
+  }
+
+  // 2. ПРОВЕРКА EXCL (твой код без изменений)
+  const endGroup = document.getElementById('endGroup');
+  const obtn = document.getElementById('obtn');
+  if (obtn && endGroup && obtn.nextElementSibling === endGroup) {
+     const prevBtn = obtn.previousElementSibling;
+     if (prevBtn && prevBtn.id !== 'firstBtn') {
+       container.insertBefore(obtn, prevBtn); 
+     }
   }
 }
 
