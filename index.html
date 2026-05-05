@@ -25,7 +25,7 @@
   window.isMobile = /iphone|ipad|android/.test(ua);
 
   if (window.isMobile) {
-    document.documentElement.classList.add('is-mobile');
+    document.documentElement.classList.add('mobile');
   }
 </script>
 
@@ -51,10 +51,17 @@ display: none !important;
 }
 
 /* 1. КОНТЕЙНЕРЫ (Геометрия) */
-.overlay, .overlayMobile {
-  position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:1000;
+.overlay {
+  position: fixed; inset: 0;
+  display: flex; align-items: center;
+  justify-content: center; z-index: 1000;
 }
-.overlayMobile { top: env(safe-area-inset-top, 0); bottom: env(safe-area-inset-bottom, 0); }
+.mobile .overlay {
+  top: env(safe-area-inset-top, 0);
+  left: env(safe-area-inset-left, 0);
+  right: env(safe-area-inset-right, 0);
+  bottom: env(safe-area-inset-bottom, 0);
+}
 
 .buttonblock, .buttonblockMobile {
   display:flex; flex-wrap:wrap; gap:16px; justify-content: space-between; background:transparent;
@@ -107,47 +114,32 @@ display: none !important;
   /* Здесь 0.9s для цвета, как ты настраивал */
   transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color 1.6s ;
 }
-
 .buttonblock button.bw.wLock, .buttonblockMobile button.bw.wLock,
 .buttonblock button.bb.bLock, .buttonblockMobile button.bb.bLock {
   pointer-events: auto; cursor: grab; color: rgba(70,70,70,1.0);
 }
-
 .buttonblock button.bw.wLock:active, .buttonblockMobile button.bw.wLock:active,
 .buttonblock button.bb.bLock:active, .buttonblockMobile button.bb.bLock:active {
   cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
 }
-
-/* 5. HEART SPRITE */
-/* base64-image.de */
-
-.h_icon { display: block; margin: 5px auto 0; width: 88px; height: 42px; }
-
-.h_sprite {
-  /* Используем просто background, чтобы работала прозрачность (альфа) */
-  background: url("/content/heart_sprite.png") no-repeat 0 0;
-  background-size: 100% auto;
-  transition: background-position 0.4s steps(19);
-  will-change: background-position;
-}
-
-.h_sprite svg { display: none; }
-.h_sprite.complete { background-position: 0 100%; }
-
-.heart-sprite {
-  display: block; margin: 0 auto; width: 88px; height: 42px; margin-top: 5px;
-  background-image: url("/content/heart_sprite.png"); background-repeat: no-repeat;
-  background-size: 100% auto; background-position: 0 0;
-  transition: background-position 0.4s steps(19); will-change: background-position;
-}
-.heart-sprite.complete { background-position: 0 100%; }
-
 .hidden-btn { opacity: 0 !important; pointer-events: none !important; }
 
 @media (max-width:420px){
   .buttonblock, .buttonblockMobile { gap:10px; padding:12px; }
   .buttonblock button, .buttonblockMobile button { padding:10px 14px; font-size:1rem; }
 }
+
+/* 5. HEART SPRITE */
+/* base64-image.de */
+.h_icon { display: block; margin: 5px auto 0; width: 88px; height: 42px; }
+.h_sprite {
+  background: url("/content/heart_sprite.png") no-repeat 0 0;
+  background-size: 100% auto;
+  transition: background-position 0.4s steps(19);
+  will-change: background-position;
+}
+.h_sprite svg { display: none; }
+.h_sprite.complete { background-position: 0 100%; }
 </style>
 
 </head>
@@ -208,11 +200,10 @@ display: none !important;
 </div>
 
 <script>
-const overlay = document.getElementById('mOverlay');
+
 const buttonContainer = document.getElementById('mButtonsContainer');
 
 if (isMobile) {
-  overlay.classList.replace('overlay', 'overlayMobile');
   buttonContainer.classList.replace('buttonblock', 'buttonblockMobile');
 }
 
@@ -231,7 +222,6 @@ window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
     // только восстанавливаем видимость скрытых кнопок
     const buttons = Array.from(buttonContainer.querySelectorAll('button'));
-
     buttons.forEach(btn => {
       if(btn.classList.contains('hidden-btn')){
         btn.classList.remove('hidden-btn');
@@ -292,6 +282,8 @@ function removeDeskBtnOnMobile() {
 function removeOverflowLockBtns() {
   // удаление lock кнопок для мобильной
 
+  const overlay = document.getElementById('mOverlay');
+  
   const container = buttonContainer;
   const maxHeight = overlay.clientHeight;
 
