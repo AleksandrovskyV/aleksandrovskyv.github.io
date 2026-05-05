@@ -285,21 +285,38 @@ function removeDeskBtnOnMobile() {
 }
 
 function removeOverflowLockBtns() {
-  // удаление lock кнопок для мобильной
   const mainWrapper = document.getElementById('mainWrapper');
   const container = buttonContainer;
   const maxHeight = mainWrapper.clientHeight;
 
+  // 1. Грубое удаление лишних кнопок
   while (container.scrollHeight > maxHeight) {
     const lockButtons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
       .filter(btn => btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn');
 
     if (lockButtons.length === 0) break;
+    lockButtons[lockButtons.length - 1].remove(); 
+  }
 
-    // Удаляем последнюю подходящую кнопку
-    const btnToRemove = lockButtons.pop();
-    // ЗАМЕНА: .remove() вместо removeChild
-    btnToRemove.remove(); 
+  // 2. ПРОВЕРКА EXCL (после того как всё лишнее удалено)
+  const endGroup = document.getElementById('endGroup');
+  const obtn = document.getElementById('obtn'); // Наша кнопка /
+
+  if (obtn && endGroup) {
+    // Если слэш оказался прямо перед группой (сосед слева)
+    if (obtn.nextElementSibling === endGroup) {
+      const prevBtn = obtn.previousElementSibling;
+      
+      // Если есть с кем поменяться (и это не firstBtn)
+      if (prevBtn && prevBtn.id !== 'firstBtn') {
+        console.log("[Excl Fix] Слэш оказался в конце, меняем местами с", prevBtn.id);
+        container.insertBefore(endGroup, obtn); // Ставим группу ПЕРЕД слэшем
+        container.insertBefore(obtn, prevBtn);  // Или просто слэш перед соседа
+        
+        // Самый чистый способ поменять местами A и B:
+        container.insertBefore(obtn, prevBtn); 
+      }
+    }
   }
 }
 
