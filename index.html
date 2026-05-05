@@ -415,6 +415,8 @@ function checkLastRow() {
     endGroup.style.marginLeft = "0";
     endGroup.style.justifyContent = "space-between";
 
+    if(!isMobile) return true
+
     const currentCount = getRowData('count');
 
     if (currentCount !== MOBILE_TARGET_ROW) {
@@ -758,8 +760,7 @@ function initPage() {
   shuffleButtonsWithRules();
   removeOverflowBtnsMobile();
   checkLastRow(); 
-
-  // clean and connection 
+  
   //if (isMobile) stickToBottomMobileCase()
 
   connectActionsToBtns();
