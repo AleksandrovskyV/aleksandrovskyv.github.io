@@ -59,10 +59,11 @@ right: env(safe-area-inset-right, 0);
 bottom: env(safe-area-inset-bottom, 0);
 }
 
-.mobile .fswrap.stick-to-bottom {
-  align-items: flex-end;
-  padding-bottom: max(30px, env(safe-area-inset-bottom, 20px));
+.mobile .fswrap.stickToBot {
+align-items: flex-end;
+padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
 }
+
 
 /* 2. Btns Geometry */
 .btnsWrap {
@@ -100,7 +101,7 @@ gap: 16px;
   flex: 0 0 auto;
 }
 
-.mobile .endBtnWrapper {
+.mobile .endBtnWrapper { /* предохранитель */
   margin-left: auto; /* прижмет группу вправо */
 }
 
@@ -314,10 +315,10 @@ function removeOverflowLockBtns() {
   // Если удаляли кнопки ИЛИ если кнопки заняли больше 75% экрана
   if (wasRemoved || fillRatio > 0.7) {
     console.log("прижымаем через правило", wasRemoved, fillRatio)
-    mainWrapper.classList.add('stick-to-bottom');
+    mainWrapper.classList.add('stickToBot');
   } else {
     console.log("убираем стик", wasRemoved, fillRatio)
-    mainWrapper.classList.remove('stick-to-bottom');
+    mainWrapper.classList.remove('stickToBot');
   }
 
   // 2. ПРОВЕРКА EXCL (твой код без изменений)
