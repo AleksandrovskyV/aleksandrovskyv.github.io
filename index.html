@@ -89,6 +89,13 @@ gap: 16px;
   gap: 10px; 
 }
 
+.endBtnWrapper {
+  display: inline-flex;
+  gap: inherit; 
+  flex: 0 0 auto;
+  margin-left: auto; /* Это прижмет группу вправо, если в строке есть место */
+}
+
 /* 3. Buttons */
 .btnsWrap button {
   flex: 0 0 auto; display:inline-flex; align-items:center; justify-content:center;
@@ -149,17 +156,6 @@ gap: 16px;
 }
 .btn_hide { opacity: 0 !important; pointer-events: none !important; }
 
-/* Этот блок заставит последнюю строку тянуться к краям */
-.last-row-spacer {
-  display: block;
-  height: 0;
-  min-width: 1px; /* минимальный зазор */
-}
-
-/* Гарантируем, что pre и last всегда имеют высокий приоритет в очереди */
-#preBtn { order: 997; }
-#lastBtn { order: 999; }
-
 /* 3. Heart Sprite */
 /* base64-image.de */
 .h_icon { display: block; margin: 5px auto 0; width: 88px; height: 42px; }
@@ -210,22 +206,22 @@ gap: 16px;
 
     <button id="obtn"     data-g="B" data-st="lock" data-mb="false" data-href="/const"    class="bb" >/</button>
 
-    <!-- end block -->
-    <button id="preBtn"   data-g="B" data-st="lock" data-mb="false" data-href="/space"    class="bb" >—</button>
+    <div id="endGroup" class="endBtnWrapper">
+      <button id="preBtn"   data-g="B" data-st="lock" data-mb="false" data-href="/space"    class="bb" >—</button>
 
-    <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
-    <!-- инициализация спрайта перенесена в js -->
+      <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
+      <!-- инициализация спрайта перенесена в js -->
+      <button id="lastBtn"  data-st="open" data-href="/about" >
+          <div id="heartIcon" class="h_icon">
 
-    <button id="lastBtn"  data-st="open" data-href="/about" >
-        <div id="heartIcon" class="h_icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 240" fill="#9b9b9b">
+              <path d="M422.9 5.5v16.4h33.3V217h-33.3v16.5h52.3V5.5h-52.3zM25.2 233.5h52.3v-16.4H44.2V21.9h33.3V5.5H25.2v228z"/>
+              <path d="M323.3 40.1c-19.8-9.8-41.5-6.3-58.2 5.7-7 5-14.3 15.8-15.1 17l.1.2c-3.1-3.8-10.3-14.2-15-17.2-11.7-9.7-31.7-13.7-46.9-9.8-4.2 1-8.2 2.6-12.2 4.6-28.1 14.4-40 55.2-25 84.9 21.7 43.3 64.7 71.3 86.3 82.7 8.3 4.4 18.2 4.2 26.3-.4l.1-.1c1.8-1 14.9-8.4 18.5-11.4v.1c1.3-1.1 8.5-6.7 15.3-11.9 18.5-14.2 39.3-33.3 51.8-59.9 14.2-30 3.8-69.8-26-84.5z"/>
+            </svg>
 
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 240" fill="#9b9b9b">
-            <path d="M422.9 5.5v16.4h33.3V217h-33.3v16.5h52.3V5.5h-52.3zM25.2 233.5h52.3v-16.4H44.2V21.9h33.3V5.5H25.2v228z"/>
-            <path d="M323.3 40.1c-19.8-9.8-41.5-6.3-58.2 5.7-7 5-14.3 15.8-15.1 17l.1.2c-3.1-3.8-10.3-14.2-15-17.2-11.7-9.7-31.7-13.7-46.9-9.8-4.2 1-8.2 2.6-12.2 4.6-28.1 14.4-40 55.2-25 84.9 21.7 43.3 64.7 71.3 86.3 82.7 8.3 4.4 18.2 4.2 26.3-.4l.1-.1c1.8-1 14.9-8.4 18.5-11.4v.1c1.3-1.1 8.5-6.7 15.3-11.9 18.5-14.2 39.3-33.3 51.8-59.9 14.2-30 3.8-69.8-26-84.5z"/>
-          </svg>
-
-        </div>
-    </button>
+          </div>
+      </button>
+    </div>
 
   </div>
 </div>
@@ -308,24 +304,20 @@ function removeDeskBtnOnMobile() {
 
 function removeOverflowLockBtns() {
   // удаление lock кнопок для мобильной
-
   const mainWrapper = document.getElementById('mainWrapper');
-
   const container = buttonContainer;
   const maxHeight = mainWrapper.clientHeight;
 
-  // Пока контент не помещается
   while (container.scrollHeight > maxHeight) {
-
-    // Берём все кнопки lock, кроме исключений
     const lockButtons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
       .filter(btn => btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn');
 
-    if (lockButtons.length === 0) break; // Больше нечего удалять
+    if (lockButtons.length === 0) break;
 
     // Удаляем последнюю подходящую кнопку
     const btnToRemove = lockButtons.pop();
-    container.removeChild(btnToRemove);
+    // ЗАМЕНА: .remove() вместо removeChild
+    btnToRemove.remove(); 
   }
 }
 
@@ -383,15 +375,15 @@ function getLastRowInfoOld() {
 
 
 function getLastRowInfo() {
-  // Берем и кнопки, и наш спейсер
   const elements = Array.from(buttonContainer.children); 
   if (!elements.length) return 0;
 
-  const lastTop = elements[elements.length - 1].offsetTop;
-  const lastRowBtns = elements.filter(el => el.tagName === 'BUTTON' && el.offsetTop === lastTop);
-  console.log(`На последней строке: ${lastRowBtns.length}`);
 
-  return lastRowBtns.length;
+  const lastTop = elements[elements.length - 1].offsetTop;
+  const lastRowItems = elements.filter(el => Math.abs(el.offsetTop - lastTop) < 5);
+  
+  console.log(`Объектов на строке: ${lastRowItems.length}`);
+  return lastRowItems.length;
 }
 
 function checkLastRow() {
@@ -400,7 +392,7 @@ function checkLastRow() {
     const n = getLastRowInfo();
     
     // Если в хвосте 1 или 2 кнопки — чистим
-    if (n > 0 && n <= 2) {
+    if (n === 1) {
       const lockButtons = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
         .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn');
 
@@ -415,16 +407,16 @@ function checkLastRow() {
 
 function shuffleButtonsWithRules() {
   const container = buttonContainer;
-  const buttons = Array.from(container.querySelectorAll('button'));
-  if (buttons.length <= 3) return; 
-
   const firstBtn = document.getElementById('firstBtn');
-  const preBtn = document.getElementById('preBtn'); 
-  const lastBtn = document.getElementById('lastBtn');
+  const endGroup = document.getElementById('endGroup'); // Цепляем группу
+  
+  // Берем ВСЕ кнопки, которые НЕ входят в "неприкосновенные"
+  const allBtns = Array.from(container.querySelectorAll('button'));
+  const rest = allBtns.filter(b => b !== firstBtn && !endGroup.contains(b));
 
-  // Твоя логика EXCL на месте
-  const excl = buttons.filter(b => b.dataset.href === "/const");
-  const rest = buttons.filter(b => ![firstBtn, lastBtn, preBtn].includes(b));
+  const excl = rest.filter(b => b.dataset.href === "/const");
+
+  if (rest.length === 0) return;
 
   function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -436,23 +428,14 @@ function shuffleButtonsWithRules() {
   let valid = false;
   while (!valid) {
     shuffle(rest);
-    const lastRest = rest[rest.length - 1];
-    valid = !excl.includes(lastRest);
+    valid = !excl.includes(rest[rest.length - 1]);
   }
 
+  // Пересобираем контейнер
   container.innerHTML = "";
   container.appendChild(firstBtn);
   rest.forEach(btn => container.appendChild(btn));
-  
-  // ДОБАВЛЯЕМ СПЕЙСЕР ПЕРЕД ПОСЛЕДНЕЙ ПАРОЙ
-  // Это "невидимка", которая раздвинет кнопки, если их мало на строке
-  const spacer = document.createElement('div');
-  spacer.id = "finalRowSpacer";
-  spacer.style.cssText = "flex: 1 1 auto; height: 0; pointer-events: none;";
-  container.appendChild(spacer);
-
-  container.appendChild(preBtn);
-  container.appendChild(lastBtn); 
+  container.appendChild(endGroup); // Вставляем группу целиком
 }
 
 let isFull = false;      // Хранит состояние зоны (открыта/закрыта)
@@ -650,7 +633,7 @@ function initPage() {
   shuffleButtonsWithRules();
   if (isMobile) removeOverflowLockBtns();
 
-  checkLastRow();
+  if (!isMobile) checkLastRow();
 
   connectActionsToBtns();
 
