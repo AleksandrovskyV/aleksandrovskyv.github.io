@@ -210,7 +210,6 @@ display: none !important;
 <script>
 const overlay = document.getElementById('mOverlay');
 const buttonContainer = document.getElementById('mButtonsContainer');
-const buttons = Array.from(buttonContainer.querySelectorAll('button'));
 
 if (isMobile) {
   overlay.classList.replace('overlay', 'overlayMobile');
@@ -231,6 +230,8 @@ if (isMobile) {
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
     // только восстанавливаем видимость скрытых кнопок
+    const buttons = Array.from(buttonContainer.querySelectorAll('button'));
+
     buttons.forEach(btn => {
       if(btn.classList.contains('hidden-btn')){
         btn.classList.remove('hidden-btn');
@@ -268,8 +269,9 @@ function debugOffsets() {
 */
 
 function adjustFontByCount(){
-  const n = buttons.length;
+  const buttons = Array.from(buttonContainer.querySelectorAll('button'));
 
+  const n = buttons.length;
   //web - 4.6 
   const base = isMobile ? 4.4 : 4.6;
   const sizeRem = Math.max(0.9, base - (n - 3) * 0.12);
@@ -311,6 +313,8 @@ function removeOverflowLockBtns() {
 function hideAllButtons() {
   return new Promise(resolve => {
     let finished = 0;
+    const buttons = Array.from(buttonContainer.querySelectorAll('button'));
+
     const total = buttons.length;
 
     function onTransitionEnd(e) {
@@ -381,6 +385,8 @@ function shuffleButtonsWithRules() {
   const container = buttonContainer;
 
   // слишком мало кнопок для перемешивания
+  const buttons = Array.from(buttonContainer.querySelectorAll('button'));
+
   if (buttons.length <= 3) return; 
 
   // находим фиксированные 
@@ -606,14 +612,15 @@ function connectActionsToBtns(){
 
 function initPage() {
 
+  console.log("isMobile?", isMobile);
+
   if (isMobile) removeDeskBtnOnMobile();
 
   adjustFontByCount();
-
   shuffleButtonsWithRules();
   if (isMobile) removeOverflowLockBtns();
+
   checkLastRow();
-  
   connectActionsToBtns();
 
   document.addEventListener("keydown", onKeyCommand);
