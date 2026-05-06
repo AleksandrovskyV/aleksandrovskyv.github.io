@@ -237,7 +237,22 @@ gap: 16px;
 
 <script>
 
+const MOBILE_TARGET_ROW = 8;
+
+let mergeFromCheck = false;
+let completeHeart = false;      // Хранит состояние зоны (открыта/закрыта)
+let switchZoneInAnim = false; // Блокирует спам-клики на 50мс
+
 const buttonContainer = document.getElementById('mainButtons');
+
+let SOURCE_BUTTONS = [];
+function setSourceButtons() {
+  const container = document.getElementById('mainButtons');
+
+  SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
+
+  container.addEventListener('click', handleButtonClick);
+}
 
 // Замена static на sprite по готовности картинки
 (function(id, src) {
@@ -264,7 +279,6 @@ window.addEventListener("pageshow", (event) => {
   }
 });
 
-
 /* ========== подстройка размера шрифта в зависимости от кол-ва кнопок ==========
    простая эвристика: чем больше кнопок — тем меньше шрифт (можно настроить под себя).
 */
@@ -289,33 +303,6 @@ function removeDeskBtnOnMobile() {
     btn.remove();
   });
 }
-
-
-let shouldStick = false;
-let mergeFromCheck = false;
-
-let btnBlockHeightTemp = null;
-let fillRatio = false;
-
-function stickToBottomMobileCase() {
-  if(!isMobile) return
-
-  if(mergeFromCheck){
-    const currentH = buttonContainer.scrollHeight; 
-    const hChange = (btnBlockHeightTemp !== currentH);
-
-    if (fillRatio > 0.95 && hChange) shouldStick = true;
-  }
-  
-  if (shouldStick) {
-    mainWrapper.classList.add('stickToBot');
-  } else {
-    mainWrapper.classList.remove('stickToBot');
-  }
-}
-
-
-const MOBILE_TARGET_ROW = 8;
 
 function getRowData(type = 'count') {
   //buttonContainer.offsetHeight; 
@@ -367,7 +354,7 @@ function removeOverflowBtnsMobile() {
     }
   }
 
-  // Фикс слэша (/)
+  // Фикс односимвольных в нашем случае - слэш
   const endGroup = document.getElementById('endGroup');
   const obtn = document.getElementById('obtn');
   if (obtn && endGroup && obtn.nextElementSibling === endGroup) {
@@ -517,20 +504,19 @@ function shuffleButtonsWithRules() {
   }
 
   // Пересобираем контейнер
-  container.innerHTML = "";
+  //container.innerHTML = "";
 
   container.appendChild(firstBtn);
   rest.forEach(btn => container.appendChild(btn));
   container.appendChild(endGroup); // Вставляем группу целиком
 }
 
-let isFull = false;      // Хранит состояние зоны (открыта/закрыта)
-let isAnimating = false; // Блокирует спам-клики на 50мс
+
 
 function changeZone(state = "open") {
 
-  if (isAnimating) return; 
-  isAnimating = true;
+  if (switchZoneInAnim) return; 
+  switchZoneInAnim = true;
 
   const sprite = document.getElementById('heartIcon');
   const bContainer = document.getElementById('mainButtons');
@@ -561,7 +547,7 @@ function changeZone(state = "open") {
     } else {
       sprite.classList.remove('complete');
     }
-    isAnimating = false;
+    switchZoneInAnim = false;
   }, delayIcon);
 
   const dButtons = Array.from(bContainer.querySelectorAll('button[data-g="D"]'))
@@ -692,6 +678,52 @@ function hideAllButtons() {
   });
 }
 
+async function handleButtonClick(ev) {
+  const btn = ev.target.closest('button');
+  if (!btn) return;
+  ev.preventDefault();
+
+  if (btn.id === 'lastBtn') {
+    completeHeart = !completeHeart;
+    if (typeof changeZone === "function") changeZone(completeHeart ? "open" : "lock");
+    return;
+  }
+
+  // 3. ПРЕРЫВАЕМ для кнопок в статусе lock или с классом wLock
+  if (btn.dataset.st === 'lock' || btn.classList.contains('wLock')) {
+    return false;
+  }
+
+  // 4. ЛОГИКА ПЕРЕХОДА
+  let target = btn.dataset.href || '#';
+
+  // Блокируем контейнер от повторных кликов
+  buttonContainer.style.pointerEvents = 'none';
+  
+  // Анимация скрытия всех кнопок
+  await hideAllButtons();
+
+  // Формирование URL (твой оригинальный алгоритм)
+  if (window.location.protocol === "file:") {
+    if (target.startsWith("/")) target = target.slice(1);
+    target = target + ".html";
+  } else {
+    if (target.endsWith(".html")) {
+      target = "/" + target.replace(".html", "");
+    }
+  }
+
+  if (isMobile && btn.dataset.mb === 'true') {
+    target = "/ios" + target + "/";
+  }
+  if (isMobile) {
+    target = target + "/";
+  }
+
+  window.location.href = target;
+}
+
+
 function connectActionsToBtns(){
   const buttons = Array.from(buttonContainer.querySelectorAll('button'));
 
@@ -701,8 +733,8 @@ function connectActionsToBtns(){
       const lastBtn = document.getElementById('lastBtn');
       if (btn.id === 'lastBtn') {
           ev.preventDefault();
-          isFull = !isFull;
-          if (typeof changeZone === "function") changeZone(isFull ? "open" : "lock");
+          completeHeart = !completeHeart;
+          if (typeof changeZone === "function") changeZone(completeHeart ? "open" : "lock");
           return;
       }
 
@@ -748,23 +780,59 @@ function connectActionsToBtns(){
   });
 }
 
-function initPage() {
 
-  console.log("isMobile?", isMobile);
 
-  // prepare
-  if (isMobile) removeDeskBtnOnMobile();
-  adjustFontByCount();
+function restoreSourceBtns(select_btns) {
+  const container = document.getElementById('mainButtons');
+  const firstBtn = document.getElementById('firstBtn');
+  const endGroup = document.getElementById('endGroup');
 
-  // shuffling 
-  shuffleButtonsWithRules();
-  removeOverflowBtnsMobile();
-  checkLastRow(); 
+  mergeFromCheck = false;
   
-  //if (isMobile) stickToBottomMobileCase()
+  container.innerHTML = "";
+  container.appendChild(firstBtn);
+  select_btns.forEach(btn => {
+     if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
+       container.appendChild(btn.cloneNode(true));
+     }
+  });
+  container.appendChild(endGroup);
+  endGroup.style.flex = ""; 
+  endGroup.style.marginLeft = ""; 
+  endGroup.style.justifyContent = "";
+}
 
-  connectActionsToBtns();
+function rebuildGUI(shuffle=false) {
+
+  restoreSourceBtns(SOURCE_BUTTONS);
+
+  if(shuffle){
+    shuffleButtonsWithRules(); 
+    removeOverflowBtnsMobile();
+    checkLastRow();
+  }
+
+  //connectActionsToBtns();
+}
+
+function initPage() {
+  console.log("InitPage / Mobile:", isMobile);
+
+  // Prepare
+  removeDeskBtnOnMobile();
+  adjustFontByCount();
+  setSourceButtons();
+
+  // Rebuild
+  rebuildGUI(true);
+
+  // Events
   document.addEventListener("keydown", onKeyCommand);
+    
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(rebuildGUI(false), 200);
+  });
 
   window.addEventListener('focus', () => {
       console.log("Фокус вернулся");
