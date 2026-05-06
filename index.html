@@ -252,6 +252,9 @@ let completeHeart = false;    // flag current state page (group W\D)
 let switchZoneInAnim = false; // flag block spam click on 50ms
 let resizeTimeout;
 
+let currentOrient = (window.innerHeight > window.innerWidth) ? "port" : "album";
+
+
 const buttonContainer = document.getElementById('mainButtons');
 
 // onload js solvers
@@ -785,6 +788,8 @@ function initSourceButtons() {
   container.addEventListener('click', handleButtonClick);
 }
 
+
+
 function restoreSourceBtns(mode) {
   const container = document.getElementById('mainButtons');
   const endGroup = document.getElementById('endGroup');
@@ -838,7 +843,14 @@ function restoreSourceBtns(mode) {
     if (duplicate) {
       duplicate.id = ""; 
       duplicate.dataset.ghost = "true"; 
+      duplicate.style.opacity = "0"; 
       duplicate.classList.add('btn_ghost'); 
+
+      if (currentOrient === "album") {
+        duplicate.style.display = "none"; 
+      } else {
+        duplicate.style.display = ""; 
+      }
     }
   });
 
@@ -848,7 +860,14 @@ function restoreSourceBtns(mode) {
   endGroup.style.flex = endGroup.style.marginLeft = endGroup.style.justifyContent = "";
 }
 
+
+
 function rebuildGUI(mode = "current", shuffle = false) {
+  
+  const newOrient = (window.innerHeight > window.innerWidth) ? "port" : "album";
+  const changed = (newOrient !== currentOrient);
+  currentOrient = newOrient;
+
   const container = document.getElementById('mainButtons');
   const endGroup = document.getElementById('endGroup');
 
