@@ -416,6 +416,7 @@ function checkLastRow() {
       ghost.id = ""; 
       ghost.dataset.ghost = "true"; 
       ghost.classList.add('btn_ghost'); // Метка для CSS (opacity 0 + no events)
+      delete ghost.dataset.source; 
 
       
       bestBuddy.parentNode.insertBefore(ghost, bestBuddy);
@@ -528,9 +529,6 @@ function shuffleButtonsWithRules() {
     valid = !excl.includes(rest[rest.length - 1]);
   }
 
-  // Пересобираем контейнер < перенесена в другой блок
-  //container.innerHTML = "";
-
   container.appendChild(firstBtn);
   rest.forEach(btn => container.appendChild(btn));
   container.appendChild(endGroup); // Вставляем группу целиком
@@ -587,7 +585,7 @@ function onKeyCommand(e) {
     e.preventDefault();
     e.stopImmediatePropagation(); 
 
-    if (cod === 'KeyM') return rebuildGUI(true); 
+    if (cod === 'KeyM') return rebuildGUI("source", true); // hard reset
 
     let targetHREF = null;
     const protRule = (window.location.protocol === "file:"); // for local
@@ -770,45 +768,70 @@ async function handleButtonClick(ev) {
 // GUI Updaters
 
 function initSourceButtons() {
-  const buttonContainer = document.getElementById('mainButtons');
-  SOURCE_BUTTONS = Array.from(buttonContainer.querySelectorAll('button')).map(btn => btn.cloneNode(true));
-  buttonContainer.addEventListener('click', handleButtonClick);
+  const container = document.getElementById('mainButtons');
+
+  container.querySelectorAll('button').forEach(btn => btn.dataset.source = "true");
+
+  SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
+  container.addEventListener('click', handleButtonClick);
 }
 
-function restoreSourceBtns(select_btns) {
+function restoreSourceBtns(mode) {
   const container = document.getElementById('mainButtons');
   const firstBtn = document.getElementById('firstBtn');
   const endGroup = document.getElementById('endGroup');
 
+  if (mode === "source") { // восстанавливаем исходную инициализацию
+
+    Array.from(endGroup.children).forEach(btn => {
+      if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
+    });
+
+    SOURCE_BUTTONS = SOURCE_BUTTONS
+      .filter(btn => btn.dataset.source === "true")
+      .map(btn => {
+        const clone = btn.cloneNode(true);
+        delete clone.dataset.current; // Чистим старый статус
+        return clone;
+      });
+  }
+
+  let select_btns = (mode === "source") 
+    ? SOURCE_BUTTONS // Берем весь очищенный список
+    : SOURCE_BUTTONS.filter(btn => btn.dataset.current === "true");
+
   mergeFromCheck = false;
   container.innerHTML = "";
     
-  const fClone = firstBtn.cloneNode(true);
-  fClone.dataset.href = completeHeart ? "/identity" : "/wolume";
-  container.appendChild(fClone);
+  const fOrig = select_btns.find(b => b.id === 'firstBtn');
+
+  if (fOrig) {
+    const fClone = fOrig.cloneNode(true);
+    fClone.dataset.href = completeHeart ? "/identity" : "/wolume";
+    container.appendChild(fClone);
+  }
 
   select_btns.forEach(btn => {
-    if (!['firstBtn', 'preBtn', 'lastBtn'].includes(btn.id)) {
+    if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
       const clone = btn.cloneNode(true);
       
-      const group = clone.dataset.g;
       if (completeHeart) {
-        if (group === "D") clone.classList.add('dOpen');
-        if (group === "W") clone.classList.add('wLock');
-        if (group === "B") clone.classList.add('bLock');
+        const g = clone.dataset.g;
+        if (g === "D") clone.classList.add('dOpen');
+        if (g === "W") clone.classList.add('wLock');
+        if (g === "B") clone.classList.add('bLock');
       } else {
         clone.classList.remove('dOpen', 'wLock', 'bLock');
       }
-
       container.appendChild(clone);
     }
   });
 
   container.appendChild(endGroup);
 
-  if (endGroup) {
-    const activeInGroup = endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)');
-    
+
+  const activeInGroup = endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)');
+  if(activeInGroup.length>0){
     activeInGroup.forEach(originalInGroup => {      
       const duplicate = Array.from(container.children).find(el => 
         el !== endGroup && 
@@ -835,15 +858,18 @@ function restoreSourceBtns(select_btns) {
   endGroup.style.flex = ""; 
   endGroup.style.marginLeft = ""; 
   endGroup.style.justifyContent = "";
+
 }
 
-function rebuildGUI(shuffle = false) {
-  restoreSourceBtns(SOURCE_BUTTONS);
+function rebuildGUI(mode = "current", shuffle = false ) { // source / current
 
+  const container = document.getElementById('mainButtons');
+  const endGroup = document.getElementById('endGroup');
+
+  restoreSourceBtns(mode);
+  
   if (shuffle) {
     shuffleButtonsWithRules();
-    const container = document.getElementById('mainButtons');
-    SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
   }
 
   removeOverflowBtnsMobile();
@@ -852,6 +878,44 @@ function rebuildGUI(shuffle = false) {
   if(shuffle && isMobile){
     fallbackMobileSnap();
   }
+
+
+  SOURCE_BUTTONS.forEach(btn => delete btn.dataset.current);
+
+  // 2. Собираем всё, что сейчас реально есть в DOM (в контейнере и в группе)
+  const inDom = [
+    ...Array.from(container.children).filter(el => el.tagName === 'BUTTON'),
+    ...Array.from(endGroup.children).filter(el => el.id !== 'preBtn' && el.id !== 'lastBtn')
+  ];
+
+  // 3. Обновляем признаки в SOURCE_BUTTONS
+  inDom.forEach(domBtn => {
+    // Ищем эту кнопку в нашем "базовом" массиве
+    const orig = SOURCE_BUTTONS.find(b => 
+      (domBtn.id && b.id === domBtn.id) || 
+      (b.innerText === domBtn.innerText && b.dataset.href === domBtn.dataset.href)
+    );
+
+    if (orig) {
+      // Если нашли оригинал - просто помечаем, что он сейчас на экране
+      orig.dataset.current = "true";
+      // Если в DOM это гост, а в массиве был оригинал - обновляем класс у оригинала в массиве? 
+      // Нет, лучше просто пометить.
+    } else {
+      // Если это НОВЫЙ гост (которого нет в SOURCE_BUTTONS), добавляем его как временный элемент
+      const ghostClone = domBtn.cloneNode(true);
+      ghostClone.dataset.current = "true";
+      delete ghostClone.dataset.source; // Он не оригинал
+      SOURCE_BUTTONS.push(ghostClone);
+    }
+  });
+
+  // В самом конце rebuildGUI
+  console.log("Trace:", SOURCE_BUTTONS.map(b => ({
+    text: b.innerText, 
+    isGhost: b.classList.contains('btn_ghost'),
+    isSource: b.dataset.source === "true"
+  })));
 }
 
 function initPage() {
@@ -863,7 +927,7 @@ function initPage() {
   initSourceButtons();
 
   // Rebuild
-  rebuildGUI(true);
+  rebuildGUI("source", true);
 
   // Events
   if(isMobile && (window.location.protocol !== "file:")){
@@ -871,7 +935,7 @@ function initPage() {
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        rebuildGUI(false); 
+        rebuildGUI(); // current
       }, 240);
     });
   }else{
