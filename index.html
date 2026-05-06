@@ -573,6 +573,37 @@ function fallbackMobileSnap() {
 
 // User Interaction
 
+function onKeyCommand(e) {
+  const cod = e.code;
+  const key = e.key;
+
+  const pressedCtrl = e.ctrlKey;
+  const pressedShift = e.shiftKey;
+
+  //console.log("Press", cod, key);
+  if(!pressedCtrl && !pressedShift){ // hardcore transit to page
+
+    e.preventDefault();
+    e.stopImmediatePropagation(); 
+
+    let targetHREF = null;
+    const protRule = (window.location.protocol === "file:"); // for local
+
+    if (cod === "Backquote") targetHREF = "./wolume";
+    else if (cod === 'KeyE') targetHREF = "./exegesis";
+    else if (cod === 'KeyR') targetHREF = "./renders";  
+    else if (cod === 'KeyG') targetHREF = "./графика";
+    else if (cod === 'KeyH') targetHREF = "./негативы";
+
+    if (targetHREF) {
+      if (protRule) targetHREF = targetHREF + "/index.html";
+      window.location.href = targetHREF;
+    }
+  }
+
+  return
+}
+
 function changeZone(state = "open") {
 
   if (switchZoneInAnim) return; 
@@ -648,37 +679,6 @@ function changeZone(state = "open") {
     }, delayStyles);
   
   }
-}
-
-function onKeyCommand(e) {
-  const cod = e.code;
-  const key = e.key;
-
-  const pressedCtrl = e.ctrlKey;
-  const pressedShift = e.shiftKey;
-
-  //console.log("Press", cod, key);
-  if(!pressedCtrl && !pressedShift){ // hardcore transit to page
-
-    e.preventDefault();
-    e.stopImmediatePropagation(); 
-
-    let targetHREF = null;
-    const protRule = (window.location.protocol === "file:"); // for local
-
-    if (cod === "Backquote") targetHREF = "./wolume";
-    else if (cod === 'KeyE') targetHREF = "./exegesis";
-    else if (cod === 'KeyR') targetHREF = "./renders";  
-    else if (cod === 'KeyG') targetHREF = "./графика";
-    else if (cod === 'KeyH') targetHREF = "./негативы";
-
-    if (targetHREF) {
-      if (protRule) targetHREF = targetHREF + "/index.html";
-      window.location.href = targetHREF;
-    }
-  }
-
-  return
 }
 
 function hideAllButtons() {
