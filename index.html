@@ -748,6 +748,8 @@ function rebuildGUI(shuffle = false) {
     shuffleButtonsWithRules();
     const container = document.getElementById('mainButtons');
     SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
+  }else{
+
   }
 
   removeOverflowBtnsMobile();
@@ -769,7 +771,6 @@ function initPage() {
   // Prepare
   removeDeskBtnOnMobile();
   adjustFontByCount();
-
   initSourceButtons();
 
   // Rebuild
@@ -781,6 +782,7 @@ function initPage() {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         rebuildGUI(false); 
+        document.body.style.backgroundColor = "grey"; // Красим весь фон для заметности на телефоне
       }, 200);
     });
   }else{
