@@ -679,10 +679,13 @@ function hideAllButtons() {
 }
 
 async function handleButtonClick(ev) {
+
   const btn = ev.target.closest('button');
   if (!btn) return;
+
   ev.preventDefault();
 
+  // 2. Логика СЕРДЦА
   if (btn.id === 'lastBtn') {
     completeHeart = !completeHeart;
     if (typeof changeZone === "function") changeZone(completeHeart ? "open" : "lock");
@@ -811,8 +814,6 @@ function rebuildGUI(shuffle=false) {
     removeOverflowBtnsMobile();
     checkLastRow();
   }
-
-  //connectActionsToBtns();
 }
 
 function initPage() {
@@ -821,10 +822,13 @@ function initPage() {
   // Prepare
   removeDeskBtnOnMobile();
   adjustFontByCount();
+
   setSourceButtons();
 
   // Rebuild
   rebuildGUI(true);
+
+  //connectActionsToBtns();
 
   // Events
   document.addEventListener("keydown", onKeyCommand);
