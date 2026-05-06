@@ -208,7 +208,6 @@ gap: 16px;
     <button id="pbtn"     data-g="D" data-st="open" data-mb="false" data-href="/fe"       class="bd" data-mh="true" >fe</button>
     <button id="qbtn"     data-g="D" data-st="open" data-mb="false" data-href="/flipbook" class="bd" data-mh="true" >flipbook</button>
 
-
     <!-- combine between web and mobile  -->
     <button id="ebtn"     data-g="D" data-st="open" data-mb="false" data-href="/негативы" class="bd" >негативы</button>
     <button id="fbtn"     data-g="D" data-st="open" data-mb="false" data-href="/exegesis" class="bd" >.exe</button>
@@ -249,19 +248,19 @@ gap: 16px;
 <script>
 
 const MOBILE_TARGET_ROW = 8;
+let SOURCE_BUTTONS = [];
 
 let mergeFromCheck = false;
-
 let completeHeart = false;      // Хранит состояние зоны (открыта/закрыта)
 let switchZoneInAnim = false; // Блокирует спам-клики на 50мс
+let resizeTimeout;
 
 const buttonContainer = document.getElementById('mainButtons');
 
-let SOURCE_BUTTONS = [];
-let resizeTimeout;
+// onload js solvers
 
-// Замена static на sprite по готовности картинки
 (function(id, src) {
+  // Замена static на sprite по готовности картинки
   const img = new Image();
   img.src = src;
   // Ждем готовности картинки к отрисовке
@@ -270,8 +269,9 @@ let resizeTimeout;
   }).catch(() => { /* если картинка битая, останется SVG */ });
 })('heartIcon', "/content/heart_sprite.png");
 
-// ВОССТАНОВЛЕНИЕ ПОСЛЕ ВОЗВРАТА НАЗАД
 window.addEventListener("pageshow", (event) => {
+  // ВОССТАНОВЛЕНИЕ ПОСЛЕ ВОЗВРАТА НАЗАД
+
   if (event.persisted) {
     // только восстанавливаем видимость скрытых кнопок
     const buttons = Array.from(buttonContainer.querySelectorAll('button'));
@@ -285,30 +285,8 @@ window.addEventListener("pageshow", (event) => {
   }
 });
 
-/* ========== подстройка размера шрифта в зависимости от кол-ва кнопок ==========
-   простая эвристика: чем больше кнопок — тем меньше шрифт (можно настроить под себя).
-*/
 
-function adjustFontByCount(){
-  const buttons = Array.from(buttonContainer.querySelectorAll('button'));
-
-  const n = buttons.length;
-  //web - 4.6 
-  const base = isMobile ? 4.4 : 4.6;
-  const sizeRem = Math.max(0.9, base - (n - 3) * 0.12);
-  buttons.forEach(b => b.style.fontSize = sizeRem + 'rem');
-};
-
-function removeDeskBtnOnMobile() {
-  if (!isMobile) return;
-
-  const container = document.getElementById('mainButtons');
-  const btnsToRemove = container.querySelectorAll('button[data-mh="true"]');
-
-  btnsToRemove.forEach(btn => {
-    btn.remove();
-  });
-}
+// Helpers & Debugs
 
 function getRowData(type = 'count') {
   //buttonContainer.offsetHeight; 
@@ -322,6 +300,45 @@ function getRowData(type = 'count') {
     const lastTop = elements[elements.length - 1].offsetTop;
     return elements.filter(el => Math.abs(el.offsetTop - lastTop) < 5);
   }
+}
+
+function debugDeleteMiddleBtns(count = 5) {
+  const container = document.getElementById('mainButtons');
+  const buttons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
+    .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id));
+
+  if (buttons.length <= count) return;
+  const startIndex = Math.floor(buttons.length / 2) - Math.floor(count / 2);
+  
+  for (let i = 0; i < count; i++) {
+    if (buttons[startIndex + i]) {
+      buttons[startIndex + i].remove();
+    }
+  }
+}
+
+// GUI Preload
+
+function adjustFontByCount(){
+  // подстройка размера шрифта в зависимости от кол-ва кнопок 
+  // простая эвристика: чем больше кнопок — тем меньше шрифт
+
+  const buttons = Array.from(buttonContainer.querySelectorAll('button'));
+  const n = buttons.length;
+  const base = isMobile ? 4.4 : 4.6; //web - 4.6 
+  const sizeRem = Math.max(0.9, base - (n - 3) * 0.12);
+  buttons.forEach(b => b.style.fontSize = sizeRem + 'rem');
+};
+
+function removeDeskBtnOnMobile() {
+  if (!isMobile) return;
+
+  const container = document.getElementById('mainButtons');
+  const btnsToRemove = container.querySelectorAll('button[data-mh="true"]');
+
+  btnsToRemove.forEach(btn => {
+    btn.remove();
+  });
 }
 
 function removeOverflowBtnsMobile() {
@@ -486,7 +503,6 @@ function checkLastRow() {
   }
 }
 
-
 function shuffleButtonsWithRules() {
   const container = buttonContainer;
   const firstBtn = document.getElementById('firstBtn');
@@ -513,7 +529,7 @@ function shuffleButtonsWithRules() {
     valid = !excl.includes(rest[rest.length - 1]);
   }
 
-  // Пересобираем контейнер
+  // Пересобираем контейнер < перенесена в другой блок
   //container.innerHTML = "";
 
   container.appendChild(firstBtn);
@@ -521,7 +537,41 @@ function shuffleButtonsWithRules() {
   container.appendChild(endGroup); // Вставляем группу целиком
 }
 
+function fallbackMobileSnap() {
+  // final fallback (remove last 3% error prev logic)
+  if (!isMobile) return;
+  
+  const currentRows = getRowData('count');
+  const isVert = (window.innerHeight > window.innerWidth);
 
+  if (currentRows > 0 && currentRows < MOBILE_TARGET_ROW && isVert) {
+    
+    const buttonContainer = document.getElementById('mainButtons');
+    //buttonContainer.offsetHeight; 
+
+    const computedStyle = window.getComputedStyle(buttonContainer);
+    const basePad = parseInt(computedStyle.paddingTop) || 12;
+    const fg = parseInt(computedStyle.gap) || 10;
+
+    const allBtns = Array.from(buttonContainer.children);
+    if (!allBtns.length) return;
+
+    buttonContainer.style.paddingTop = ""; // Сбрасываем ПЕРЕД замерами
+
+    const firstTop = allBtns[0].offsetTop;
+    const secondRowBtn = allBtns.find(btn => btn.offsetTop > firstTop + fg);
+    
+    const rowH = secondRowBtn ? (secondRowBtn.offsetTop - firstTop) : (allBtns[0].offsetHeight + fg);
+    const fullHeight8 = (rowH * (MOBILE_TARGET_ROW) ) - fg;
+    const currentHeight = (rowH * currentRows) - fg;
+    const smartPadding = (fullHeight8 - currentHeight) + (basePad);
+
+    buttonContainer.style.paddingTop = smartPadding + "px";
+    // document.body.style.backgroundColor = "grey"; 
+  }
+}
+
+// User Interaction
 
 function changeZone(state = "open") {
 
@@ -601,7 +651,6 @@ function changeZone(state = "open") {
 }
 
 function onKeyCommand(e) {
-
   const cod = e.code;
   const key = e.key;
 
@@ -609,7 +658,6 @@ function onKeyCommand(e) {
   const pressedShift = e.shiftKey;
 
   //console.log("Press", cod, key);
-
   if(!pressedCtrl && !pressedShift){ // hardcore transit to page
 
     e.preventDefault();
@@ -633,8 +681,9 @@ function onKeyCommand(e) {
   return
 }
 
-
 function hideAllButtons() {
+  // Анимация скрытия всех кнопок
+
   return new Promise(resolve => {
     let finished = 0;
     const buttons = Array.from(buttonContainer.querySelectorAll('button'));
@@ -674,34 +723,28 @@ function hideAllButtons() {
 }
 
 async function handleButtonClick(ev) {
-
   const btn = ev.target.closest('button');
   if (!btn) return;
 
   ev.preventDefault();
 
-  // 2. Логика СЕРДЦА
   if (btn.id === 'lastBtn') {
     completeHeart = !completeHeart;
     if (typeof changeZone === "function") changeZone(completeHeart ? "open" : "lock");
     return;
   }
 
-  // 3. ПРЕРЫВАЕМ для кнопок в статусе lock или с классом wLock
   if (btn.dataset.st === 'lock' || btn.classList.contains('wLock')) {
     return false;
   }
 
-  // 4. ЛОГИКА ПЕРЕХОДА
+
   let target = btn.dataset.href || '#';
-
-  // Блокируем контейнер от повторных кликов
-  buttonContainer.style.pointerEvents = 'none';
+  buttonContainer.style.pointerEvents = 'none'; // lock for clicks
   
-  // Анимация скрытия всех кнопок
-  await hideAllButtons();
+  await hideAllButtons(); // anim opacity
 
-  // Формирование URL (твой оригинальный алгоритм)
+  // Create URL
   if (window.location.protocol === "file:") {
     if (target.startsWith("/")) target = target.slice(1);
     target = target + ".html";
@@ -721,6 +764,14 @@ async function handleButtonClick(ev) {
   window.location.href = target;
 }
 
+// GUI Updaters
+
+function initSourceButtons() {
+  const buttonContainer = document.getElementById('mainButtons');
+  SOURCE_BUTTONS = Array.from(buttonContainer.querySelectorAll('button')).map(btn => btn.cloneNode(true));
+  buttonContainer.addEventListener('click', handleButtonClick);
+}
+
 function restoreSourceBtns(select_btns) {
   const container = document.getElementById('mainButtons');
   const firstBtn = document.getElementById('firstBtn');
@@ -728,27 +779,21 @@ function restoreSourceBtns(select_btns) {
 
   mergeFromCheck = false;
   container.innerHTML = "";
-  
-  // 1. Восстанавливаем первую кнопку с учетом стейта
+    
   const fClone = firstBtn.cloneNode(true);
   fClone.dataset.href = completeHeart ? "/identity" : "/wolume";
   container.appendChild(fClone);
 
-  // 2. Восстанавливаем остальные кнопки
   select_btns.forEach(btn => {
     if (!['firstBtn', 'preBtn', 'lastBtn'].includes(btn.id)) {
       const clone = btn.cloneNode(true);
       
-      // СИНХРОНИЗАЦИЯ СОСТОЯНИЯ ЗОНЫ
       const group = clone.dataset.g;
       if (completeHeart) {
-        // Если зона открыта ("open")
         if (group === "D") clone.classList.add('dOpen');
         if (group === "W") clone.classList.add('wLock');
         if (group === "B") clone.classList.add('bLock');
       } else {
-        // Если зона закрыта ("lock") — просто убеждаемся, что классов нет 
-        // (хотя в SOURCE их и так быть не должно)
         clone.classList.remove('dOpen', 'wLock', 'bLock');
       }
 
@@ -761,14 +806,11 @@ function restoreSourceBtns(select_btns) {
   if (endGroup) {
     const activeInGroup = endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)');
     
-    activeInGroup.forEach(originalInGroup => {
-      // Ищем клон этой кнопки в основном контейнере (по ID или data-href)
-      
+    activeInGroup.forEach(originalInGroup => {      
       const duplicate = Array.from(container.children).find(el => 
         el !== endGroup && 
         (el.innerText === originalInGroup.innerText || (el.dataset.href && el.dataset.href === originalInGroup.dataset.href))
       );
-
 
       if (duplicate) {
         console.log(`[Ghosting] Дубликат ${originalInGroup.id} возвращаем статус госта`);
@@ -792,58 +834,6 @@ function restoreSourceBtns(select_btns) {
   endGroup.style.justifyContent = "";
 }
 
-
-function debugDeleteMiddleBtns(count = 5) {
-  const container = document.getElementById('mainButtons');
-  const buttons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
-    .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id));
-
-  if (buttons.length <= count) return;
-  const startIndex = Math.floor(buttons.length / 2) - Math.floor(count / 2);
-  
-  for (let i = 0; i < count; i++) {
-    if (buttons[startIndex + i]) {
-      buttons[startIndex + i].remove();
-    }
-  }
-}
-
-function fallbackMobileSnap() {
-  if (!isMobile) return;
-  
-  const currentRows = getRowData('count');
-  const isVert = (window.innerHeight > window.innerWidth);
-
-  if (currentRows > 0 && currentRows < MOBILE_TARGET_ROW && isVert) {
-    
-    const buttonContainer = document.getElementById('mainButtons');
-    //buttonContainer.offsetHeight; 
-
-    const computedStyle = window.getComputedStyle(buttonContainer);
-    const basePad = parseInt(computedStyle.paddingTop) || 12;
-    const fg = parseInt(computedStyle.gap) || 10;
-
-    const allBtns = Array.from(buttonContainer.children);
-    if (!allBtns.length) return;
-
-    buttonContainer.style.paddingTop = ""; // Сбрасываем ПЕРЕД замерами
-
-    const firstTop = allBtns[0].offsetTop;
-    const secondRowBtn = allBtns.find(btn => btn.offsetTop > firstTop + fg);
-    
-    const rowH = secondRowBtn ? (secondRowBtn.offsetTop - firstTop) : (allBtns[0].offsetHeight + fg);
-    const fullHeight8 = (rowH * (MOBILE_TARGET_ROW) ) - fg;
-    const currentHeight = (rowH * currentRows) - fg;
-    const smartPadding = (fullHeight8 - currentHeight) + (basePad);
-
-    buttonContainer.style.paddingTop = smartPadding + "px";
-    
-    // document.body.style.backgroundColor = "grey"; 
-    // console.log(`[Snap Final] gap: ${fg}, pad: ${smartPadding}`);
-  }
-}
-
-
 function rebuildGUI(shuffle = false) {
   restoreSourceBtns(SOURCE_BUTTONS);
 
@@ -862,16 +852,6 @@ function rebuildGUI(shuffle = false) {
   }
 }
 
-
-
-function initSourceButtons() {
-  const buttonContainer = document.getElementById('mainButtons');
-
-  SOURCE_BUTTONS = Array.from(buttonContainer.querySelectorAll('button')).map(btn => btn.cloneNode(true));
-
-  buttonContainer.addEventListener('click', handleButtonClick);
-}
-
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
 
@@ -884,7 +864,8 @@ function initPage() {
   rebuildGUI(true);
 
   // Events
-  if(isMobile && (window.location.protocol !== "file:")) { // с защитой дебага хрома в isfile
+  if(isMobile && (window.location.protocol !== "file:")){
+    // isfile как защита для дебаг хрома режима 
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
@@ -900,10 +881,10 @@ function initPage() {
   }
 }
 
-// Init Block
+// Initialization
+
 initPage();
 
 </script>
-
 </body>
 </html>
