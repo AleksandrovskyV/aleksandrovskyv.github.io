@@ -915,6 +915,10 @@ function rebuildGUI(mode = "current", shuffle = false) {
 }
 
 let lastWidth = window.innerWidth;
+let isTouching = false;
+window.addEventListener('touchstart', () => isTouching = true, {passive: true});
+window.addEventListener('touchend', () => isTouching = false, {passive: true});
+
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
 
@@ -930,6 +934,11 @@ function initPage() {
   if(isMobile && (window.location.protocol !== "file:")){
     // isfile как защита для дебаг хрома режима 
     window.addEventListener('resize', () => {
+       if (isTouching) return; 
+
+      if (window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
+      
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         rebuildGUI(); // current
