@@ -776,53 +776,51 @@ function initSourceButtons() {
   container.addEventListener('click', handleButtonClick);
 }
 
+function initSourceButtons() {
+  const container = document.getElementById('mainButtons');
+  // 1. Помечаем оригиналы
+  container.querySelectorAll('button').forEach(btn => btn.dataset.source = "true");
+  // 2. Сохраняем эталон один раз. Больше SOURCE_BUTTONS не меняется физически!
+  SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
+  container.addEventListener('click', handleButtonClick);
+}
+
 function restoreSourceBtns(mode) {
   const container = document.getElementById('mainButtons');
-  const firstBtn = document.getElementById('firstBtn');
   const endGroup = document.getElementById('endGroup');
 
-  if (mode === "source") { // восстанавливаем исходную инициализацию
-
+  // Если нажали M, выселяем всех из группы. Группа снова чистая.
+  if (mode === "source") {
     Array.from(endGroup.children).forEach(btn => {
       if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
     });
-
-    SOURCE_BUTTONS = SOURCE_BUTTONS
-      .filter(btn => btn.dataset.source === "true")
-      .map(btn => {
-        const clone = btn.cloneNode(true);
-        delete clone.dataset.current; // Чистим старый статус
-        return clone;
-      });
   }
-
-  let select_btns = (mode === "source") 
-    ? SOURCE_BUTTONS // Берем весь очищенный список
-    : SOURCE_BUTTONS.filter(btn => btn.dataset.current === "true");
+  let select_btns = SOURCE_BUTTONS.filter(btn => {
+    if (mode === "source") return btn.dataset.source === "true";
+    return btn.dataset.current === "true";
+  });
 
   mergeFromCheck = false;
   container.innerHTML = "";
     
+  // 3. Восстановление FirstBtn
   const fOrig = select_btns.find(b => b.id === 'firstBtn');
-
   if (fOrig) {
     const fClone = fOrig.cloneNode(true);
     fClone.dataset.href = completeHeart ? "/identity" : "/wolume";
     container.appendChild(fClone);
   }
 
+  // 4. Отрисовка основного состава
   select_btns.forEach(btn => {
     if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
       const clone = btn.cloneNode(true);
-      if (!clone.classList.contains('btn_ghost')) {
-        if (completeHeart) {
-          const g = clone.dataset.g;
-          if (g === "D") clone.classList.add('dOpen');
-          if (g === "W") clone.classList.add('wLock');
-          if (g === "B") clone.classList.add('bLock');
-        } else {
-          clone.classList.remove('dOpen', 'wLock', 'bLock');
-        }
+      // Синхронизация темы (только для живых кнопок)
+      if (completeHeart) {
+        const g = clone.dataset.g;
+        if (g === "D") clone.classList.add('dOpen');
+        if (g === "W") clone.classList.add('wLock');
+        if (g === "B") clone.classList.add('bLock');
       }
       container.appendChild(clone);
     }
@@ -830,50 +828,34 @@ function restoreSourceBtns(mode) {
 
   container.appendChild(endGroup);
 
-
+  // 5. Ghost Trick (Тот самый, из исходного кода)
   const activeInGroup = endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)');
-  if(activeInGroup.length>0){
-    activeInGroup.forEach(originalInGroup => {      
-      const duplicate = Array.from(container.children).find(el => 
-        el !== endGroup && 
-        (el.innerText === originalInGroup.innerText || (el.dataset.href && el.dataset.href === originalInGroup.dataset.href))
-      );
+  activeInGroup.forEach(originalInGroup => {      
+    const duplicate = Array.from(container.children).find(el => 
+      el !== endGroup && 
+      (el.innerText === originalInGroup.innerText || (el.dataset.href && el.dataset.href === originalInGroup.dataset.href))
+    );
+    if (duplicate) {
+      duplicate.id = ""; 
+      duplicate.dataset.ghost = "true"; 
+      duplicate.classList.add('btn_ghost'); 
+    }
+  });
 
-      if (duplicate) {
-        console.log(`[Ghosting] Дубликат ${originalInGroup.id} возвращаем статус госта`);
-        
-        // Превращаем в госта:
-        duplicate.id = ""; 
-        duplicate.dataset.ghost = "true"; 
-        duplicate.classList.add('btn_ghost'); 
-      }
-    });
-  }
-
-  // Синхронизация спрайта сердца (так как endGroup не клонируется, а переносится)
   const sprite = document.getElementById('heartIcon');
   if (completeHeart) sprite.classList.add('complete');
   else sprite.classList.remove('complete');
-
-  // Сброс стилей группы
-  endGroup.style.flex = ""; 
-  endGroup.style.marginLeft = ""; 
-  endGroup.style.justifyContent = "";
-
+  endGroup.style.flex = endGroup.style.marginLeft = endGroup.style.justifyContent = "";
 }
 
-function rebuildGUI(mode = "current", shuffle = false ) { // source / current
+function rebuildGUI(mode = "current", shuffle = false) {
   const container = document.getElementById('mainButtons');
   const endGroup = document.getElementById('endGroup');
 
+  // Если ресайз — даем шанс всем оригиналам снова стать current (чтобы "выплыть")
   if (mode === "current") {
     SOURCE_BUTTONS.forEach(btn => {
       if (btn.dataset.source === "true") btn.dataset.current = "true";
-      else delete btn.dataset.current; // удаляем старых гостов из очереди на отрисовку
-    });
-    // Также чистим endGroup, чтобы checkLastRow рассчитал подселение заново под новую ширину
-    Array.from(endGroup.children).forEach(btn => {
-      if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
     });
   }
 
@@ -881,53 +863,37 @@ function rebuildGUI(mode = "current", shuffle = false ) { // source / current
   
   if (shuffle) {
     shuffleButtonsWithRules();
+    const domOrder = Array.from(container.querySelectorAll('button:not(.btn_ghost)'));
+    const sorted = [];
+    domOrder.forEach(domBtn => {
+      const found = SOURCE_BUTTONS.find(s => (domBtn.id && s.id === domBtn.id) || (s.innerText === domBtn.innerText && s.dataset.href === domBtn.dataset.href));
+      if (found) sorted.push(found);
+    });
+    // Добавляем те, что не попали (если вдруг такие есть)
+    SOURCE_BUTTONS.forEach(s => { if (!sorted.includes(s)) sorted.push(s); });
+    SOURCE_BUTTONS = sorted;
   }
 
   removeOverflowBtnsMobile();
   checkLastRow(); 
   
-  if(shuffle && isMobile){
-    fallbackMobileSnap();
-  }
+  if (isMobile) fallbackMobileSnap();
 
-
+  // 6. ФИНАЛИЗАЦИЯ: Только проставляем метки current! Массив не перезаписываем!
   SOURCE_BUTTONS.forEach(btn => delete btn.dataset.current);
+  
+  const currentHrefs = [
+    ...Array.from(container.querySelectorAll('button:not(.btn_ghost)')),
+    ...Array.from(endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)'))
+  ].map(b => b.dataset.href);
 
-  // 2. Собираем всё, что сейчас реально есть в DOM (в контейнере и в группе)
-  const inDom = [
-    ...Array.from(container.children).filter(el => el.tagName === 'BUTTON'),
-    ...Array.from(endGroup.children).filter(el => el.id !== 'preBtn' && el.id !== 'lastBtn')
-  ];
-
-  // 3. Обновляем признаки в SOURCE_BUTTONS
-  inDom.forEach(domBtn => {
-    // Ищем эту кнопку в нашем "базовом" массиве
-    const orig = SOURCE_BUTTONS.find(b => 
-      (domBtn.id && b.id === domBtn.id) || 
-      (b.innerText === domBtn.innerText && b.dataset.href === domBtn.dataset.href)
-    );
-
-    if (orig) {
-      // Если нашли оригинал - просто помечаем, что он сейчас на экране
-      orig.dataset.current = "true";
-      // Если в DOM это гост, а в массиве был оригинал - обновляем класс у оригинала в массиве? 
-      // Нет, лучше просто пометить.
-    } else {
-      // Если это НОВЫЙ гост (которого нет в SOURCE_BUTTONS), добавляем его как временный элемент
-      const ghostClone = domBtn.cloneNode(true);
-      ghostClone.dataset.current = "true";
-      delete ghostClone.dataset.source; // Он не оригинал
-      SOURCE_BUTTONS.push(ghostClone);
+  SOURCE_BUTTONS.forEach(btn => {
+    if (currentHrefs.includes(btn.dataset.href)) {
+      btn.dataset.current = "true";
     }
   });
-
-  // В самом конце rebuildGUI
-  console.log("Trace:", SOURCE_BUTTONS.map(b => ({
-    text: b.innerText, 
-    isGhost: b.classList.contains('btn_ghost'),
-    isSource: b.dataset.source === "true"
-  })));
 }
+
 
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
