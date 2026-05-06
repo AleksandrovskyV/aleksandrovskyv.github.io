@@ -773,8 +773,11 @@ function initPage() {
 
   // Events    
   window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(rebuildGUI(false), 200);
+    if(isMobile){
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(rebuildGUI(false), 200);
+    }
+
   });
 
   window.addEventListener('focus', () => {
