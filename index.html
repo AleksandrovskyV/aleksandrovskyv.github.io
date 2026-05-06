@@ -246,13 +246,7 @@ let switchZoneInAnim = false; // Блокирует спам-клики на 50�
 const buttonContainer = document.getElementById('mainButtons');
 
 let SOURCE_BUTTONS = [];
-function setSourceButtons() {
-  const container = document.getElementById('mainButtons');
 
-  SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
-
-  container.addEventListener('click', handleButtonClick);
-}
 
 // Замена static на sprite по готовности картинки
 (function(id, src) {
@@ -753,8 +747,16 @@ function rebuildGUI(shuffle=false) {
   if(shuffle){
     shuffleButtonsWithRules(); 
     removeOverflowBtnsMobile();
-    checkLastRow();
+    checkLastRow(); // для desk и mobile!
   }
+}
+
+function initSourceButtons() {
+  const buttonContainer = document.getElementById('mainButtons');
+
+  SOURCE_BUTTONS = Array.from(buttonContainer.querySelectorAll('button')).map(btn => btn.cloneNode(true));
+
+  buttonContainer.addEventListener('click', handleButtonClick);
 }
 
 function initPage() {
@@ -764,14 +766,12 @@ function initPage() {
   removeDeskBtnOnMobile();
   adjustFontByCount();
 
-  setSourceButtons();
+  initSourceButtons();
 
   // Rebuild
   rebuildGUI(true);
 
-  // Events
-  document.addEventListener("keydown", onKeyCommand);
-    
+  // Events    
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(rebuildGUI(false), 200);
@@ -780,6 +780,8 @@ function initPage() {
   window.addEventListener('focus', () => {
       console.log("Фокус вернулся");
   });
+
+  document.addEventListener("keydown", onKeyCommand);  
 }
 
 // Init Block
