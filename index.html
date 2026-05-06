@@ -726,65 +726,6 @@ async function handleButtonClick(ev) {
   window.location.href = target;
 }
 
-
-function connectActionsToBtns(){
-  const buttons = Array.from(buttonContainer.querySelectorAll('button'));
-
-  buttons.forEach(btn => {
-    btn.addEventListener('click', async (ev) => {
-      
-      const lastBtn = document.getElementById('lastBtn');
-      if (btn.id === 'lastBtn') {
-          ev.preventDefault();
-          completeHeart = !completeHeart;
-          if (typeof changeZone === "function") changeZone(completeHeart ? "open" : "lock");
-          return;
-      }
-
-      // прерываем для кнопок в статусе lock 
-      if (btn.dataset.st === 'lock') {
-        ev.preventDefault();
-        return false;
-      }
-
-      if ( btn.classList.contains('wLock') ) {//|| btn.classList.contains('bLock')
-        ev.preventDefault();
-        return false;
-      }
-
-      // Для остальных кнопок
-      let target = btn.dataset.href || '#';
-
-      ev.preventDefault();
-      buttonContainer.style.pointerEvents = 'none';
-      await hideAllButtons();
-
-      if (window.location.protocol === "file:") {
-        // локальная отладка
-        if (target.startsWith("/")) target = target.slice(1);
-        target = target + ".html";
-      } else {
-        // сервер
-        if (target.endsWith(".html")) {
-          target = "/" + target.replace(".html", "");
-        }
-      }
-
-      if (isMobile && btn.dataset.mb === 'true') {
-        target = "/ios" + target + "/";
-      }
-      if (isMobile) {
-        target = target + "/";
-      }
-    
-      window.location.href = target;
-
-    });
-  });
-}
-
-
-
 function restoreSourceBtns(select_btns) {
   const container = document.getElementById('mainButtons');
   const firstBtn = document.getElementById('firstBtn');
@@ -827,8 +768,6 @@ function initPage() {
 
   // Rebuild
   rebuildGUI(true);
-
-  //connectActionsToBtns();
 
   // Events
   document.addEventListener("keydown", onKeyCommand);
