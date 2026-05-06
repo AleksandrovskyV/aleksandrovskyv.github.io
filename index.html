@@ -767,6 +767,8 @@ function restoreSourceBtns(select_btns) {
 function fallbackMobileSnap() {
   if (!isMobile) return;
   
+  buttonContainer.offsetHeight; 
+
   const container = buttonContainer;
   const currentRows = getRowData('count');
 
