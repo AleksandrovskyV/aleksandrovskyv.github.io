@@ -765,6 +765,8 @@ function initSourceButtons() {
   buttonContainer.addEventListener('click', handleButtonClick);
 }
 
+let resizeTimeout; // Объявляем переменную здесь
+
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
 
@@ -782,7 +784,6 @@ function initPage() {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         rebuildGUI(false); 
-        document.body.style.backgroundColor = "grey"; // Красим весь фон для заметности на телефоне
       }, 200);
     });
   }else{
