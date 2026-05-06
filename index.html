@@ -170,7 +170,7 @@ margin-left: auto; /* прижмет группу вправо */
   cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
 }
 
-.btn_hide { opacity: 0 !important; pointer-events: none !important; }
+.btn_hide {  opacity: 0 !important; pointer-events: none !important; }
 .btn_ghost { opacity: 0 !important; pointer-events: none !important; }
 
 /* 3. Heart Sprite */
@@ -248,8 +248,8 @@ const MOBILE_TARGET_ROW = 8;
 let SOURCE_BUTTONS = [];
 
 let mergeFromCheck = false;
-let completeHeart = false;      // Хранит состояние зоны (открыта/закрыта)
-let switchZoneInAnim = false; // Блокирует спам-клики на 50мс
+let completeHeart = false;    // flag current state page (group W\D)
+let switchZoneInAnim = false; // flag block spam click on 50ms
 let resizeTimeout;
 
 const buttonContainer = document.getElementById('mainButtons');
@@ -281,7 +281,6 @@ window.addEventListener("pageshow", (event) => {
     buttonContainer.style.pointerEvents = "";
   }
 });
-
 
 // Helpers & Debugs
 
