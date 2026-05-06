@@ -392,6 +392,7 @@ function checkLastRow() {
       const bestBuddy = targets[0];
       const ghost = bestBuddy.cloneNode(true);
       ghost.id = ""; ghost.style.opacity = "0"; ghost.style.pointerEvents = "none";
+      ghost.dataset.ghost = "true"; 
       
       bestBuddy.parentNode.insertBefore(ghost, bestBuddy);
       endGroup.prepend(bestBuddy);
@@ -763,6 +764,28 @@ function restoreSourceBtns(select_btns) {
   });
 
   container.appendChild(endGroup);
+
+  if (endGroup) {
+    const activeInGroup = endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)');
+    
+    activeInGroup.forEach(originalInGroup => {
+      // Ищем клон этой кнопки в основном контейнере (по ID или data-href)
+      const duplicate = Array.from(container.children).find(el => 
+        el !== endGroup && 
+        (el.id === originalInGroup.id || el.dataset.href === originalInGroup.dataset.href)
+      );
+
+      if (duplicate) {
+        console.log(`[Ghosting] Дубликат ${originalInGroup.id} возвращаем статус госта`);
+        
+        // Превращаем в госта:
+        duplicate.className = '';       // Стираем все классы (dOpen, wLock и т.д.)
+        duplicate.id = "";              // Убираем ID, чтобы не дублировался
+        duplicate.style.opacity = "0";  // Делаем невидимым
+        duplicate.style.pointerEvents = "none"; // Выключаем клики
+      }
+    });
+  }
 
   // Синхронизация спрайта сердца (так как endGroup не клонируется, а переносится)
   const sprite = document.getElementById('heartIcon');
