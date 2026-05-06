@@ -740,16 +740,20 @@ function restoreSourceBtns(select_btns) {
   endGroup.style.justifyContent = "";
 }
 
-function rebuildGUI(shuffle=false) {
 
+function rebuildGUI(shuffle = false) {
   restoreSourceBtns(SOURCE_BUTTONS);
 
-  if(shuffle){
-    shuffleButtonsWithRules(); 
-    removeOverflowBtnsMobile();
-    checkLastRow(); // для desk и mobile!
+  if (shuffle) {
+    shuffleButtonsWithRules();
+    const container = document.getElementById('mainButtons');
+    SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
   }
+
+  removeOverflowBtnsMobile();
+  checkLastRow(); 
 }
+
 
 function initSourceButtons() {
   const buttonContainer = document.getElementById('mainButtons');
@@ -773,11 +777,8 @@ function initPage() {
 
   // Events    
   window.addEventListener('resize', () => {
-    if(isMobile){
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(rebuildGUI(false), 200);
-    }
-
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => rebuildGUI(false), 200);
   });
 
   window.addEventListener('focus', () => {
