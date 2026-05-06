@@ -190,7 +190,7 @@ margin-left: auto; /* прижмет группу вправо */
 <body>
 
 <div id="mainWrapper" class="fswrap" >
-  <div id="mainButtons" class="btnsWrap" > 
+  <div id="mainButtons" class="btnsWrap" >
 
     <!-- g=group ; mb=mobile ; mh=mobilehidden-->
 
@@ -298,7 +298,8 @@ function getRowData(type = 'count') {
   }
 }
 
-function debugDeleteMiddleBtns(count = 5) {
+function debugHalfBtnsRemove(count = 5) {
+  // for fast check fallbackMobileSnap()
   const container = document.getElementById('mainButtons');
   const buttons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
     .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id));
@@ -336,6 +337,8 @@ function removeDeskBtnOnMobile() {
     btn.remove();
   });
 }
+
+// GUI Preload - Sort and Restruct Logic
 
 function removeOverflowBtnsMobile() {
   if (!isMobile) return;
@@ -537,6 +540,8 @@ function fallbackMobileSnap() {
   // final fallback (remove last 3% error prev logic)
   if (!isMobile) return;
   
+  //debugHalfBtnsRemove();
+
   const currentRows = getRowData('count');
   const isVert = (window.innerHeight > window.innerWidth);
 
@@ -845,7 +850,6 @@ function rebuildGUI(shuffle = false) {
   checkLastRow(); 
   
   if(shuffle && isMobile){
-    //debugDeleteMiddleBtns();
     fallbackMobileSnap();
   }
 }
