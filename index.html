@@ -22,8 +22,8 @@
 
 <script>
   const ua = navigator.userAgent.toLowerCase();
+  // set global platform variable
   window.isMobile = /iphone|ipad|android/.test(ua);
-
   if (window.isMobile) {
     document.documentElement.classList.add('mobile');
   }
