@@ -784,37 +784,40 @@ function debugDeleteMiddleBtns(count = 5) {
   }
 }
 
-
 function fallbackMobileSnap() {
   if (!isMobile) return;
   
   const currentRows = getRowData('count');
+  const isVert = (window.innerHeight > window.innerWidth);
 
-  if (currentRows > 0 && currentRows < MOBILE_TARGET_ROW && (window.innerHeight > window.innerWidth)) {
+  if (currentRows > 0 && currentRows < MOBILE_TARGET_ROW && isVert) {
     
     const buttonContainer = document.getElementById('mainButtons');
-    buttonContainer.offsetHeight; 
+    //buttonContainer.offsetHeight; 
+
     const computedStyle = window.getComputedStyle(buttonContainer);
-    
-    const fg = 10;
     const basePad = parseInt(computedStyle.paddingTop) || 12;
+    const fg = parseInt(computedStyle.gap) || 10;
 
     const allBtns = Array.from(buttonContainer.children);
+    if (!allBtns.length) return;
+
+    buttonContainer.style.paddingTop = ""; // Сбрасываем ПЕРЕД замерами
+
     const firstTop = allBtns[0].offsetTop;
     const secondRowBtn = allBtns.find(btn => btn.offsetTop > firstTop + fg);
     
-    // Истинная высота одной строки (кнопка + gap)
     const rowH = secondRowBtn ? (secondRowBtn.offsetTop - firstTop) : (allBtns[0].offsetHeight + fg);
     const fullHeight8 = (rowH * (MOBILE_TARGET_ROW) ) - fg;
     const currentHeight = (rowH * currentRows) - fg;
     const smartPadding = (fullHeight8 - currentHeight) + (basePad);
 
-    buttonContainer.style.paddingTop = "";
     buttonContainer.style.paddingTop = smartPadding + "px";
+    
     document.body.style.backgroundColor = "grey"; 
+    // console.log(`[Snap Final] gap: ${fg}, pad: ${smartPadding}`);
   }
 }
-
 
 
 function rebuildGUI(shuffle = false) {
