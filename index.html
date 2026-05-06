@@ -240,6 +240,7 @@ gap: 16px;
 const MOBILE_TARGET_ROW = 8;
 
 let mergeFromCheck = false;
+
 let completeHeart = false;      // Хранит состояние зоны (открыта/закрыта)
 let switchZoneInAnim = false; // Блокирует спам-клики на 50мс
 
@@ -312,11 +313,15 @@ function getRowData(type = 'count') {
   }
 }
 
+
 function removeOverflowBtnsMobile() {
   if (!isMobile) return;
   const container = buttonContainer;
 
   let iteration = 0;
+
+  getRowData('count')
+
   while (getRowData('count') > MOBILE_TARGET_ROW) {
     iteration++;
     const currentRows = getRowData('count');
@@ -359,6 +364,7 @@ function removeOverflowBtnsMobile() {
     }
   }
 }
+
 
 function checkLastRow() {
   const endGroup = document.getElementById('endGroup');
@@ -726,6 +732,7 @@ function restoreSourceBtns(select_btns) {
   const endGroup = document.getElementById('endGroup');
 
   mergeFromCheck = false;
+
   container.innerHTML = "";
   
   // 1. Восстанавливаем первую кнопку с учетом стейта
@@ -768,7 +775,21 @@ function restoreSourceBtns(select_btns) {
   endGroup.style.justifyContent = "";
 }
 
+function fallbackMobileSnap() {
+  if(!isMobile) return
+  const fallbackCount = getRowData('count');
 
+  /*
+    //const vertRule = 
+    mainWrapper.classList.add('stickToBot');
+    mainWrapper.classList.remove('stickToBot');
+  */
+
+  if(fallbackCount<MOBILE_TARGET_ROW){
+    mainWrapper.classList.add('stickToBot');
+    document.body.style.backgroundColor = "red"; 
+  }
+}
 
 function rebuildGUI(shuffle = false) {
   restoreSourceBtns(SOURCE_BUTTONS);
@@ -783,6 +804,10 @@ function rebuildGUI(shuffle = false) {
 
   removeOverflowBtnsMobile();
   checkLastRow(); 
+  
+  if(shuffle){
+    fallbackMobileSnap();
+  }
 }
 
 
