@@ -201,7 +201,12 @@ gap: 16px;
     <button id="ebtn"     data-g="D" data-st="open" data-mb="false" data-href="/негативы" class="bd" >негативы</button>
     <button id="fbtn"     data-g="D" data-st="open" data-mb="false" data-href="/exegesis" class="bd" >.exe</button>
 
-
+    <button id="gbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/renders"  class="bw" >_enders</button>
+    <button id="hbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/снимки"   class="bw" >снимки</button>
+    <button id="ibtn"     data-g="W" data-st="lock" data-mb="false" data-href="/графика"  class="bw" >графика</button>
+  
+    <button id="jbtn"     data-g="W" data-st="open" data-mb="false" data-href="/bread"    class="bw" >bread</button>
+    <button id="kbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/haloguys" class="bw" >[ haloguys ]</button>
     <button id="lbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/покпокки" class="bw" >покпокки</button>
   
     <button id="mbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/работа"   class="bw" >работа</button>
@@ -764,34 +769,58 @@ function restoreSourceBtns(select_btns) {
 }
 
 
+function debugDeleteMiddleBtns(count = 5) {
+  const container = document.getElementById('mainButtons');
+  // Берем только "живые" кнопки, которые можно удалять (lock)
+  const buttons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
+    .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id));
+
+  if (buttons.length <= count) {
+    console.warn("Мало кнопок для удаления из середины");
+    return;
+  }
+
+  // Находим индекс начала удаления (примерно в середине списка)
+  const startIndex = Math.floor(buttons.length / 2) - Math.floor(count / 2);
+  
+  console.log(`[Debug] Удаляем ${count} кнопок из середины...`);
+  
+  for (let i = 0; i < count; i++) {
+    if (buttons[startIndex + i]) {
+      buttons[startIndex + i].remove();
+    }
+  }
+}
+
+
 function fallbackMobileSnap() {
   if (!isMobile) return;
   
+  const buttonContainer = document.getElementById('mainButtons');
+  
   buttonContainer.offsetHeight; 
-
-  const container = buttonContainer;
   const currentRows = getRowData('count');
 
-  const computedStyle = window.getComputedStyle(container);
+  const computedStyle = window.getComputedStyle(buttonContainer);
   const basePad = parseInt(computedStyle.paddingTop) || 12;
 
-  container.style.paddingTop = "";
+  buttonContainer.style.paddingTop = "";
 
   if (currentRows > 0 && currentRows < MOBILE_TARGET_ROW && (window.innerHeight > window.innerWidth)) {
-    const allBtns = Array.from(container.children);
+    const allBtns = Array.from(buttonContainer.children);
     const firstTop = allBtns[0].offsetTop;
     const secondRowBtn = allBtns.find(btn => btn.offsetTop > firstTop + 10);
     
     // Истинная высота одной строки (кнопка + gap)
     const rowH = secondRowBtn ? (secondRowBtn.offsetTop - firstTop) : (allBtns[0].offsetHeight + 10);
-    const fullHeight8 = (rowH * (MOBILE_TARGET_ROW-1) ) - 10;
+    const fullHeight8 = (rowH * (MOBILE_TARGET_ROW) ) - 10;
     const currentHeight = (rowH * currentRows) - 10;
     const smartPadding = (fullHeight8 - currentHeight) + (basePad);
 
-    container.style.paddingTop = smartPadding + "px";
+    buttonContainer.style.paddingTop = smartPadding + "px";
     
     //console.log(`[Snap] rows: ${currentRows}, pad: ${smartPadding}px (base: ${basePad})`);
-    //document.body.style.backgroundColor = "grey"; 
+    document.body.style.backgroundColor = "grey"; 
   }
 }
 
@@ -810,9 +839,11 @@ function rebuildGUI(shuffle = false) {
   checkLastRow(); 
   
   if(shuffle && isMobile){
+    debugDeleteMiddleBtns();
     fallbackMobileSnap();
   }
 }
+
 
 
 function initSourceButtons() {
