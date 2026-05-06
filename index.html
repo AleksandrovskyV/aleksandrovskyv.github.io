@@ -726,19 +726,48 @@ function restoreSourceBtns(select_btns) {
   const endGroup = document.getElementById('endGroup');
 
   mergeFromCheck = false;
-  
   container.innerHTML = "";
-  container.appendChild(firstBtn);
+  
+  // 1. Восстанавливаем первую кнопку с учетом стейта
+  const fClone = firstBtn.cloneNode(true);
+  fClone.dataset.href = completeHeart ? "/identity" : "/wolume";
+  container.appendChild(fClone);
+
+  // 2. Восстанавливаем остальные кнопки
   select_btns.forEach(btn => {
-     if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
-       container.appendChild(btn.cloneNode(true));
-     }
+    if (!['firstBtn', 'preBtn', 'lastBtn'].includes(btn.id)) {
+      const clone = btn.cloneNode(true);
+      
+      // СИНХРОНИЗАЦИЯ СОСТОЯНИЯ ЗОНЫ
+      const group = clone.dataset.g;
+      if (completeHeart) {
+        // Если зона открыта ("open")
+        if (group === "D") clone.classList.add('dOpen');
+        if (group === "W") clone.classList.add('wLock');
+        if (group === "B") clone.classList.add('bLock');
+      } else {
+        // Если зона закрыта ("lock") — просто убеждаемся, что классов нет 
+        // (хотя в SOURCE их и так быть не должно)
+        clone.classList.remove('dOpen', 'wLock', 'bLock');
+      }
+
+      container.appendChild(clone);
+    }
   });
+
   container.appendChild(endGroup);
+
+  // Синхронизация спрайта сердца (так как endGroup не клонируется, а переносится)
+  const sprite = document.getElementById('heartIcon');
+  if (completeHeart) sprite.classList.add('complete');
+  else sprite.classList.remove('complete');
+
+  // Сброс стилей группы
   endGroup.style.flex = ""; 
   endGroup.style.marginLeft = ""; 
   endGroup.style.justifyContent = "";
 }
+
 
 
 function rebuildGUI(shuffle = false) {
