@@ -313,15 +313,11 @@ function getRowData(type = 'count') {
   }
 }
 
-
 function removeOverflowBtnsMobile() {
   if (!isMobile) return;
   const container = buttonContainer;
 
   let iteration = 0;
-
-  getRowData('count')
-
   while (getRowData('count') > MOBILE_TARGET_ROW) {
     iteration++;
     const currentRows = getRowData('count');
@@ -364,7 +360,6 @@ function removeOverflowBtnsMobile() {
     }
   }
 }
-
 
 function checkLastRow() {
   const endGroup = document.getElementById('endGroup');
@@ -732,7 +727,6 @@ function restoreSourceBtns(select_btns) {
   const endGroup = document.getElementById('endGroup');
 
   mergeFromCheck = false;
-
   container.innerHTML = "";
   
   // 1. Восстанавливаем первую кнопку с учетом стейта
@@ -775,9 +769,11 @@ function restoreSourceBtns(select_btns) {
   endGroup.style.justifyContent = "";
 }
 
+
 function fallbackMobileSnap() {
   if(!isMobile) return
   const fallbackCount = getRowData('count');
+  console.log("fallbackMobileSnap")
 
   /*
     //const vertRule = 
@@ -798,8 +794,6 @@ function rebuildGUI(shuffle = false) {
     shuffleButtonsWithRules();
     const container = document.getElementById('mainButtons');
     SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
-  }else{
-
   }
 
   removeOverflowBtnsMobile();
