@@ -786,7 +786,7 @@ function fallbackMobileSnap() {
     const rowH = secondRowBtn ? (secondRowBtn.offsetTop - firstTop) : (allBtns[0].offsetHeight + 10);
     const fullHeight8 = (rowH * MOBILE_TARGET_ROW) - 10;
     const currentHeight = (rowH * currentRows) - 10;
-    const smartPadding = (fullHeight8 - currentHeight) + (basePad);
+    const smartPadding = (fullHeight8 - currentHeight) ; //+ (basePad)
 
     container.style.paddingTop = smartPadding + "px";
     
