@@ -775,17 +775,22 @@ function initPage() {
   // Rebuild
   rebuildGUI(true);
 
-  // Events    
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => rebuildGUI(false), 200);
-  });
+  // Events
+  if(isMobile){
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        rebuildGUI(false); 
+      }, 200);
+    });
+  }else{
+    document.addEventListener("keydown", onKeyCommand); 
 
-  window.addEventListener('focus', () => {
-      console.log("Фокус вернулся");
-  });
+    window.addEventListener('focus', () => {
+        console.log("Фокус вернулся");
+    });
+  }
 
-  document.addEventListener("keydown", onKeyCommand);  
 }
 
 // Init Block
