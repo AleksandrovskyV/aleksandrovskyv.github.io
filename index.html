@@ -915,7 +915,6 @@ function rebuildGUI(mode = "current", shuffle = false) {
 }
 
 let lastWidth = window.innerWidth;
-
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
 
@@ -931,10 +930,6 @@ function initPage() {
   if(isMobile && (window.location.protocol !== "file:")){
     // isfile как защита для дебаг хрома режима 
     window.addEventListener('resize', () => {
-
-      if (window.innerWidth === lastWidth) return; // Игнорируем, если ширина не изменилась
-      lastWidth = window.innerWidth;
-      
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         rebuildGUI(); // current
