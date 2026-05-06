@@ -171,11 +171,6 @@ gap: 16px;
 }
 .btn_hide { opacity: 0 !important; pointer-events: none !important; }
 
-.btn_ghost { 
-  opacity: 0 !important; 
-  pointer-events: none !important; 
-}
-
 /* 3. Heart Sprite */
 /* base64-image.de */
 .h_icon { display: block; margin: 5px auto 0; width: 88px; height: 42px; }
@@ -396,11 +391,7 @@ function checkLastRow() {
       targets.sort((a, b) => a.innerText.length - b.innerText.length);
       const bestBuddy = targets[0];
       const ghost = bestBuddy.cloneNode(true);
-
-      ghost.id = ""; 
-      ghost.dataset.ghost = "true"; 
-      ghost.classList.add('btn_ghost'); // Метка для CSS (opacity 0 + no events)
-
+      ghost.id = ""; ghost.style.opacity = "0"; ghost.style.pointerEvents = "none";
       
       bestBuddy.parentNode.insertBefore(ghost, bestBuddy);
       endGroup.prepend(bestBuddy);
@@ -435,7 +426,7 @@ function checkLastRow() {
       // Если удаление lock-кнопок выше не помогло:
       console.log("[Fix Failure] Не удалось спасти 8 строк. ОТКАТЫВАЕМ изменения.");
       const buddyInGroup = endGroup.querySelector('button:not(#preBtn):not(#lastBtn)');
-      const ghost = Array.from(buttonContainer.children).find(el => el.dataset.ghost === "true");
+      const ghost = Array.from(buttonContainer.children).find(el => el.style && el.style.opacity === "0");
 
       if (buddyInGroup && ghost) {
         ghost.replaceWith(buddyInGroup); 
@@ -773,28 +764,8 @@ function restoreSourceBtns(select_btns) {
 
   container.appendChild(endGroup);
 
-  if (endGroup) {
-    const activeInGroup = endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)');
-    
-    activeInGroup.forEach(originalInGroup => {
-      // Ищем клон этой кнопки в основном контейнере (по ID или data-href)
-      
-      const duplicate = Array.from(container.children).find(el => 
-        el !== endGroup && 
-        (el.innerText === originalInGroup.innerText || (el.dataset.href && el.dataset.href === originalInGroup.dataset.href))
-      );
 
 
-      if (duplicate) {
-        console.log(`[Ghosting] Дубликат ${originalInGroup.id} возвращаем статус госта`);
-        
-        // Превращаем в госта:
-        duplicate.id = ""; 
-        duplicate.dataset.ghost = "true"; 
-        duplicate.classList.add('btn_ghost'); 
-      }
-    });
-  }
 
   // Синхронизация спрайта сердца (так как endGroup не клонируется, а переносится)
   const sprite = document.getElementById('heartIcon');
