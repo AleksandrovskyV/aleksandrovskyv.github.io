@@ -767,31 +767,43 @@ function restoreSourceBtns(select_btns) {
 function fallbackMobileSnap() {
   if (!isMobile) return;
   
-  buttonContainer.offsetHeight; 
-
   const container = buttonContainer;
   const currentRows = getRowData('count');
+  const mainWrapper = document.getElementById('mainWrapper');
 
+  // 1. Замеряем БАЗОВЫЙ паддинг (на iPhone это будет ~44px из-за env)
   const computedStyle = window.getComputedStyle(container);
   const basePad = parseInt(computedStyle.paddingTop) || 12;
 
+  // 2. СБРОС
   container.style.paddingTop = "";
 
-  if (currentRows > 0 && currentRows < MOBILE_TARGET_ROW && (window.innerHeight > window.innerWidth)) {
+  const isPortrait = window.innerHeight > window.innerWidth;
+  
+  if (currentRows > 0 && currentRows < MOBILE_TARGET_ROW && isPortrait) {
     const allBtns = Array.from(container.children);
     const firstTop = allBtns[0].offsetTop;
     const secondRowBtn = allBtns.find(btn => btn.offsetTop > firstTop + 10);
     
-    // Истинная высота одной строки (кнопка + gap)
     const rowH = secondRowBtn ? (secondRowBtn.offsetTop - firstTop) : (allBtns[0].offsetHeight + 10);
     const fullHeight8 = (rowH * MOBILE_TARGET_ROW) - 10;
     const currentHeight = (rowH * currentRows) - 10;
-    const smartPadding = (fullHeight8 - currentHeight) ; //+ (basePad)
+
+    // --- МАТЕМАТИКА ДЛЯ РЕАЛЬНОГО ТЕЛЕФОНА ---
+    // Нам нужно добавить ровно столько, чтобы компенсировать разницу высот.
+    // Но так как fswrap уже зажат в env-инсеты, нам НЕ НУЖНО добавлять basePad, 
+    // если он вызван Safe Area, иначе мы "давим" дважды.
+    
+    // Попробуй формулу БЕЗ basePad, либо с фиксированными 12px (игнорируя env)
+    const diff = (fullHeight8 - currentHeight);
+    
+    // Если на ПК (дебаг) basePad = 12, а на телефоне 44, 
+    // то для телефона нам нужно использовать только разницу.
+    const smartPadding = diff; 
 
     container.style.paddingTop = smartPadding + "px";
     
-    //console.log(`[Snap] rows: ${currentRows}, pad: ${smartPadding}px (base: ${basePad})`);
-    //document.body.style.backgroundColor = "grey"; 
+    // Если всё еще низковато, добавь +6 (половину от 12), но не весь basePad
   }
 }
 
