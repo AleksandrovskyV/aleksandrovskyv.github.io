@@ -247,7 +247,7 @@ let switchZoneInAnim = false; // Блокирует спам-клики на 50�
 const buttonContainer = document.getElementById('mainButtons');
 
 let SOURCE_BUTTONS = [];
-
+let resizeTimeout;
 
 // Замена static на sprite по готовности картинки
 (function(id, src) {
@@ -813,7 +813,7 @@ function initSourceButtons() {
   buttonContainer.addEventListener('click', handleButtonClick);
 }
 
-let resizeTimeout; // Объявляем переменную здесь
+
 
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
@@ -832,7 +832,7 @@ function initPage() {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         rebuildGUI(false); 
-      }, 200);
+      }, 240);
     });
   }else{
     document.addEventListener("keydown", onKeyCommand); 
