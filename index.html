@@ -814,14 +814,15 @@ function restoreSourceBtns(mode) {
   select_btns.forEach(btn => {
     if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
       const clone = btn.cloneNode(true);
-      
-      if (completeHeart) {
-        const g = clone.dataset.g;
-        if (g === "D") clone.classList.add('dOpen');
-        if (g === "W") clone.classList.add('wLock');
-        if (g === "B") clone.classList.add('bLock');
-      } else {
-        clone.classList.remove('dOpen', 'wLock', 'bLock');
+      if (!clone.classList.contains('btn_ghost')) {
+        if (completeHeart) {
+          const g = clone.dataset.g;
+          if (g === "D") clone.classList.add('dOpen');
+          if (g === "W") clone.classList.add('wLock');
+          if (g === "B") clone.classList.add('bLock');
+        } else {
+          clone.classList.remove('dOpen', 'wLock', 'bLock');
+        }
       }
       container.appendChild(clone);
     }
@@ -862,9 +863,19 @@ function restoreSourceBtns(mode) {
 }
 
 function rebuildGUI(mode = "current", shuffle = false ) { // source / current
-
   const container = document.getElementById('mainButtons');
   const endGroup = document.getElementById('endGroup');
+
+  if (mode === "current") {
+    SOURCE_BUTTONS.forEach(btn => {
+      if (btn.dataset.source === "true") btn.dataset.current = "true";
+      else delete btn.dataset.current; // удаляем старых гостов из очереди на отрисовку
+    });
+    // Также чистим endGroup, чтобы checkLastRow рассчитал подселение заново под новую ширину
+    Array.from(endGroup.children).forEach(btn => {
+      if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
+    });
+  }
 
   restoreSourceBtns(mode);
   
