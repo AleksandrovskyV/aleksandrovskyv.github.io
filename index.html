@@ -602,52 +602,37 @@ function changeZone(state = "open") {
 
 function onKeyCommand(e) {
 
-  console.log("Press", e.code);
-  e.preventDefault();
-  e.stopImmediatePropagation(); // Чтобы другие скрипты не мешали
+  const cod = e.code;
+  const key = e.key;
 
-  if (e.code === "Backquote") {
-    if (window.location.protocol === "file:") {
-      window.location.href = "./wolume/index.html";
-    } else {
-      window.location.href = "./wolume";
-    }
-  }
+  const pressedCtrl = e.ctrlKey;
+  const pressedShift = e.shiftKey;
 
-  if (e.code === 'KeyE') {
-    if (window.location.protocol === "file:") {
-      window.location.href = "./exegesis/index.html";
-    } else {
-      window.location.href = "./exegesis";
-    }
-  }
+  //console.log("Press", cod, key);
 
-  if (e.code === 'KeyR') {
-    if (window.location.protocol === "file:") {
-      window.location.href = "./renders/index.html";
-    } else {
-      window.location.href = "./renders";
-    }
-  }
+  if(!pressedCtrl && !pressedShift){ // hardcore transit to page
 
-  if (e.code === 'KeyG') {
-    if (window.location.protocol === "file:") {
-      window.location.href = "./графика/index.html";
-    } else {
-      window.location.href = "./графика";
-    }
-  }
+    e.preventDefault();
+    e.stopImmediatePropagation(); 
 
-  if (e.code === 'KeyH') {
-    if (window.location.protocol === "file:") {
-      window.location.href = "./негативы/index.html";
-    } else {
-      window.location.href = "./негативы";
+    let targetHREF = null;
+    const protRule = (window.location.protocol === "file:"); // for local
+
+    if (cod === "Backquote") targetHREF = "./wolume";
+    else if (cod === 'KeyE') targetHREF = "./exegesis";
+    else if (cod === 'KeyR') targetHREF = "./renders";  
+    else if (cod === 'KeyG') targetHREF = "./графика";
+    else if (cod === 'KeyH') targetHREF = "./негативы";
+
+    if (targetHREF) {
+      if (protRule) targetHREF = targetHREF + "/index.html";
+      window.location.href = targetHREF;
     }
   }
 
   return
 }
+
 
 function hideAllButtons() {
   return new Promise(resolve => {
@@ -772,7 +757,7 @@ function restoreSourceBtns(select_btns) {
   });
 
   container.appendChild(endGroup);
-  
+
   if (endGroup) {
     const activeInGroup = endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)');
     
