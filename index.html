@@ -586,6 +586,8 @@ function onKeyCommand(e) {
     e.preventDefault();
     e.stopImmediatePropagation(); 
 
+    if (cod === 'KeyM') return rebuildGUI(true); 
+
     let targetHREF = null;
     const protRule = (window.location.protocol === "file:"); // for local
 
