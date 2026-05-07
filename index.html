@@ -953,7 +953,7 @@ function initPage() {
     window.addEventListener('touchend', () => isTouching = false, {passive: true});
 
     window.addEventListener('resize', () => {
-      if (isLocal) return; // как защита для дебаг хрома режима ?
+      if (isLocal) return; // как защита chrome debug mode ?
       if (isTouching) return; 
       if (window.innerWidth === lastWidth) return;
       
