@@ -208,6 +208,22 @@ function initDraggable(el, index) {
     el.style.cursor = "grab";
     el.style.zIndex = zIndexOrder[index];
 
+
+    if(el.dataset.g==="W"){
+    
+      if(theme==="light"){
+        el.hidden = false;
+      }
+    }
+
+    if(el.dataset.g==="D"){
+    
+      if(theme==="light"){
+        el.hidden = true;
+      }  
+    }
+
+
     el.style.visibility = "visible";
     el.style.display = "block";
   };
