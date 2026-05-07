@@ -1,0 +1,63 @@
+Я объявил переменную и сделал метод проверки. 
+Переменная нужна, чтобы прописывать логику в зависимости от его текущего статуса. 
+
+let widescreen;
+
+function checkWidescreen(){
+  const checkValue = (window.innerHeight > window.innerWidth) ? false : true;
+  const changed = (checkValue !== widescreen);
+  widescreen = checkValue;
+}
+
+checkWidescreen();
+
+Правило очень простое и таких флагов в программе может быть много. 
+Я могу добавить return этой переменной, но это принципиально ничего не изменит.
+По сути есть rule и применение переменной. 
+Писать много мелких методов или можно их аккуратнее оформить в js?
+
+
+Что выбрать? 
+Если проверок мало и они простые — геттеры (способ №1).
+Если проверок много и они влияют на производительность — MatchMedia.
+Если это бизнес-логика, не связанная с экраном — единый объект state.
+
+
+1. Геттеры:
+
+const screen = {
+  get isWidescreen() {
+    return window.innerWidth > window.innerHeight;
+  },
+  get isMobile() {
+    return window.innerWidth < 768;
+  }
+};
+
+// Использование:
+if (screen.isWidescreen) { /* логика */ }
+
+
+2. Если важна производительность и вы не хотите пересчитывать значения слишком часто, 
+можно собирать все флаги в один объект одним методом.
+
+const flags = {
+  widescreen: false,
+  retina: false,
+};
+
+function updateFlags() {
+  flags.widescreen = window.innerWidth > window.innerHeight;
+  flags.retina = window.devicePixelRatio > 1;
+}
+
+// Вызываем один раз при загрузке или ресайзе
+window.addEventListener('resize', updateFlags);
+
+3. Для проверки размеров экрана в JS есть встроенный механизм, который работает эффективнее, чем ручное сравнение ширин.javascriptconst mq = {
+  widescreen: window.matchMedia("(orientation: landscape)"),
+  mobile: window.matchMedia("(max-width: 767px)")
+};
+
+// Использование:
+if (mq.widescreen.matches) { ... }

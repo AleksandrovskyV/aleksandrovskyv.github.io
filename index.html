@@ -250,10 +250,10 @@ let SOURCE_BUTTONS = [];
 let mergeFromCheck = false;
 let completeHeart = false;    // flag current state page (group W\D)
 let switchZoneInAnim = false; // flag block spam click on 50ms
-let resizeTimeout;
 
-let currentOrient = (window.innerHeight > window.innerWidth) ? "port" : "album";
-
+let resizeTimeout; let widescreen;
+let isTouching = false;            // safe iphone flag   
+let lastWidth = window.innerWidth; // safe iphone flag   
 
 const buttonContainer = document.getElementById('mainButtons');
 
@@ -286,6 +286,12 @@ window.addEventListener("pageshow", (event) => {
 });
 
 // Helpers & Debugs
+
+function checkWidescreen(){
+  const checkValue = (window.innerHeight > window.innerWidth) ? false : true;
+  const changed = (checkValue !== widescreen);
+  widescreen = checkValue;
+}
 
 function getRowData(type = 'count') {
   //buttonContainer.offsetHeight; 
@@ -340,6 +346,7 @@ function removeDeskBtnOnMobile() {
     btn.remove();
   });
 }
+
 
 // GUI Preload - Sort and Restruct Logic
 
@@ -573,6 +580,7 @@ function fallbackMobileSnap() {
   }
 }
 
+
 // User Interaction
 
 function onKeyCommand(e) {
@@ -768,6 +776,7 @@ async function handleButtonClick(ev) {
   window.location.href = target;
 }
 
+
 // GUI Updaters
 
 function initSourceButtons() {
@@ -787,8 +796,6 @@ function initSourceButtons() {
   SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
   container.addEventListener('click', handleButtonClick);
 }
-
-
 
 function restoreSourceBtns(mode) {
   const container = document.getElementById('mainButtons');
@@ -846,7 +853,7 @@ function restoreSourceBtns(mode) {
       duplicate.style.opacity = "0"; 
       duplicate.classList.add('btn_ghost'); 
       /*
-      if (currentOrient === "album") {
+      if (widescreen) {
         duplicate.style.display = "none"; 
       } else {
         duplicate.style.display = ""; 
@@ -861,14 +868,8 @@ function restoreSourceBtns(mode) {
   endGroup.style.flex = endGroup.style.marginLeft = endGroup.style.justifyContent = "";
 }
 
-
-
 function rebuildGUI(mode = "current", shuffle = false) {
   
-  const newOrient = (window.innerHeight > window.innerWidth) ? "port" : "album";
-  const changed = (newOrient !== currentOrient);
-  currentOrient = newOrient;
-
   const container = document.getElementById('mainButtons');
   const endGroup = document.getElementById('endGroup');
 
@@ -914,13 +915,9 @@ function rebuildGUI(mode = "current", shuffle = false) {
   });
 }
 
-let lastWidth = window.innerWidth;
-let isTouching = false;
-window.addEventListener('touchstart', () => isTouching = true, {passive: true});
-window.addEventListener('touchend', () => isTouching = false, {passive: true});
-
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
+  checkWidescreen();
 
   // Prepare
   removeDeskBtnOnMobile();
@@ -930,6 +927,12 @@ function initPage() {
   // Rebuild
   rebuildGUI("source", true);
 
+  if(isMobile){
+    window.addEventListener('touchstart', () => isTouching = true, {passive: true});
+    window.addEventListener('touchend', () => isTouching = false, {passive: true});
+  }
+
+
   // Events
   if(isMobile && (window.location.protocol !== "file:")){
     // isfile как защита для дебаг хрома режима 
@@ -938,7 +941,7 @@ function initPage() {
 
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
-      
+
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         rebuildGUI(); // current
