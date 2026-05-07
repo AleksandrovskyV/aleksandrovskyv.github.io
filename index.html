@@ -268,8 +268,8 @@ const MOBILE_TARGET_ROW = 8;
 let SOURCE_BUTTONS = [];
 
 let mergeFromCheck = false;
-let unlockHeart = false;    // flag current state page (group W\D)
-let switchZoneInAnim = false; // flag block spam click on 50ms
+let unlockHeart = (theme === "dark");  // flag current state page (group W\D)
+let switchZoneInAnim = false;          // flag block spam click on 50ms
 
 // safe iphone flags
 let resizeTimeout; let widescreen;
@@ -287,6 +287,7 @@ const buttonContainer = document.getElementById('mainButtons');
   // Ждем готовности картинки к отрисовке
   img.decode().then(() => {
     document.getElementById(id).classList.add('h_sprite');
+    if(unlockHeart) document.getElementById(id).classList.add('complete');
   }).catch(() => { /* если картинка битая, останется SVG */ });
 })('heartIcon', "/content/heart_sprite.png");
 
@@ -604,7 +605,6 @@ function fallbackMobileSnap() {
     // document.body.style.backgroundColor = "grey"; 
   }
 }
-
 
 // User Interaction
 
