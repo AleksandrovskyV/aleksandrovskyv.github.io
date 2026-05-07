@@ -608,9 +608,10 @@ function onKeyCommand(e) {
     let targetHREF = null;
     const protRule = (window.location.protocol === "file:"); // for local
 
+    if (cod === 'KeyR') targetHREF = "./renders";
+
     if(unlockHeart){
       if (cod === 'KeyE') targetHREF = "./exegesis";
-      else if (cod === 'KeyR') targetHREF = "./renders";
       else if (cod === 'KeyH') targetHREF = "./негативы";
     }else{
       if (cod === "Backquote") targetHREF = "./wolume";
