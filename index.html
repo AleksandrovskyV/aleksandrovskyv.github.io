@@ -24,6 +24,8 @@
   const ua = navigator.userAgent.toLowerCase();
   // set global platform variable
   window.isMobile = /iphone|ipad|android/.test(ua);
+  window.isLocal = (window.location.protocol === "file:");
+
   if (window.isMobile) {
     document.documentElement.classList.add('mobile');
   }
@@ -606,8 +608,6 @@ function onKeyCommand(e) {
     if (cod === 'KeyV' || cod === "Space") return rebuildGUI("source", true); // hard reset
 
     let targetHREF = null;
-    const protRule = (window.location.protocol === "file:"); // for local
-
     if (cod === 'KeyR') targetHREF = "./renders";
 
     if(unlockHeart){
@@ -620,7 +620,7 @@ function onKeyCommand(e) {
     }
 
     if (targetHREF) {
-      if (protRule) targetHREF = targetHREF + "/index.html";
+      if (isLocal) targetHREF = targetHREF + "/index.html";
       window.location.href = targetHREF;
     }
   }
@@ -770,7 +770,7 @@ async function handleButtonClick(ev) {
   await hideAllButtons(); // anim opacity
 
   // Create URL
-  if (window.location.protocol === "file:") {
+  if (localVersion) {
     if (target.startsWith("/")) target = target.slice(1);
     target = target + ".html";
   } else {
@@ -947,7 +947,7 @@ function initPage() {
 
 
   // Events
-  if(isMobile && (window.location.protocol !== "file:")){
+  if(isMobile && isLocal){
     // isfile как защита для дебаг хрома режима 
     window.addEventListener('resize', () => {
        if (isTouching) return; 
