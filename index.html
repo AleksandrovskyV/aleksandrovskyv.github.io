@@ -985,8 +985,8 @@ function rebuildGUI(mode = "update", shuffle = false) {
   
   if (mode === "reset"){
     if (!isMobile) checkLastRow();
-    if(isMobile && initWidescr) checkLastRow();
-    else if (isMobile && !initWidescr) removeOverflowBtnsUpdate(); 
+    if(isMobile && !initWidescr) checkLastRow();
+    else if (isMobile && initWidescr) removeOverflowBtnsUpdate(); 
 
   }else{ // update
     
