@@ -22,9 +22,9 @@ const referrer = document.referrer;
 
 // set global platform variable
 
-// Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+// iphone|ipad|ipod|android|blackberry|webos|iemobile|opera mini ;
 
-window.isMobile = /iphone|ipad|android/.test(ua);
+window.isMobile = /iphone|ipad|ipod|android/.test(ua);
 window.isLocal = (window.location.protocol === "file:");
 window.isFromMain = referrer.includes('vsky.space') || referrer.includes('aleksandrovskyv.github.io');
 window.theme = "dark";
@@ -67,10 +67,9 @@ position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
 z-index:1000;
 }
 
-/* после завершения анимации мы дополнительно ставим visibility:hidden (JS) —
-   это защищает от :hover и от фокусировки через клавиатуру */
 .background{
-position:absolute;inset:0; z-index:-100;transition:opacity 1.2s ease;
+position:absolute;inset:0; z-index:-100;
+transition:opacity 1.2s ease;
 }
 
 .draggable {
@@ -325,9 +324,8 @@ window.addEventListener("load", () => {
   checkFullsize();
 });
 
-// ------------------------------------------------------------
+
 // Кнопки
-// ------------------------------------------------------------
 document.querySelectorAll("button").forEach(btn => {
   btn.addEventListener("click", () => {
     let target = btn.dataset.href;
