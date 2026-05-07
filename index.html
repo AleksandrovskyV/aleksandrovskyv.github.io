@@ -24,7 +24,7 @@
   const ua = navigator.userAgent.toLowerCase();
   const savedTheme = localStorage.getItem('theme'); 
 
-  // set global platform variable
+  // set global platform variable !
   // iphone|ipad|ipod|android|blackberry|webos|iemobile|opera mini ;
   window.isMobile = /iphone|ipad|android/.test(ua);
   window.isLocal = (window.location.protocol === "file:");
