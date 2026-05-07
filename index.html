@@ -793,7 +793,7 @@ function onKeyCommand(e) {
     e.preventDefault();
     e.stopImmediatePropagation(); 
 
-    if (cod === 'KeyV' || cod === "Space") return rebuildGUI("source", true); // hard reset
+    if (cod === 'KeyV' || cod === "Space") return rebuildGUI("reset", true); // hard reset
     if (cod === 'KeyI') return toggleHeart();
 
 
@@ -820,7 +820,7 @@ function onKeyCommand(e) {
 
 // GUI Updaters
 
-function initSourceButtons() {
+function initSourceBtns() {
   const container = document.getElementById('mainButtons');
 
   container.querySelectorAll('button').forEach(btn => {
@@ -838,6 +838,26 @@ function initSourceButtons() {
   container.addEventListener('click', handleButtonClick);
 }
 
+function updSourceBtns(mode){
+    const container = document.getElementById('mainButtons');
+
+    if(mode==="sort"){
+      const domOrder = Array.from(container.querySelectorAll('button:not(.btn_ghost)')); //
+      const sorted = [];
+      domOrder.forEach(domBtn => {
+        const found = SOURCE_BUTTONS.find(s => (domBtn.id && s.id === domBtn.id) );
+        if (found){sorted.push(found)
+        }
+      });
+
+      SOURCE_BUTTONS.forEach(s => { 
+        const alreadyIn = sorted.some(already => (already.id && already.id === s.id) );
+        if (!alreadyIn) sorted.push(s);
+      });
+      SOURCE_BUTTONS = sorted;
+    }
+}
+
 function restoreSourceBtns(mode) {
   const container = document.getElementById('mainButtons');
   const endGroup = document.getElementById('endGroup');
@@ -845,12 +865,12 @@ function restoreSourceBtns(mode) {
   mergeFromCheck = false;
   container.innerHTML = "";
     
-  if (mode === "source") {
+  if (mode === "reset") {
     // удаляем госта из End группы
     Array.from(endGroup.children).forEach(btn => {
       if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
     });
-  }else{ // разворот
+  }else{ 
 
   }
 
@@ -911,35 +931,21 @@ function restoreSourceBtns(mode) {
   endGroup.style.flex = endGroup.style.marginLeft = endGroup.style.justifyContent = "";
 }
 
-function rebuildGUI(mode = "current", shuffle = false) {
+
+function rebuildGUI(mode = "update", shuffle = false) { // modes reset/update
   
   restoreSourceBtns(mode);
   if (shuffle) shuffleButtonsWithRules();
   
   removeOverflowBtnsMobile();
-  if (mode === "source") checkLastRow();
+  if (mode === "reset") checkLastRow();
 
   if (isMobile) fallbackMobileSnap();
   
   // Массив не перезаписываем! Только проставляем порядок! 
-
-  if(shuffle){
-    const container = document.getElementById('mainButtons');
-    const domOrder = Array.from(container.querySelectorAll('button:not(.btn_ghost)')); //
-    const sorted = [];
-    domOrder.forEach(domBtn => {
-      const found = SOURCE_BUTTONS.find(s => (domBtn.id && s.id === domBtn.id) );
-      if (found){sorted.push(found)
-      }
-    });
-
-    SOURCE_BUTTONS.forEach(s => { 
-      const alreadyIn = sorted.some(already => (already.id && already.id === s.id) );
-      if (!alreadyIn) sorted.push(s);
-    });
-    SOURCE_BUTTONS = sorted;
-  }
+  if(shuffle) updSourceBtns("sort");
 }
+
 
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
@@ -948,10 +954,10 @@ function initPage() {
   // Prepare
   removeDeskBtnOnMobile();
   adjustFontByCount();
-  initSourceButtons();
+  initSourceBtns();
 
   // Rebuild
-  rebuildGUI("source", true);
+  rebuildGUI("reset", true);
 
   // Events
 
