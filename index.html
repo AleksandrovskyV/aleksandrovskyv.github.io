@@ -928,11 +928,23 @@ function restoreSourceBtns(mode) {
   }else{ 
   }
 
+  const recoverState = (btn) => {
+    if (unlockHeart) {  
+      const g = btn.dataset.g;
+      if (g === "D") btn.classList.add('dstate');
+      if (g === "W") btn.classList.add('dstate');
+      if (g === "B") btn.classList.add('dstate');
+    } else {
+      btn.classList.remove('dstate');
+    }
+  };
+
   // 1. Восстановление FirstBtn
   const fOrig = SOURCE_BUTTONS.find(b => b.id === 'firstBtn');
   if (fOrig) {
     const fClone = fOrig.cloneNode(true);
     fClone.dataset.href = unlockHeart ? "/identity" : "/wolume";
+    recoverState(fClone)
     container.appendChild(fClone);
   }
 
@@ -949,22 +961,15 @@ function restoreSourceBtns(mode) {
         clone.dataset.ghost = "true";
         if(mode === "update") console.log("подцепили госта");
       } else {
-
-        if (unlockHeart) {  
-          const g = clone.dataset.g;
-          if (g === "D") clone.classList.add('dstate');
-          if (g === "W") clone.classList.add('dstate');
-          if (g === "B") clone.classList.add('dstate');
-        } else {
-          clone.classList.remove('dstate');
-        }
+        recoverState(clone);
       }
+
       container.appendChild(clone);
     }
   });
 
   // 3. Конечная группа (дубликат из DOM)
-  container.appendChild(endGroup);
+  container.appendChild(endGroup); // держит стиль так как из Dom
 
   const sprite = document.getElementById('heartIcon');
   if (unlockHeart) sprite.classList.add('complete');
