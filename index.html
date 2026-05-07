@@ -22,12 +22,25 @@
 
 <script>
   const ua = navigator.userAgent.toLowerCase();
+  const savedTheme = localStorage.getItem('theme'); 
+
   // set global platform variable
   window.isMobile = /iphone|ipad|android/.test(ua);
   window.isLocal = (window.location.protocol === "file:");
-
+  
   if (window.isMobile) {
     document.documentElement.classList.add('mobile');
+  }
+
+  if (savedTheme === 'dark') {
+      window.theme = "dark";
+      document.documentElement.classList.add('dark');
+      document.documentElement.style.setProperty('--theme', 'dark');
+      document.documentElement.style.setProperty('--bg',    '#000');
+      
+  }else{
+      window.theme = "light";
+      document.documentElement.classList.add('light');
   }
 </script>
 
@@ -39,6 +52,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/content/apple-touch-icon.png">
 
 <style>
+:root {
+--theme: light; 
+--bg: #e5e5e5;
+--text: #ccc;
+--debug: false;
+}
+
 *{box-sizing:border-box;margin:0;padding:0}
 html, body {
   height: 100%; background: #e5e5e5;
