@@ -608,7 +608,7 @@ function fallbackMobileSnap() {
 
 // User Interaction
 
-function changeZone(state = "open") {
+function turnToDark(toDark = true) {
 
   if (switchZoneInAnim) return; 
   switchZoneInAnim = true;
@@ -622,7 +622,7 @@ function changeZone(state = "open") {
 
   const firstBtn =  document.getElementById('firstBtn');
 
-  if (state === "open") {
+  if (toDark) {
       firstBtn.dataset.href = "/identity"
       //firstBtn.dataset.g = "D"
       //firstBtn.classList.replace('bw', 'bd');
@@ -637,7 +637,7 @@ function changeZone(state = "open") {
   // Используем прямые команды вместо toggle
   // исключает риск рассинхрона стейта при спам-кликах
   setTimeout(() => {
-    if (state === "open") {
+    if (toDark) {
       sprite.classList.add('complete');
     } else {
       sprite.classList.remove('complete');
@@ -655,9 +655,8 @@ function changeZone(state = "open") {
     .filter(btn => btn.id !== 'lastBtn');
 
 
-  if (state === "open") {
+  if (toDark) {
     setTimeout(() => {
-      //document.body.classList.add("invert");
 
       window.theme = "dark";
       document.documentElement.style.setProperty('--bg',    '#000');
@@ -675,8 +674,6 @@ function changeZone(state = "open") {
   } else {
     setTimeout(() => {
       
-      //document.body.classList.remove("invert");
-
       window.theme = "light";
       document.documentElement.style.setProperty('--bg',    '#e5e5e5');
 
@@ -694,11 +691,9 @@ function changeZone(state = "open") {
 
 function toggleHeart(){
   unlockHeart = !unlockHeart;
-  if (typeof changeZone === "function") changeZone(unlockHeart ? "open" : "lock");
+  turnToDark(unlockHeart);
   saveLocalStorage(); 
 }
-
-
 
 function hideAllButtons() {
   // Анимация скрытия всех кнопок
@@ -752,7 +747,8 @@ async function handleButtonClick(ev) {
     return;
   }
 
-  if (btn.dataset.st === 'lock' || (!unlockHeart && btn.classList.contains('bw')) ) {
+  if ( !unlockHeart && (btn.dataset.st === 'lock' && btn.classList.contains('bw'))  ){
+    // блокировка нажатий только на светлом сайте
     return false;
   }
 
@@ -827,16 +823,17 @@ function initSourceButtons() {
   const container = document.getElementById('mainButtons');
 
   container.querySelectorAll('button').forEach(btn => {
-    btn.dataset.source = "true"; // 1. Помечаем оригиналы
+    btn.dataset.source = "true"; // Помечаем оригиналы
     
     if (window.theme === "dark") {
-      //console.log("append btn to dark")
       btn.classList.add('dstate');
     }
   });
 
-  // 2. Сохраняем эталон один раз. Больше SOURCE_BUTTONS не меняется физически!
+  // 2. Сохраняем эталон в SOURCE_BUTTONS один раз. больше  не меняеем 
   SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
+
+  // 3. добавляем слушатели
   container.addEventListener('click', handleButtonClick);
 }
 
@@ -979,15 +976,15 @@ function initPage() {
     window.addEventListener('resize', () => {
       if (isLocal) return; // как защита chrome debug mode ?
       if (isTouching) return; 
-      if (window.innerWidth === lastWidth) return;
       
+      if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
 
       clearTimeout(resizeTimeout);
 
       resizeTimeout = setTimeout(() => {
         rebuildGUI(); // "current" state
-      }, 200);
+      }, 250);
     });
 
   }else{
