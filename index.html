@@ -189,7 +189,7 @@ margin-left: auto; /* прижмет группу вправо */
 }
 
 .btn_hide {  opacity: 0 !important; pointer-events: none !important; }
-.btn_ghost { color: red; opacity: 1 !important; pointer-events: none !important; }
+.btn_ghost { color: rgba(24, 24, 24, 1.0) !important; opacity: 1 !important; pointer-events: none !important; }
 
 /* 3. Heart Sprite */
 /* base64-image.de */
@@ -486,6 +486,7 @@ function checkLastRow() {
       ghost.id = ""; 
       ghost.dataset.ghost = "true"; 
       ghost.classList.add('btn_ghost'); // Метка для CSS (opacity 0 + no events)
+      console.log("ПЫФВ")
       
       bestBuddy.parentNode.insertBefore(ghost, bestBuddy);
       endGroup.prepend(bestBuddy);
