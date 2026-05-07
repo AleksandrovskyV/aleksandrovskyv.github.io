@@ -452,7 +452,7 @@ function checkLastRow() {
       ghost.id = ""; 
       ghost.dataset.ghost = "true"; 
       ghost.classList.add('btn_ghost'); // Метка для CSS (opacity 0 + no events)
-      delete ghost.dataset.source; 
+      //delete ghost.dataset.source; 
 
       
       bestBuddy.parentNode.insertBefore(ghost, bestBuddy);
@@ -842,26 +842,11 @@ function restoreSourceBtns(mode) {
   const container = document.getElementById('mainButtons');
   const endGroup = document.getElementById('endGroup');
 
-  // Если нажали M, выселяем всех из группы. Группа снова чистая.
-  if (mode === "source") {
-    Array.from(endGroup.children).forEach(btn => {
-      if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
-    });
-  }
-  /*
-  let select_btns = SOURCE_BUTTONS.filter(btn => {
-    if (mode === "source") return btn.dataset.source === "true";
-    return btn.dataset.current === "true";
-  });
-  */
-
-  let select_btns = SOURCE_BUTTONS.filter(btn => btn.dataset.source === "true");
-
   mergeFromCheck = false;
   container.innerHTML = "";
     
   // 3. Восстановление FirstBtn
-  const fOrig = select_btns.find(b => b.id === 'firstBtn');
+  const fOrig = SOURCE_BUTTONS.find(b => b.id === 'firstBtn');
   if (fOrig) {
     const fClone = fOrig.cloneNode(true);
     fClone.dataset.href = unlockHeart ? "/identity" : "/wolume";
@@ -869,15 +854,19 @@ function restoreSourceBtns(mode) {
   }
 
   // 4. Отрисовка основного состава
-  select_btns.forEach(btn => {
+  SOURCE_BUTTONS.forEach(btn => {
     if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
       const clone = btn.cloneNode(true);
+      
       // Синхронизация темы (только для живых кнопок)
-      if (unlockHeart) {
+      if (unlockHeart) {  
         const g = clone.dataset.g;
-        if (g === "D") clone.classList.add('dstate');
-        if (g === "W") clone.classList.add('dstate');
-        if (g === "B") clone.classList.add('dstate');
+        if (btn.dataset.ghost !== "true") {
+          if (g === "D") clone.classList.add('dstate');
+          if (g === "W") clone.classList.add('dstate');
+          if (g === "B") clone.classList.add('dstate');
+        }
+
       }
       container.appendChild(clone);
     }
@@ -918,50 +907,40 @@ function rebuildGUI(mode = "current", shuffle = false) {
   const container = document.getElementById('mainButtons');
   const endGroup = document.getElementById('endGroup');
 
-  if (mode === "current") { // разворот
-    SOURCE_BUTTONS.forEach(btn => {
-      if (btn.dataset.source === "true") btn.dataset.current = "true";
+  if (mode === "source") {
+    // удаляем госта из End группы
+    Array.from(endGroup.children).forEach(btn => {
+      if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
     });
+  }else{ // разворот
+
   }
 
   restoreSourceBtns(mode);
   
-  if (shuffle) {
-    shuffleButtonsWithRules();
-    /*
-    const domOrder = Array.from(container.querySelectorAll('button:not(.btn_ghost)'));
-    const sorted = [];
-    domOrder.forEach(domBtn => {
-      const found = SOURCE_BUTTONS.find(s => (domBtn.id && s.id === domBtn.id) || (s.innerText === domBtn.innerText && s.dataset.href === domBtn.dataset.href));
-      if (found) sorted.push(found);
-    });
-    // Добавляем те, что не попали (если вдруг такие есть)
-    SOURCE_BUTTONS.forEach(s => { if (!sorted.includes(s)) sorted.push(s); });
-    SOURCE_BUTTONS = sorted;
-    */
-  }
-
+  if (shuffle) shuffleButtonsWithRules();
   removeOverflowBtnsMobile();
   if (mode === "source") checkLastRow();
 
-  
   if (isMobile) fallbackMobileSnap();
   
-  /*
-  // 6. ФИНАЛИЗАЦИЯ: Массив не перезаписываем! Только проставляем метки current! 
-  SOURCE_BUTTONS.forEach(btn => delete btn.dataset.current);
-  
-  const currentHrefs = [
-    ...Array.from(container.querySelectorAll('button:not(.btn_ghost)')),
-    ...Array.from(endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)'))
-  ].map(b => b.dataset.href);
+  // 6. ФИНАЛИЗАЦИЯ: Массив не перезаписываем! Только проставляем порядок! 
 
-  SOURCE_BUTTONS.forEach(btn => {
-    if (currentHrefs.includes(btn.dataset.href)) {
-      btn.dataset.current = "true";
-    }
-  });
-  */
+  if(shuffle){
+    const domOrder = Array.from(container.querySelectorAll('button:not(.btn_ghost)')); //
+    const sorted = [];
+    domOrder.forEach(domBtn => {
+      const found = SOURCE_BUTTONS.find(s => (domBtn.id && s.id === domBtn.id) );
+      if (found){sorted.push(found)
+      }
+    });
+
+    SOURCE_BUTTONS.forEach(s => { 
+      const alreadyIn = sorted.some(already => (already.id && already.id === s.id) );
+      if (!alreadyIn) sorted.push(s);
+    });
+    SOURCE_BUTTONS = sorted;
+  }
 }
 
 function initPage() {
