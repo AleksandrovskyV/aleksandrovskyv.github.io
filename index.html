@@ -984,15 +984,13 @@ function rebuildGUI(mode = "update", shuffle = false) {
   removeOverflowBtnsMobile();
   
   if (mode === "reset"){
-    checkLastRow();
-  }else{
-    removeOverflowBtnsUpdate(); // Hard Overflow
-  }
+    if (!isMobile) checkLastRow();
+    if(isMobile && initWidescr) checkLastRow();
+    else if (isMobile && !initWidescr) removeOverflowBtnsUpdate(); 
 
-  if (isMobile) fallbackMobileSnap();
-  
-  if(isMobile && mode === "update"){
-    if(!initWidescr){
+  }else{ // update
+    
+    if(isMobile && !initWidescr){
       const endGroup = document.getElementById('endGroup');
 
       if( lastWidth === initWidth ){ // возвращаемся в портретный фикс
@@ -1008,8 +1006,11 @@ function rebuildGUI(mode = "update", shuffle = false) {
       }
     }
 
+    removeOverflowBtnsUpdate(); // Hard Overflow
   }
 
+  if (isMobile) fallbackMobileSnap();
+  
   updSourceBtns(mode);
 }
 
