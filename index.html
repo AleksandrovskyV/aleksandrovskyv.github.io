@@ -189,7 +189,7 @@ margin-left: auto; /* прижмет группу вправо */
 }
 
 .btn_hide  { opacity: 0 !important; pointer-events: none !important; }
-.btn_ghost { opacity: 1 !important; pointer-events: none !important; } /* color: rgba(24, 24, 24, .0) !important; */
+.btn_ghost { opacity: 0 !important; pointer-events: none !important; } /* color: rgba(24, 24, 24, .0) !important; */
 
 /* 3. Heart Sprite */
 /* base64-image.de */
@@ -542,7 +542,6 @@ function checkLastRow() {
 
       targets.forEach(target => {
         const src = SOURCE_BUTTONS.find(s => 
-          (target.id && s.id === target.id) || 
           (s.dataset.href === target.dataset.href)
         );
         if (src) {
