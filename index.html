@@ -310,6 +310,10 @@ function getRowData(type = 'count') {
   }
 }
 
+function saveLocalStorage() {
+  localStorage.setItem('theme', unlockHeart ? 'dark' : 'light');
+}
+
 function debugHalfBtnsRemove(count = 5) {
   // for fast check fallbackMobileSnap()
   const container = document.getElementById('mainButtons');
@@ -606,7 +610,7 @@ function onKeyCommand(e) {
 
     if(unlockHeart){
       if (cod === 'KeyE') targetHREF = "./exegesis";
-      else if (cod === 'KeyR') targetHREF = "./renders";  
+      else if (cod === 'KeyR') targetHREF = "./renders";
       else if (cod === 'KeyH') targetHREF = "./негативы";
     }else{
       if (cod === "Backquote") targetHREF = "./wolume";
@@ -750,6 +754,7 @@ async function handleButtonClick(ev) {
   if (btn.id === 'lastBtn') {
     unlockHeart = !unlockHeart;
     if (typeof changeZone === "function") changeZone(unlockHeart ? "open" : "lock");
+    saveLocalStorage(); 
     return;
   }
 
