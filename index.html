@@ -189,7 +189,7 @@ margin-left: auto; /* прижмет группу вправо */
 }
 
 .btn_hide {  opacity: 0 !important; pointer-events: none !important; }
-.btn_ghost { color: rgba(24, 24, 24, 1.0) !important; opacity: 1 !important; pointer-events: none !important; }
+.btn_ghost {  opacity: 1 !important; pointer-events: none !important; } /* color: rgba(24, 24, 24, .0) !important; */
 
 /* 3. Heart Sprite */
 /* base64-image.de */
@@ -538,6 +538,19 @@ function checkLastRow() {
       endGroup.style.justifyContent = "";
 
       return false; 
+    }else{
+
+      targets.forEach(target => {
+        const src = SOURCE_BUTTONS.find(s => 
+          (target.id && s.id === target.id) || 
+          (s.dataset.href === target.dataset.href)
+        );
+        if (src) {
+          src.dataset.moved = "true";
+        }
+      });
+
+
     }
 
     return true;
@@ -904,7 +917,7 @@ function updSourceBtns(mode){
       // ТОЛЬКО МЕТКИ
       const domButtons = Array.from(container.children).filter(el => el.tagName === 'BUTTON');
       SOURCE_BUTTONS.forEach(s => {
-          const domBtn = domButtons.find(d => (d.id && d.id === s.id) || (d.dataset.href === s.dataset.href));
+          const domBtn = domButtons.find(d => ( d.dataset.href === s.dataset.href) );
           if (domBtn) {
               s.dataset.ghost = (domBtn.dataset.ghost === "true") ? "true" : "false";
           } else {
@@ -949,9 +962,19 @@ function restoreSourceBtns(mode) {
     container.appendChild(fClone);
   }
 
+  const occupiedHrefs = Array.from(endGroup.querySelectorAll('button'))
+    .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn')
+    .map(btn => btn.dataset.href);
+
   // 2. Отрисовка основного состава
   SOURCE_BUTTONS.forEach(btn => {
     if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
+      
+      if (occupiedHrefs.includes(btn.dataset.href)) {
+        if(mode === "update") console.log("Skip duplicate from endGroup:", btn.dataset.href);
+        return; 
+      }
+
       const clone = btn.cloneNode(true);
       
       // СНАЧАЛА проверяем, гост это или нет (независимо от темы)
