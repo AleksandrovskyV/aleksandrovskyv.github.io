@@ -864,7 +864,6 @@ function initSourceBtns() {
   container.addEventListener('click', handleButtonClick); // добавляем слушатели
 }
 
-
 function updSourceBtns(mode){
     const container = document.getElementById('mainButtons');
     const domOrder = Array.from(container.querySelectorAll('button')); // все кнопки вклюая end группу
@@ -908,12 +907,11 @@ function updSourceBtns(mode){
           if (domBtn) {
               s.dataset.ghost = (domBtn.dataset.ghost === "true") ? "true" : "false";
           } else {
-              s.dataset.ghost = "true"; 
+              //s.dataset.ghost = "true"; 
           }
       });
     }
 }
-
 
 function restoreSourceBtns(mode) {
   const container = document.getElementById('mainButtons');
@@ -974,7 +972,6 @@ function restoreSourceBtns(mode) {
   endGroup.style.flex = endGroup.style.marginLeft = endGroup.style.justifyContent = "";
 }
 
-
 function rebuildGUI(mode = "update", shuffle = false) { 
   // modes reset/update
 
@@ -1014,7 +1011,6 @@ function rebuildGUI(mode = "update", shuffle = false) {
   
   updSourceBtns(mode);
 }
-
 
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
