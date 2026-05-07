@@ -992,15 +992,16 @@ function rebuildGUI(mode = "update", shuffle = false) {
   if (isMobile) fallbackMobileSnap();
   
   if(isMobile && mode === "update"){
-    
-    const endGroup = document.getElementById('endGroup');
-
     if(!initWidescr){
-      if( lastWidth === initWidth ){
+      const endGroup = document.getElementById('endGroup');
+
+      if( lastWidth === initWidth ){ // возвращаемся в портретный фикс
+
         endGroup.style.flex = "1 0 100%"; 
         endGroup.style.marginLeft = "0";
         endGroup.style.justifyContent = "space-between";
-      }else{
+      
+      }else{ // делаем группу как обычной кнопкой
         endGroup.style.flex = "auto";
         endGroup.style.marginLeft = "";
         endGroup.style.justifyContent = "";
