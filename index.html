@@ -842,18 +842,37 @@ function updSourceBtns(mode){
     const container = document.getElementById('mainButtons');
 
     if(mode==="sort"){
-      const domOrder = Array.from(container.querySelectorAll('button:not(.btn_ghost)')); //
+      const domOrder = Array.from(container.querySelectorAll('button')); 
       const sorted = [];
+
       domOrder.forEach(domBtn => {
-        const found = SOURCE_BUTTONS.find(s => (domBtn.id && s.id === domBtn.id) );
-        if (found){sorted.push(found)
+        const found = SOURCE_BUTTONS.find(s => 
+          (domBtn.id && s.id === domBtn.id) || 
+          (domBtn.dataset.ghost === "true" && s.dataset.href === domBtn.dataset.href)
+        );
+
+        if (found) {
+          if (domBtn.dataset.ghost === "true") {
+            found.dataset.ghost = "true";
+          } else {
+            found.dataset.ghost = "false";
+          }
+          
+          // Пушим в sorted только если этого оригинала там еще нет 
+          // (защита от дубля, так как у нас теперь и гост, и оригинал в DOM)
+          if (!sorted.includes(found)) sorted.push(found);
         }
       });
 
+      // Добавляем те, что вообще не в DOM (удаленные по overflow)
       SOURCE_BUTTONS.forEach(s => { 
-        const alreadyIn = sorted.some(already => (already.id && already.id === s.id) );
-        if (!alreadyIn) sorted.push(s);
+        const alreadyIn = sorted.some(already => (already.id && already.id === s.id));
+        if (!alreadyIn) {
+          s.dataset.ghost = "false"; // сбрасываем статус для скрытых
+          sorted.push(s);
+        }
       });
+
       SOURCE_BUTTONS = sorted;
     }
 }
@@ -890,12 +909,16 @@ function restoreSourceBtns(mode) {
       // Синхронизация темы (только для живых кнопок)
       if (unlockHeart) {  
         const g = clone.dataset.g;
+
         if (btn.dataset.ghost !== "true") {
           if (g === "D") clone.classList.add('dstate');
           if (g === "W") clone.classList.add('dstate');
           if (g === "B") clone.classList.add('dstate');
         }else{
-          clone.opacity = "0"; 
+          clone.style.opacity = "0"; 
+          clone.classList.add('btn_ghost'); 
+          clone.id = ""; 
+          clone.dataset.ghost = "true"; 
         }
 
       }
@@ -904,28 +927,6 @@ function restoreSourceBtns(mode) {
   });
 
   container.appendChild(endGroup);
-
-  // 5. Ghost Trick (Тот самый, из исходного кода)
-  const activeInGroup = endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)');
-  activeInGroup.forEach(originalInGroup => {      
-    const duplicate = Array.from(container.children).find(el => 
-      el !== endGroup && 
-      (el.innerText === originalInGroup.innerText || (el.dataset.href && el.dataset.href === originalInGroup.dataset.href))
-    );
-    if (duplicate) {
-      duplicate.id = ""; 
-      duplicate.dataset.ghost = "true"; 
-      duplicate.style.opacity = "0"; 
-      duplicate.classList.add('btn_ghost'); 
-      /* пока убрал
-      if (widescreen) {
-        duplicate.style.display = "none"; 
-      } else {
-        duplicate.style.display = ""; 
-      }
-      */
-    }
-  });
 
   const sprite = document.getElementById('heartIcon');
   if (unlockHeart) sprite.classList.add('complete');
