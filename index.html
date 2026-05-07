@@ -25,6 +25,7 @@
   const savedTheme = localStorage.getItem('theme'); 
 
   // set global platform variable
+  // iphone|ipad|ipod|android|blackberry|webos|iemobile|opera mini ;
   window.isMobile = /iphone|ipad|android/.test(ua);
   window.isLocal = (window.location.protocol === "file:");
   
@@ -34,14 +35,14 @@
 
   if (savedTheme === 'dark') {
       window.theme = "dark";
-      document.documentElement.style.setProperty('--theme', 'dark');
-
-      document.documentElement.classList.add('dark');
-      
-  }else{
+      document.documentElement.setAttribute('data-theme', 'dark'); 
+      document.documentElement.style.setProperty('--bg', '#000');      
+  } else {
       window.theme = "light";
-      document.documentElement.style.setProperty('--theme', 'light');
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.style.setProperty('--bg', '#e5e5e5');
   }
+//console.log("EndPreScript", theme, isMobile, isLocal);
 </script>
 
 <title>вский.space</title>
@@ -53,15 +54,11 @@
 
 <style>
 :root {
---debug: false;
---theme: light; 
+--bg: #e5e5e5;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-
-html, body { height: 100%; transition: background-color 0.8s ease;
-}
-.dark  body {background: #000;}
+html, body { height: 100%; background:var(--bg) ; transition: background-color 0.8s ease; }
 
 [hidden] { display: none !important; }
 
@@ -124,6 +121,7 @@ margin-left: auto; /* прижмет группу вправо */
 }
 
 /* 3. Buttons */
+
 .btnsWrap button {
   flex: 0 0 auto; display:inline-flex; align-items:center; justify-content:center;
   padding:12px; font-size:1.25rem; color: gray; border: 0; cursor:pointer;
@@ -166,7 +164,7 @@ margin-left: auto; /* прижмет группу вправо */
   cursor: default; pointer-events: none;
 }
 
-/* - Buttons Base State */
+/* - Buttons on White Page State (default) */
 .btnsWrap button.bd { color: rgba(128, 128, 128, 0); }
 .btnsWrap button.bb, .btnsWrap button.bw { color: #9b9b9b; }
 
@@ -177,15 +175,16 @@ margin-left: auto; /* прижмет группу вправо */
   pointer-events: auto; cursor: pointer; 
 }
 
-/* - Buttons Active State */
-.btnsWrap button.bd.dOpen {
+/* - Buttons on Dark Page State */
+.btnsWrap button.bd.dstate {
   pointer-events: auto; cursor: pointer; color: rgba(128, 128, 128, 1);
   transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color 1.6s ;
 }
-.btnsWrap button.bw.wLock, .btnsWrap button.bb.bLock {
+
+.btnsWrap button.bw.dstate, .btnsWrap button.bb.dstate {
   pointer-events: auto; cursor: grab; color: rgba(70,70,70,1.0);
 }
-.btnsWrap button.bw.wLock:active, .btnsWrap button.bb.bLock:active {
+.btnsWrap button.bw.dstate:active, .btnsWrap button.bb.dstate:active {
   cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
 }
 
@@ -213,7 +212,7 @@ margin-left: auto; /* прижмет группу вправо */
 
     <!-- g=group ; mb=mobile ; mh=mobilehidden-->
 
-    <button id="firstBtn" data-g="W" data-st="open" data-mb="false"  data-href="/wolume"   class="bw" >~</button>
+    <button id="firstBtn" data-g="W" data-st="open" data-mb="false"  data-href="/wolume"  class="bw" >~</button>
 
     <!-- mobile special -->
     <button id="bbtn"     data-g="D" data-st="open" data-mb="true"  data-href="/chat"     class="bd" >chat___</button>
@@ -242,7 +241,7 @@ margin-left: auto; /* прижмет группу вправо */
     <button id="obtn"     data-g="B" data-st="lock" data-mb="false" data-href="/const"    class="bb" >/</button>
 
     <div id="endGroup" class="endBtnWrapper">
-      <button id="preBtn"   data-g="B" data-st="lock" data-mb="false" data-href="/space"    class="bb" >—</button>
+      <button id="preBtn"   data-g="B" data-st="lock" data-mb="false" data-href="/space"  class="bb" >—</button>
 
       <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
       <!-- инициализация спрайта перенесена в js -->
@@ -658,30 +657,36 @@ function changeZone(state = "open") {
 
   if (state === "open") {
     setTimeout(() => {
-      document.body.classList.add("dark");
-      
+      //document.body.classList.add("invert");
+
+      window.theme = "dark";
+      document.documentElement.style.setProperty('--bg',    '#000');
+
       setTimeout(() => {
         //firstBtn.textContent = "*";
       }, delayText);
 
-      dButtons.forEach(b => b.classList.add('dOpen'));
-      wButtons.forEach(b => b.classList.add('wLock'));
-      bButtons.forEach(b => b.classList.add('bLock'));
+      dButtons.forEach(b => b.classList.add('dstate'));
+      wButtons.forEach(b => b.classList.add('dstate'));
+      bButtons.forEach(b => b.classList.add('dstate'));
 
     }, delayStyles);
   
   } else {
     setTimeout(() => {
       
-      document.body.classList.remove("dark");
+      //document.body.classList.remove("invert");
+
+      window.theme = "light";
+      document.documentElement.style.setProperty('--bg',    '#e5e5e5');
 
       setTimeout(() => {
         //firstBtn.textContent = "~";
       }, delayText);
 
-      dButtons.forEach(b => b.classList.remove('dOpen'));
-      wButtons.forEach(b => b.classList.remove('wLock'));
-      bButtons.forEach(b => b.classList.remove('bLock'));
+      dButtons.forEach(b => b.classList.remove('dstate'));
+      wButtons.forEach(b => b.classList.remove('dstate'));
+      bButtons.forEach(b => b.classList.remove('dstate'));
     }, delayStyles);
   
   }
@@ -747,7 +752,7 @@ async function handleButtonClick(ev) {
     return;
   }
 
-  if (btn.dataset.st === 'lock' || btn.classList.contains('wLock')) {
+  if (btn.dataset.st === 'lock' || (!unlockHeart && btn.classList.contains('bw')) ) {
     return false;
   }
 
@@ -758,9 +763,11 @@ async function handleButtonClick(ev) {
   await hideAllButtons(); // anim opacity
 
   // Create URL
-  if (localVersion) {
+  if (isLocal) {
     if (target.startsWith("/")) target = target.slice(1);
-    target = target + ".html";
+    //target = target + ".html";
+    target = target + "/index.html"; // if git rep
+  
   } else {
     if (target.endsWith(".html")) {
       target = "/" + target.replace(".html", "");
@@ -819,16 +826,15 @@ function onKeyCommand(e) {
 function initSourceButtons() {
   const container = document.getElementById('mainButtons');
 
-  container.querySelectorAll('button').forEach(btn => btn.dataset.source = "true");
+  container.querySelectorAll('button').forEach(btn => {
+    btn.dataset.source = "true"; // 1. Помечаем оригиналы
+    
+    if (window.theme === "dark") {
+      //console.log("append btn to dark")
+      btn.classList.add('dstate');
+    }
+  });
 
-  SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
-  container.addEventListener('click', handleButtonClick);
-}
-
-function initSourceButtons() {
-  const container = document.getElementById('mainButtons');
-  // 1. Помечаем оригиналы
-  container.querySelectorAll('button').forEach(btn => btn.dataset.source = "true");
   // 2. Сохраняем эталон один раз. Больше SOURCE_BUTTONS не меняется физически!
   SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
   container.addEventListener('click', handleButtonClick);
@@ -867,9 +873,9 @@ function restoreSourceBtns(mode) {
       // Синхронизация темы (только для живых кнопок)
       if (unlockHeart) {
         const g = clone.dataset.g;
-        if (g === "D") clone.classList.add('dOpen');
-        if (g === "W") clone.classList.add('wLock');
-        if (g === "B") clone.classList.add('bLock');
+        if (g === "D") clone.classList.add('dstate');
+        if (g === "W") clone.classList.add('dstate');
+        if (g === "B") clone.classList.add('dstate');
       }
       container.appendChild(clone);
     }
