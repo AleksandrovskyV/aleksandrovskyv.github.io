@@ -27,6 +27,7 @@ const referrer = document.referrer;
 window.isMobile = /iphone|ipad|android/.test(ua);
 window.isLocal = (window.location.protocol === "file:");
 window.isFromMain = referrer.includes('vsky.space') || referrer.includes('aleksandrovskyv.github.io');
+window.theme = "dark";
 
 if (window.isMobile) {
   document.documentElement.classList.add('mobile');
@@ -35,6 +36,7 @@ if (window.isMobile) {
 const savedTheme = localStorage.getItem('theme'); 
 
 if (savedTheme === 'light') {
+    theme = "light";
     document.documentElement.style.setProperty('--theme', 'light');
     document.documentElement.style.setProperty('--bg',    '#f0f0f0');
     document.documentElement.style.setProperty('--text',  '#333');
@@ -58,6 +60,8 @@ if (savedTheme === 'light') {
 
 html,body{overflow:hidden; height:100%; background:var(--bg); color:var(--text); font-family:system-ui, Segoe UI, Roboto, Arial}
 
+[hidden] { display: none !important; }
+
 .overlay{
 position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
 z-index:1000;
@@ -70,16 +74,15 @@ position:absolute;inset:0; z-index:-100;transition:opacity 1.2s ease;
 }
 
 .draggable {
-position: fixed; /* сразу исключаем их из потока */
-visibility: hidden; /* скрываем до расчёта размеров */
-display: none; /* элемент полностью убран из потока */
+position: fixed;
+visibility: hidden;
+display: none;
 pointer-events: auto;
 user-select: none;
 }
 
-.draggable:focus {
-    outline: none;
-}
+.draggable:focus { outline: none; }
+
 #toMainBtn{
 position:fixed;
 display: none;
@@ -100,21 +103,20 @@ transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1);
 </head>
 <body>
 
-<img src="/files/renders/aquaphor.jpg"  class="draggable">
-<img src="/files/renders/collagen.png"  class="draggable">
-<img src="/files/renders/battery.png"  class="draggable">
-<img src="/files/renders/poperechny.png"  class="draggable">
-<img src="/files/renders/lens.jpg"  class="draggable">
+<img data-g="W" class="draggable" src="/files/renders/aquaphor.jpg"  hidden>
+<img data-g="D" class="draggable" src="/files/renders/collagen.png"  >
+<img data-g="D" class="draggable" src="/files/renders/battery.png"   >
+<img data-g="D" class="draggable" src="/files/renders/poperechny.png">
+<img data-g="D" class="draggable" src="/files/renders/lens.jpg"      >
 
 
-<img src="/files/renders/skt_close.png"  class="draggable">
-<img src="/files/renders/skt_detail.png"  class="draggable">
-<img src="/files/renders/skt_phone.png"  class="draggable">
-<img src="/files/renders/skt_predetail.png"  class="draggable">
+<img data-g="D" class="draggable" src="/files/renders/skt_close.png" >
+<img data-g="D" class="draggable" src="/files/renders/skt_detail.png">
+<img data-g="D" class="draggable" src="/files/renders/skt_phone.png" >
+<img data-g="D" class="draggable" src="/files/renders/skt_predetail.png" >
  
-
-<img src="/files/renders/ring.gif"  class="draggable">
-<img src="/files/renders/poperechny_a.gif"  class="draggable">
+<img data-g="D" class="draggable" src="/files/renders/ring.gif"  >
+<img data-g="D" class="draggable" src="/files/renders/poperechny_a.gif" >
 
 <button id="toMainBtn" data-href="/"><</button>
 
@@ -340,7 +342,6 @@ function onKeyCommand(e) {
 					  window.location.hostname === "[::1]"; // IPv6 адрес для localhost
 
 	  if (isLocal) {
-		// Если мы на 127.0.0.1
 		// то ../index.html корректно поднимет на уровень выше к корню сервера
 		window.location.href = "../index.html";
 	  } else {
