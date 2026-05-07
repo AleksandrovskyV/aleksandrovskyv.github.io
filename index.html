@@ -848,10 +848,14 @@ function restoreSourceBtns(mode) {
       if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
     });
   }
+  /*
   let select_btns = SOURCE_BUTTONS.filter(btn => {
     if (mode === "source") return btn.dataset.source === "true";
     return btn.dataset.current === "true";
   });
+  */
+
+  let select_btns = SOURCE_BUTTONS.filter(btn => btn.dataset.source === "true");
 
   mergeFromCheck = false;
   container.innerHTML = "";
