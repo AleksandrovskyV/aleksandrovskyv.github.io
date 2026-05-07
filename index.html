@@ -250,7 +250,7 @@ const MOBILE_TARGET_ROW = 8;
 let SOURCE_BUTTONS = [];
 
 let mergeFromCheck = false;
-let completeHeart = false;    // flag current state page (group W\D)
+let unlockHeart = false;    // flag current state page (group W\D)
 let switchZoneInAnim = false; // flag block spam click on 50ms
 
 // safe iphone flags
@@ -599,16 +599,20 @@ function onKeyCommand(e) {
     e.preventDefault();
     e.stopImmediatePropagation(); 
 
-    if (cod === 'KeyV') return rebuildGUI("source", true); // hard reset
+    if (cod === 'KeyV' || cod === "Space") return rebuildGUI("source", true); // hard reset
 
     let targetHREF = null;
     const protRule = (window.location.protocol === "file:"); // for local
 
-    if (cod === "Backquote") targetHREF = "./wolume";
-    else if (cod === 'KeyE') targetHREF = "./exegesis";
-    else if (cod === 'KeyR') targetHREF = "./renders";  
-    else if (cod === 'KeyG') targetHREF = "./графика";
-    else if (cod === 'KeyH') targetHREF = "./негативы";
+    if(unlockHeart){
+      if (cod === 'KeyE') targetHREF = "./exegesis";
+      else if (cod === 'KeyR') targetHREF = "./renders";  
+      else if (cod === 'KeyH') targetHREF = "./негативы";
+    }else{
+      if (cod === "Backquote") targetHREF = "./wolume";
+      else if (cod === 'KeyG') targetHREF = "./графика";
+      else if (cod === 'KeyB') targetHREF = "./bread";
+    }
 
     if (targetHREF) {
       if (protRule) targetHREF = targetHREF + "/index.html";
@@ -744,8 +748,8 @@ async function handleButtonClick(ev) {
   ev.preventDefault();
 
   if (btn.id === 'lastBtn') {
-    completeHeart = !completeHeart;
-    if (typeof changeZone === "function") changeZone(completeHeart ? "open" : "lock");
+    unlockHeart = !unlockHeart;
+    if (typeof changeZone === "function") changeZone(unlockHeart ? "open" : "lock");
     return;
   }
 
@@ -822,7 +826,7 @@ function restoreSourceBtns(mode) {
   const fOrig = select_btns.find(b => b.id === 'firstBtn');
   if (fOrig) {
     const fClone = fOrig.cloneNode(true);
-    fClone.dataset.href = completeHeart ? "/identity" : "/wolume";
+    fClone.dataset.href = unlockHeart ? "/identity" : "/wolume";
     container.appendChild(fClone);
   }
 
@@ -831,7 +835,7 @@ function restoreSourceBtns(mode) {
     if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
       const clone = btn.cloneNode(true);
       // Синхронизация темы (только для живых кнопок)
-      if (completeHeart) {
+      if (unlockHeart) {
         const g = clone.dataset.g;
         if (g === "D") clone.classList.add('dOpen');
         if (g === "W") clone.classList.add('wLock');
@@ -866,7 +870,7 @@ function restoreSourceBtns(mode) {
   });
 
   const sprite = document.getElementById('heartIcon');
-  if (completeHeart) sprite.classList.add('complete');
+  if (unlockHeart) sprite.classList.add('complete');
   else sprite.classList.remove('complete');
   endGroup.style.flex = endGroup.style.marginLeft = endGroup.style.justifyContent = "";
 }
