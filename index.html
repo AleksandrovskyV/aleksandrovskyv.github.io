@@ -273,7 +273,8 @@ let switchZoneInAnim = false;          // flag block spam click on 50ms
 
 // safe iphone flags
 let resizeTimeout; let widescreen;
-let isTouching = false;               
+let isTouching = false;
+let initWidth = window.innerWidth;                
 let lastWidth = window.innerWidth; 
 
 const buttonContainer = document.getElementById('mainButtons');
@@ -852,7 +853,9 @@ function updSourceBtns(mode){
 
         if (found) {
           if (found.dataset.ghost !== "true") {
+
               found.dataset.ghost = (domBtn.dataset.ghost === "true") ? "true" : "false";
+              if(found.dataset.ghost === "true") console.log("GHOST!")
           }
           
           if (!sorted.includes(found)) sorted.push(found);
@@ -952,6 +955,8 @@ function restoreSourceBtns(mode) {
 function rebuildGUI(mode = "update", shuffle = false) { 
   // modes reset/update
 
+
+
   restoreSourceBtns(mode); // пересобирает через innerHtml по массиву
 
   if (shuffle) shuffleButtonsWithRules();
@@ -962,6 +967,20 @@ function rebuildGUI(mode = "update", shuffle = false) {
 
   if (isMobile) fallbackMobileSnap();
   
+  if(isMobile && mode === "update"){
+    
+    const endGroup = document.getElementById('endGroup');
+    if(lastWidth === initWidth){
+      endGroup.style.flex = "1 0 100%"; 
+      endGroup.style.marginLeft = "0";
+      endGroup.style.justifyContent = "space-between";
+    }else{
+      endGroup.style.flex = "auto";
+      endGroup.style.marginLeft = "";
+      endGroup.style.justifyContent = "";
+    }
+  }
+
   updSourceBtns(mode);
 }
 
