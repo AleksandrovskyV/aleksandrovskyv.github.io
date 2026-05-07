@@ -929,6 +929,7 @@ function rebuildGUI(mode = "current", shuffle = false) {
   
   if (shuffle) {
     shuffleButtonsWithRules();
+    /*
     const domOrder = Array.from(container.querySelectorAll('button:not(.btn_ghost)'));
     const sorted = [];
     domOrder.forEach(domBtn => {
@@ -938,6 +939,7 @@ function rebuildGUI(mode = "current", shuffle = false) {
     // Добавляем те, что не попали (если вдруг такие есть)
     SOURCE_BUTTONS.forEach(s => { if (!sorted.includes(s)) sorted.push(s); });
     SOURCE_BUTTONS = sorted;
+    */
   }
 
   removeOverflowBtnsMobile();
@@ -979,19 +981,19 @@ function initPage() {
     window.addEventListener('touchend', () => isTouching = false, {passive: true});
 
     window.addEventListener('resize', () => {
-      if (isLocal) return; // как защита chrome debug mode ?
+      if (isLocal) return; 
       if (isTouching) return; 
       
+      // 1. Проверяем изменение
       if (window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
       
       clearTimeout(resizeTimeout);
 
       resizeTimeout = setTimeout(() => {
-        lastWidth = window.innerWidth;
         rebuildGUI(); // "current" state
       }, 250);
     });
-
   }else{
     document.addEventListener("keydown", onKeyCommand); 
 
