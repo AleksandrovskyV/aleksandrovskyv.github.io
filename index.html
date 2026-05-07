@@ -943,7 +943,7 @@ function rebuildGUI(mode = "current", shuffle = false) {
   removeOverflowBtnsMobile();
   checkLastRow(); 
   
-  //if (isMobile) fallbackMobileSnap();
+  if (isMobile) fallbackMobileSnap();
 
   // 6. ФИНАЛИЗАЦИЯ: Массив не перезаписываем! Только проставляем метки current! 
   SOURCE_BUTTONS.forEach(btn => delete btn.dataset.current);
@@ -983,11 +983,11 @@ function initPage() {
       if (isTouching) return; 
       
       if (window.innerWidth === lastWidth) return;
-      lastWidth = window.innerWidth;
-
+      
       clearTimeout(resizeTimeout);
 
       resizeTimeout = setTimeout(() => {
+        lastWidth = window.innerWidth;
         rebuildGUI(); // "current" state
       }, 250);
     });
