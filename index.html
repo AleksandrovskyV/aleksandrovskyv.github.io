@@ -919,21 +919,22 @@ function restoreSourceBtns(mode) {
     if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
       const clone = btn.cloneNode(true);
       
-      // Синхронизация темы (только для живых кнопок)
-      if (unlockHeart) {  
-        const g = clone.dataset.g;
+      // СНАЧАЛА проверяем, гост это или нет (независимо от темы)
+      if (btn.dataset.ghost === "true") {
+        clone.style.opacity = "0"; 
+        clone.classList.add('btn_ghost'); 
+        clone.id = ""; 
+        clone.dataset.ghost = "true"; 
+      } else {
 
-        if (btn.dataset.ghost !== "true") {
+        if (unlockHeart) {  
+          const g = clone.dataset.g;
           if (g === "D") clone.classList.add('dstate');
           if (g === "W") clone.classList.add('dstate');
           if (g === "B") clone.classList.add('dstate');
-        }else{
-          clone.style.opacity = "0"; 
-          clone.classList.add('btn_ghost'); 
-          clone.id = ""; 
-          clone.dataset.ghost = "true"; 
+        } else {
+          clone.classList.remove('dstate');
         }
-
       }
       container.appendChild(clone);
     }
@@ -949,13 +950,15 @@ function restoreSourceBtns(mode) {
 }
 
 
-function rebuildGUI(mode = "update", shuffle = false) { // modes reset/update
-  
-  restoreSourceBtns(mode);
-  
+function rebuildGUI(mode = "update", shuffle = false) { 
+  // modes reset/update
+
+  restoreSourceBtns(mode); // пересобирает через innerHtml по массиву
+
   if (shuffle) shuffleButtonsWithRules();
   
   removeOverflowBtnsMobile();
+  
   if (mode === "reset") checkLastRow();
 
   if (isMobile) fallbackMobileSnap();
