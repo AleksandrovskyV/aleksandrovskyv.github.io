@@ -245,15 +245,18 @@ margin-left: auto; /* прижмет группу вправо */
 <script>
 
 const MOBILE_TARGET_ROW = 8;
+
+ // contain struct page btns (need for innerHtml)
 let SOURCE_BUTTONS = [];
 
 let mergeFromCheck = false;
 let completeHeart = false;    // flag current state page (group W\D)
 let switchZoneInAnim = false; // flag block spam click on 50ms
 
+// safe iphone flags
 let resizeTimeout; let widescreen;
-let isTouching = false;            // safe iphone flag   
-let lastWidth = window.innerWidth; // safe iphone flag   
+let isTouching = false;               
+let lastWidth = window.innerWidth; 
 
 const buttonContainer = document.getElementById('mainButtons');
 
