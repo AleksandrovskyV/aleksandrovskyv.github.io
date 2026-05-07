@@ -948,7 +948,8 @@ function restoreSourceBtns(mode) {
         clone.style.opacity = "0"; 
         clone.classList.add('btn_ghost'); 
         clone.id = ""; 
-        clone.dataset.ghost = "true"; 
+        clone.dataset.ghost = "true";
+        if(mode === "update") console.log("подцепили госта");
       } else {
 
         if (unlockHeart) {  
@@ -999,14 +1000,14 @@ function rebuildGUI(mode = "update", shuffle = false) {
         endGroup.style.marginLeft = "0";
         endGroup.style.justifyContent = "space-between";
       
-      }else{ // делаем группу как обычной кнопкой
+      }else{ // делаем группу обычной кнопкой в альбомной 
         endGroup.style.flex = "auto";
         endGroup.style.marginLeft = "";
         endGroup.style.justifyContent = "";
       }
     }
 
-    removeOverflowBtnsUpdate(); // Hard Overflow
+    removeOverflowBtnsUpdate(); // Hard Overflow if Album Reorient
   }
 
   if (isMobile) fallbackMobileSnap();
