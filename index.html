@@ -22,27 +22,11 @@
 
 <script>
   const ua = navigator.userAgent.toLowerCase();
-  const savedTheme = localStorage.getItem('theme'); 
-
   // set global platform variable
-  // iphone|ipad|ipod|android|blackberry|webos|iemobile|opera mini ;
   window.isMobile = /iphone|ipad|android/.test(ua);
-  window.isLocal = (window.location.protocol === "file:");
-  
   if (window.isMobile) {
     document.documentElement.classList.add('mobile');
   }
-
-  if (savedTheme === 'dark') {
-      window.theme = "dark";
-      document.documentElement.setAttribute('data-theme', 'dark'); 
-      document.documentElement.style.setProperty('--bg', '#000');      
-  } else {
-      window.theme = "light";
-      document.documentElement.setAttribute('data-theme', 'light');
-      document.documentElement.style.setProperty('--bg', '#e5e5e5');
-  }
-//console.log("EndPreScript", theme, isMobile, isLocal);
 </script>
 
 <title>вский.space</title>
@@ -53,12 +37,12 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/content/apple-touch-icon.png">
 
 <style>
-:root {
---bg: #e5e5e5;
-}
-
 *{box-sizing:border-box;margin:0;padding:0}
-html, body { height: 100%; background:var(--bg) ; transition: background-color 0.8s ease; }
+html, body {
+  height: 100%; background: #e5e5e5;
+  transition: background-color 0.8s ease;
+}
+body.invert{background: #000;}
 
 [hidden] { display: none !important; }
 
@@ -121,7 +105,6 @@ margin-left: auto; /* прижмет группу вправо */
 }
 
 /* 3. Buttons */
-
 .btnsWrap button {
   flex: 0 0 auto; display:inline-flex; align-items:center; justify-content:center;
   padding:12px; font-size:1.25rem; color: gray; border: 0; cursor:pointer;
@@ -164,7 +147,7 @@ margin-left: auto; /* прижмет группу вправо */
   cursor: default; pointer-events: none;
 }
 
-/* - Buttons on White Page State (default) */
+/* - Buttons Base State */
 .btnsWrap button.bd { color: rgba(128, 128, 128, 0); }
 .btnsWrap button.bb, .btnsWrap button.bw { color: #9b9b9b; }
 
@@ -175,16 +158,15 @@ margin-left: auto; /* прижмет группу вправо */
   pointer-events: auto; cursor: pointer; 
 }
 
-/* - Buttons on Dark Page State */
-.btnsWrap button.bd.dstate {
+/* - Buttons Active State */
+.btnsWrap button.bd.dOpen {
   pointer-events: auto; cursor: pointer; color: rgba(128, 128, 128, 1);
   transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color 1.6s ;
 }
-
-.btnsWrap button.bw.dstate, .btnsWrap button.bb.dstate {
+.btnsWrap button.bw.wLock, .btnsWrap button.bb.bLock {
   pointer-events: auto; cursor: grab; color: rgba(70,70,70,1.0);
 }
-.btnsWrap button.bw.dstate:active, .btnsWrap button.bb.dstate:active {
+.btnsWrap button.bw.wLock:active, .btnsWrap button.bb.bLock:active {
   cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
 }
 
@@ -212,7 +194,7 @@ margin-left: auto; /* прижмет группу вправо */
 
     <!-- g=group ; mb=mobile ; mh=mobilehidden-->
 
-    <button id="firstBtn" data-g="W" data-st="open" data-mb="false"  data-href="/wolume"  class="bw" >~</button>
+    <button id="firstBtn" data-g="W" data-st="open" data-mb="false"  data-href="/wolume"   class="bw" >~</button>
 
     <!-- mobile special -->
     <button id="bbtn"     data-g="D" data-st="open" data-mb="true"  data-href="/chat"     class="bd" >chat___</button>
@@ -241,7 +223,7 @@ margin-left: auto; /* прижмет группу вправо */
     <button id="obtn"     data-g="B" data-st="lock" data-mb="false" data-href="/const"    class="bb" >/</button>
 
     <div id="endGroup" class="endBtnWrapper">
-      <button id="preBtn"   data-g="B" data-st="lock" data-mb="false" data-href="/space"  class="bb" >—</button>
+      <button id="preBtn"   data-g="B" data-st="lock" data-mb="false" data-href="/space"    class="bb" >—</button>
 
       <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
       <!-- инициализация спрайта перенесена в js -->
@@ -263,18 +245,15 @@ margin-left: auto; /* прижмет группу вправо */
 <script>
 
 const MOBILE_TARGET_ROW = 8;
-
- // contain struct page btns (need for innerHtml)
 let SOURCE_BUTTONS = [];
 
 let mergeFromCheck = false;
-let unlockHeart = (theme === "dark");  // flag current state page (group W\D)
-let switchZoneInAnim = false;          // flag block spam click on 50ms
+let completeHeart = false;    // flag current state page (group W\D)
+let switchZoneInAnim = false; // flag block spam click on 50ms
+let resizeTimeout;
 
-// safe iphone flags
-let resizeTimeout; let widescreen;
-let isTouching = false;               
-let lastWidth = window.innerWidth; 
+let currentOrient = (window.innerHeight > window.innerWidth) ? "port" : "album";
+
 
 const buttonContainer = document.getElementById('mainButtons');
 
@@ -287,7 +266,6 @@ const buttonContainer = document.getElementById('mainButtons');
   // Ждем готовности картинки к отрисовке
   img.decode().then(() => {
     document.getElementById(id).classList.add('h_sprite');
-    if(unlockHeart) document.getElementById(id).classList.add('complete');
   }).catch(() => { /* если картинка битая, останется SVG */ });
 })('heartIcon', "/content/heart_sprite.png");
 
@@ -309,12 +287,6 @@ window.addEventListener("pageshow", (event) => {
 
 // Helpers & Debugs
 
-function checkWidescreen(){
-  const checkValue = (window.innerHeight > window.innerWidth) ? false : true;
-  const changed = (checkValue !== widescreen);
-  widescreen = checkValue;
-}
-
 function getRowData(type = 'count') {
   //buttonContainer.offsetHeight; 
   const elements = Array.from(buttonContainer.children);
@@ -327,10 +299,6 @@ function getRowData(type = 'count') {
     const lastTop = elements[elements.length - 1].offsetTop;
     return elements.filter(el => Math.abs(el.offsetTop - lastTop) < 5);
   }
-}
-
-function saveLocalStorage() {
-  localStorage.setItem('theme', unlockHeart ? 'dark' : 'light');
 }
 
 function debugHalfBtnsRemove(count = 5) {
@@ -372,7 +340,6 @@ function removeDeskBtnOnMobile() {
     btn.remove();
   });
 }
-
 
 // GUI Preload - Sort and Restruct Logic
 
@@ -608,7 +575,40 @@ function fallbackMobileSnap() {
 
 // User Interaction
 
-function turnToDark(toDark = true) {
+function onKeyCommand(e) {
+  const cod = e.code;
+  const key = e.key;
+
+  const pressedCtrl = e.ctrlKey;
+  const pressedShift = e.shiftKey;
+
+  //console.log("Press", cod, key);
+  if(!pressedCtrl && !pressedShift){ // hardcore transit to page
+
+    e.preventDefault();
+    e.stopImmediatePropagation(); 
+
+    if (cod === 'KeyM') return rebuildGUI("source", true); // hard reset
+
+    let targetHREF = null;
+    const protRule = (window.location.protocol === "file:"); // for local
+
+    if (cod === "Backquote") targetHREF = "./wolume";
+    else if (cod === 'KeyE') targetHREF = "./exegesis";
+    else if (cod === 'KeyR') targetHREF = "./renders";  
+    else if (cod === 'KeyG') targetHREF = "./графика";
+    else if (cod === 'KeyH') targetHREF = "./негативы";
+
+    if (targetHREF) {
+      if (protRule) targetHREF = targetHREF + "/index.html";
+      window.location.href = targetHREF;
+    }
+  }
+
+  return
+}
+
+function changeZone(state = "open") {
 
   if (switchZoneInAnim) return; 
   switchZoneInAnim = true;
@@ -622,7 +622,7 @@ function turnToDark(toDark = true) {
 
   const firstBtn =  document.getElementById('firstBtn');
 
-  if (toDark) {
+  if (state === "open") {
       firstBtn.dataset.href = "/identity"
       //firstBtn.dataset.g = "D"
       //firstBtn.classList.replace('bw', 'bd');
@@ -637,7 +637,7 @@ function turnToDark(toDark = true) {
   // Используем прямые команды вместо toggle
   // исключает риск рассинхрона стейта при спам-кликах
   setTimeout(() => {
-    if (toDark) {
+    if (state === "open") {
       sprite.classList.add('complete');
     } else {
       sprite.classList.remove('complete');
@@ -655,44 +655,34 @@ function turnToDark(toDark = true) {
     .filter(btn => btn.id !== 'lastBtn');
 
 
-  if (toDark) {
+  if (state === "open") {
     setTimeout(() => {
-
-      window.theme = "dark";
-      document.documentElement.style.setProperty('--bg',    '#000');
-
+      document.body.classList.add("invert");
+      
       setTimeout(() => {
         //firstBtn.textContent = "*";
       }, delayText);
 
-      dButtons.forEach(b => b.classList.add('dstate'));
-      wButtons.forEach(b => b.classList.add('dstate'));
-      bButtons.forEach(b => b.classList.add('dstate'));
+      dButtons.forEach(b => b.classList.add('dOpen'));
+      wButtons.forEach(b => b.classList.add('wLock'));
+      bButtons.forEach(b => b.classList.add('bLock'));
 
     }, delayStyles);
   
   } else {
     setTimeout(() => {
+      document.body.classList.remove("invert");
       
-      window.theme = "light";
-      document.documentElement.style.setProperty('--bg',    '#e5e5e5');
-
       setTimeout(() => {
         //firstBtn.textContent = "~";
       }, delayText);
 
-      dButtons.forEach(b => b.classList.remove('dstate'));
-      wButtons.forEach(b => b.classList.remove('dstate'));
-      bButtons.forEach(b => b.classList.remove('dstate'));
+      dButtons.forEach(b => b.classList.remove('dOpen'));
+      wButtons.forEach(b => b.classList.remove('wLock'));
+      bButtons.forEach(b => b.classList.remove('bLock'));
     }, delayStyles);
   
   }
-}
-
-function toggleHeart(){
-  unlockHeart = !unlockHeart;
-  turnToDark(unlockHeart);
-  saveLocalStorage(); 
 }
 
 function hideAllButtons() {
@@ -743,12 +733,12 @@ async function handleButtonClick(ev) {
   ev.preventDefault();
 
   if (btn.id === 'lastBtn') {
-    toggleHeart();
+    completeHeart = !completeHeart;
+    if (typeof changeZone === "function") changeZone(completeHeart ? "open" : "lock");
     return;
   }
 
-  if ( !unlockHeart && (btn.dataset.st === 'lock' && btn.classList.contains('bw'))  ){
-    // блокировка нажатий только на светлом сайте
+  if (btn.dataset.st === 'lock' || btn.classList.contains('wLock')) {
     return false;
   }
 
@@ -759,11 +749,9 @@ async function handleButtonClick(ev) {
   await hideAllButtons(); // anim opacity
 
   // Create URL
-  if (isLocal) {
+  if (window.location.protocol === "file:") {
     if (target.startsWith("/")) target = target.slice(1);
-    //target = target + ".html";
-    target = target + "/index.html"; // if git rep
-  
+    target = target + ".html";
   } else {
     if (target.endsWith(".html")) {
       target = "/" + target.replace(".html", "");
@@ -780,63 +768,27 @@ async function handleButtonClick(ev) {
   window.location.href = target;
 }
 
-function onKeyCommand(e) {
-  const cod = e.code;
-  const key = e.key;
-
-  const pressedCtrl = e.ctrlKey;
-  const pressedShift = e.shiftKey;
-
-  //console.log("Press", cod, key);
-  if(!pressedCtrl && !pressedShift){ // hardcore transit to page
-
-    e.preventDefault();
-    e.stopImmediatePropagation(); 
-
-    if (cod === 'KeyV' || cod === "Space") return rebuildGUI("source", true); // hard reset
-    if (cod === 'KeyI') return toggleHeart();
-
-
-    let targetHREF = null;
-    if (cod === 'KeyR') targetHREF = "./renders";
-
-    if(unlockHeart){
-      if (cod === 'KeyE') targetHREF = "./exegesis";
-      else if (cod === 'KeyH') targetHREF = "./негативы";
-    }else{
-      if (cod === "Backquote") targetHREF = "./wolume";
-      else if (cod === 'KeyG') targetHREF = "./графика";
-      else if (cod === 'KeyB') targetHREF = "./bread";
-    }
-
-    if (targetHREF) {
-      if (isLocal) targetHREF = targetHREF + "/index.html";
-      window.location.href = targetHREF;
-    }
-  }
-
-  return
-}
-
 // GUI Updaters
 
 function initSourceButtons() {
   const container = document.getElementById('mainButtons');
 
-  container.querySelectorAll('button').forEach(btn => {
-    btn.dataset.source = "true"; // Помечаем оригиналы
-    
-    if (window.theme === "dark") {
-      btn.classList.add('dstate');
-    }
-  });
+  container.querySelectorAll('button').forEach(btn => btn.dataset.source = "true");
 
-  // 2. Сохраняем эталон в SOURCE_BUTTONS один раз. больше  не меняеем 
   SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
-
-  // 3. добавляем слушатели
   container.addEventListener('click', handleButtonClick);
 }
+
+function initSourceButtons() {
+  const container = document.getElementById('mainButtons');
+  // 1. Помечаем оригиналы
+  container.querySelectorAll('button').forEach(btn => btn.dataset.source = "true");
+  // 2. Сохраняем эталон один раз. Больше SOURCE_BUTTONS не меняется физически!
+  SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
+  container.addEventListener('click', handleButtonClick);
+}
+
+
 
 function restoreSourceBtns(mode) {
   const container = document.getElementById('mainButtons');
@@ -860,7 +812,7 @@ function restoreSourceBtns(mode) {
   const fOrig = select_btns.find(b => b.id === 'firstBtn');
   if (fOrig) {
     const fClone = fOrig.cloneNode(true);
-    fClone.dataset.href = unlockHeart ? "/identity" : "/wolume";
+    fClone.dataset.href = completeHeart ? "/identity" : "/wolume";
     container.appendChild(fClone);
   }
 
@@ -869,11 +821,11 @@ function restoreSourceBtns(mode) {
     if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
       const clone = btn.cloneNode(true);
       // Синхронизация темы (только для живых кнопок)
-      if (unlockHeart) {
+      if (completeHeart) {
         const g = clone.dataset.g;
-        if (g === "D") clone.classList.add('dstate');
-        if (g === "W") clone.classList.add('dstate');
-        if (g === "B") clone.classList.add('dstate');
+        if (g === "D") clone.classList.add('dOpen');
+        if (g === "W") clone.classList.add('wLock');
+        if (g === "B") clone.classList.add('bLock');
       }
       container.appendChild(clone);
     }
@@ -893,8 +845,8 @@ function restoreSourceBtns(mode) {
       duplicate.dataset.ghost = "true"; 
       duplicate.style.opacity = "0"; 
       duplicate.classList.add('btn_ghost'); 
-      /* пока убрал
-      if (widescreen) {
+      /*
+      if (currentOrient === "album") {
         duplicate.style.display = "none"; 
       } else {
         duplicate.style.display = ""; 
@@ -904,13 +856,19 @@ function restoreSourceBtns(mode) {
   });
 
   const sprite = document.getElementById('heartIcon');
-  if (unlockHeart) sprite.classList.add('complete');
+  if (completeHeart) sprite.classList.add('complete');
   else sprite.classList.remove('complete');
   endGroup.style.flex = endGroup.style.marginLeft = endGroup.style.justifyContent = "";
 }
 
+
+
 function rebuildGUI(mode = "current", shuffle = false) {
   
+  const newOrient = (window.innerHeight > window.innerWidth) ? "port" : "album";
+  const changed = (newOrient !== currentOrient);
+  currentOrient = newOrient;
+
   const container = document.getElementById('mainButtons');
   const endGroup = document.getElementById('endGroup');
 
@@ -956,9 +914,13 @@ function rebuildGUI(mode = "current", shuffle = false) {
   });
 }
 
+let lastWidth = window.innerWidth;
+let isTouching = false;
+window.addEventListener('touchstart', () => isTouching = true, {passive: true});
+window.addEventListener('touchend', () => isTouching = false, {passive: true});
+
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
-  checkWidescreen();
 
   // Prepare
   removeDeskBtnOnMobile();
@@ -969,25 +931,19 @@ function initPage() {
   rebuildGUI("source", true);
 
   // Events
-
-  if(isMobile){
-    window.addEventListener('touchstart', () => isTouching = true, {passive: true});
-    window.addEventListener('touchend', () => isTouching = false, {passive: true});
-
+  if(isMobile && (window.location.protocol !== "file:")){
+    // isfile как защита для дебаг хрома режима 
     window.addEventListener('resize', () => {
-      if (isLocal) return; // как защита chrome debug mode ?
-      if (isTouching) return; 
-      
+       if (isTouching) return; 
+
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
-
+      
       clearTimeout(resizeTimeout);
-
       resizeTimeout = setTimeout(() => {
-        //rebuildGUI(); // "current" state
-      }, 250);
+        rebuildGUI(); // current
+      }, 240);
     });
-
   }else{
     document.addEventListener("keydown", onKeyCommand); 
 
@@ -1000,7 +956,6 @@ function initPage() {
 // Initialization
 
 initPage();
-saveLocalStorage(); 
 
 </script>
 </body>
