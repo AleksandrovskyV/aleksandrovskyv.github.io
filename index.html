@@ -839,12 +839,7 @@ function initSourceBtns() {
 
 function updSourceBtns(mode){
     const container = document.getElementById('mainButtons');
-    // Собираем кнопки и из контейнера, и из группы (чтобы не терять тех, кто в конце)
-    const endGroup = document.getElementById('endGroup');
-    const domOrder = [
-      ...Array.from(container.querySelectorAll('button')),
-      ...Array.from(endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)'))
-    ]; 
+    const domOrder = Array.from(container.querySelectorAll('button')); // все кнопки вклюая end группу
 
     if(mode === "reset"){
       // ПОЛНАЯ ПЕРЕЗАПИСЬ (Сортировка + Метки)
@@ -856,38 +851,40 @@ function updSourceBtns(mode){
         );
 
         if (found) {
-          found.dataset.ghost = domBtn.dataset.ghost === "true" ? "true" : "false";
+          if (found.dataset.ghost !== "true") {
+              found.dataset.ghost = (domBtn.dataset.ghost === "true") ? "true" : "false";
+          }
+          
           if (!sorted.includes(found)) sorted.push(found);
         }
       });
 
       SOURCE_BUTTONS.forEach(s => { 
-        const alreadyIn = sorted.some(already => (already.id && already.id === s.id));
+        const alreadyIn = sorted.some(already => 
+          (already.id && s.id && already.id === s.id) || 
+          (already.dataset.href === s.dataset.href)
+        );
         if (!alreadyIn) {
           s.dataset.ghost = "false";
           sorted.push(s);
         }
       });
+      
       SOURCE_BUTTONS = sorted;
+      //console.log(SOURCE_BUTTONS) 
 
     } else { 
       // ТОЛЬКО МЕТКИ (Порядок не трогаем)
+      const domButtons = Array.from(container.children).filter(el => el.tagName === 'BUTTON');
 
       SOURCE_BUTTONS.forEach(s => {
-        // Ищем ВСЕ упоминания этой кнопки в DOM (и в списке, и в группе)
-        const domOccurrences = domOrder.filter(d => 
-          (d.id && d.id === s.id) || (d.innerText === s.innerText && d.dataset.href === s.dataset.href)
-        );
-        
-        // Если среди них есть хоть один ГОСТ — значит, оригинал в группе, 
-        // а в списке должна быть дырка. Записываем "true".
-        const hasGhost = domOccurrences.some(d => d.dataset.ghost === "true");
-        
-        if (domOccurrences.length > 0) {
-          s.dataset.ghost = hasGhost ? "true" : "false";
-        } else {
-          s.dataset.ghost = "false";
-        }
+          // Ищем кнопку в основном списке
+          const domBtn = domButtons.find(d => (d.id && d.id === s.id) || (d.dataset.href === s.dataset.href));
+          if (domBtn) {
+              s.dataset.ghost = (domBtn.dataset.ghost === "true") ? "true" : "false";
+          } else {
+              s.dataset.ghost = "true"; 
+          }
       });
     }
 }
@@ -988,7 +985,7 @@ function initPage() {
     window.addEventListener('touchend', () => isTouching = false, {passive: true});
 
     window.addEventListener('resize', () => {
-      if (isLocal) return; 
+      //if (isLocal) return; 
       if (isTouching) return; 
       
       // 1. Проверяем изменение
