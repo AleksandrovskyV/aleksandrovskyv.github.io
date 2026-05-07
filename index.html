@@ -1036,18 +1036,16 @@ function initPage() {
     window.addEventListener('touchend', () => isTouching = false, {passive: true});
 
     window.addEventListener('resize', () => {
-      //if (isLocal) return; 
       if (isTouching) return; 
       
       // 1. Проверяем изменение
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
-      
       clearTimeout(resizeTimeout);
-
+      const t = isLocal ? 5 : 250  
       resizeTimeout = setTimeout(() => {
         rebuildGUI(); // "current" state
-      }, 250);
+      }, t);
     });
   }else{
     document.addEventListener("keydown", onKeyCommand); 
