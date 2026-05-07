@@ -103,8 +103,9 @@ transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1);
 <body>
 
 <img data-g="W" class="draggable" src="/files/renders/aquaphor.jpg"  hidden>
-<img data-g="D" class="draggable" src="/files/renders/collagen.png"  >
 <img data-g="B" class="draggable" src="/files/renders/battery.png"   >
+
+<img data-g="D" class="draggable" src="/files/renders/collagen.png"  >
 <img data-g="D" class="draggable" src="/files/renders/poperechny.png">
 <img data-g="D" class="draggable" src="/files/renders/lens.jpg"      >
 
@@ -144,16 +145,12 @@ function checkFullsize() {
   }
 }
 
-// ------------------------------------------------------------
 //  1) Собираем стартовый список DOM-элементов
-// ------------------------------------------------------------
 const baseArr = Array.from(document.querySelectorAll(".draggable"));
 const isDesk = !isMobile;
 const totalLength = baseArr.length + (isDesk ? mergContent.length : 0);
 
-// ------------------------------------------------------------
 //  2) Акценты + рандом 
-// ------------------------------------------------------------
 function chooseRandom(total, count) {
   const set = new Set();
   while (set.size < count) set.add(Math.floor(Math.random() * total));
@@ -171,14 +168,12 @@ function shuffle(array) {
 let accentIndexes = chooseRandom(totalLength, 3);
 let zIndexOrder = shuffle(Array.from({ length: totalLength }, (_, i) => i + 1));
 
-// ------------------------------------------------------------
+
 //  3) Общий массив всех draggables (HTML + добавленные)
-// ------------------------------------------------------------
 const draggablesList = [];
 
-// ------------------------------------------------------------
+
 //  4) Основная инициализация (единая для всех)
-// ------------------------------------------------------------
 function initDraggable(el, index) {
   let scale = 1;
 
@@ -274,9 +269,8 @@ function initDraggable(el, index) {
 
 
 
-// ------------------------------------------------------------
+
 //  5) Загрузка дополнительных изображений на ПК
-// ------------------------------------------------------------
 async function loadExtraForDesktop(list, offset) {
   for (let i = 0; i < list.length; i++) {
     const img = document.createElement("img");
@@ -288,10 +282,8 @@ async function loadExtraForDesktop(list, offset) {
   }
 }
 
-// ------------------------------------------------------------
-//  6) Инициализация HTML-элементов
-// ------------------------------------------------------------
 
+//  6) Инициализация HTML-элементов
 function initScene() {
   accentIndexes = chooseRandom(totalLength, 3);
   zIndexOrder = shuffle(Array.from({ length: totalLength }, (_, i) => i + 1));
@@ -316,9 +308,7 @@ function cleanupScene() {
   });
 }
 
-// ------------------------------------------------------------
 //  7) Добавление PC-only элементов после DOM load
-// ------------------------------------------------------------
 
 initScene();
 window.addEventListener("load", () => {
@@ -341,6 +331,31 @@ document.querySelectorAll("button").forEach(btn => {
     window.location.href = target;
   });
 });
+
+
+let darkTheme = (theme!=="light");
+
+function saveLocalStorage() {
+  localStorage.setItem('theme', theme);
+}
+
+function switchTheme(){
+  darkTheme = !darkTheme;
+  
+  if(darkTheme){
+    theme = "dark";
+    document.documentElement.style.setProperty('--theme', 'dark');
+    document.documentElement.style.setProperty('--bg',    '#000');
+    document.documentElement.style.setProperty('--text',  '#ccc');
+  }else{
+    theme = "light";
+    document.documentElement.style.setProperty('--theme', 'light');
+    document.documentElement.style.setProperty('--bg',    '#f0f0f0');
+    document.documentElement.style.setProperty('--text',  '#333');
+  }
+
+  saveLocalStorage(); 
+}
 
 // ESC — на главную 
 function onKeyCommand(e) {
@@ -367,6 +382,8 @@ function onKeyCommand(e) {
 	  cleanupScene();
       initScene();
   }
+
+  if (e.code === 'KeyI') switchTheme()
 }
 
 document.querySelectorAll("a, button, img, .draggable").forEach(el => {
