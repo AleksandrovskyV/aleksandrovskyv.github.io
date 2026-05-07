@@ -845,6 +845,15 @@ function restoreSourceBtns(mode) {
   mergeFromCheck = false;
   container.innerHTML = "";
     
+  if (mode === "source") {
+    // удаляем госта из End группы
+    Array.from(endGroup.children).forEach(btn => {
+      if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
+    });
+  }else{ // разворот
+
+  }
+
   // 3. Восстановление FirstBtn
   const fOrig = SOURCE_BUTTONS.find(b => b.id === 'firstBtn');
   if (fOrig) {
@@ -904,29 +913,18 @@ function restoreSourceBtns(mode) {
 
 function rebuildGUI(mode = "current", shuffle = false) {
   
-  const container = document.getElementById('mainButtons');
-  const endGroup = document.getElementById('endGroup');
-
-  if (mode === "source") {
-    // удаляем госта из End группы
-    Array.from(endGroup.children).forEach(btn => {
-      if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
-    });
-  }else{ // разворот
-
-  }
-
   restoreSourceBtns(mode);
-  
   if (shuffle) shuffleButtonsWithRules();
+  
   removeOverflowBtnsMobile();
   if (mode === "source") checkLastRow();
 
   if (isMobile) fallbackMobileSnap();
   
-  // 6. ФИНАЛИЗАЦИЯ: Массив не перезаписываем! Только проставляем порядок! 
+  // Массив не перезаписываем! Только проставляем порядок! 
 
   if(shuffle){
+    const container = document.getElementById('mainButtons');
     const domOrder = Array.from(container.querySelectorAll('button:not(.btn_ghost)')); //
     const sorted = [];
     domOrder.forEach(domBtn => {
