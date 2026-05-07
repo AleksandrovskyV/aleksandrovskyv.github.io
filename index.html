@@ -592,42 +592,6 @@ function fallbackMobileSnap() {
 
 // User Interaction
 
-function onKeyCommand(e) {
-  const cod = e.code;
-  const key = e.key;
-
-  const pressedCtrl = e.ctrlKey;
-  const pressedShift = e.shiftKey;
-
-  //console.log("Press", cod, key);
-  if(!pressedCtrl && !pressedShift){ // hardcore transit to page
-
-    e.preventDefault();
-    e.stopImmediatePropagation(); 
-
-    if (cod === 'KeyV' || cod === "Space") return rebuildGUI("source", true); // hard reset
-
-    let targetHREF = null;
-    if (cod === 'KeyR') targetHREF = "./renders";
-
-    if(unlockHeart){
-      if (cod === 'KeyE') targetHREF = "./exegesis";
-      else if (cod === 'KeyH') targetHREF = "./негативы";
-    }else{
-      if (cod === "Backquote") targetHREF = "./wolume";
-      else if (cod === 'KeyG') targetHREF = "./графика";
-      else if (cod === 'KeyB') targetHREF = "./bread";
-    }
-
-    if (targetHREF) {
-      if (isLocal) targetHREF = targetHREF + "/index.html";
-      window.location.href = targetHREF;
-    }
-  }
-
-  return
-}
-
 function changeZone(state = "open") {
 
   if (switchZoneInAnim) return; 
@@ -705,6 +669,14 @@ function changeZone(state = "open") {
   }
 }
 
+function toggleHeart(){
+  unlockHeart = !unlockHeart;
+  if (typeof changeZone === "function") changeZone(unlockHeart ? "open" : "lock");
+  saveLocalStorage(); 
+}
+
+
+
 function hideAllButtons() {
   // Анимация скрытия всех кнопок
 
@@ -753,9 +725,7 @@ async function handleButtonClick(ev) {
   ev.preventDefault();
 
   if (btn.id === 'lastBtn') {
-    unlockHeart = !unlockHeart;
-    if (typeof changeZone === "function") changeZone(unlockHeart ? "open" : "lock");
-    saveLocalStorage(); 
+    toggleHeart();
     return;
   }
 
@@ -789,7 +759,43 @@ async function handleButtonClick(ev) {
   window.location.href = target;
 }
 
+function onKeyCommand(e) {
+  const cod = e.code;
+  const key = e.key;
 
+  const pressedCtrl = e.ctrlKey;
+  const pressedShift = e.shiftKey;
+
+  //console.log("Press", cod, key);
+  if(!pressedCtrl && !pressedShift){ // hardcore transit to page
+
+    e.preventDefault();
+    e.stopImmediatePropagation(); 
+
+    if (cod === 'KeyV' || cod === "Space") return rebuildGUI("source", true); // hard reset
+    if (cod === 'KeyI') return toggleHeart();
+
+
+    let targetHREF = null;
+    if (cod === 'KeyR') targetHREF = "./renders";
+
+    if(unlockHeart){
+      if (cod === 'KeyE') targetHREF = "./exegesis";
+      else if (cod === 'KeyH') targetHREF = "./негативы";
+    }else{
+      if (cod === "Backquote") targetHREF = "./wolume";
+      else if (cod === 'KeyG') targetHREF = "./графика";
+      else if (cod === 'KeyB') targetHREF = "./bread";
+    }
+
+    if (targetHREF) {
+      if (isLocal) targetHREF = targetHREF + "/index.html";
+      window.location.href = targetHREF;
+    }
+  }
+
+  return
+}
 // GUI Updaters
 
 function initSourceButtons() {
@@ -940,26 +946,26 @@ function initPage() {
   // Rebuild
   rebuildGUI("source", true);
 
+  // Events
+
   if(isMobile){
     window.addEventListener('touchstart', () => isTouching = true, {passive: true});
     window.addEventListener('touchend', () => isTouching = false, {passive: true});
-  }
 
-
-  // Events
-  if(isMobile && isLocal){
-    // isfile как защита для дебаг хрома режима 
     window.addEventListener('resize', () => {
-       if (isTouching) return; 
-
+      if (isLocal) return; // как защита для дебаг хрома режима ?
+      if (isTouching) return; 
       if (window.innerWidth === lastWidth) return;
+      
       lastWidth = window.innerWidth;
 
       clearTimeout(resizeTimeout);
+
       resizeTimeout = setTimeout(() => {
-        rebuildGUI(); // current
-      }, 240);
+        rebuildGUI(); // "current" state
+      }, 200);
     });
+
   }else{
     document.addEventListener("keydown", onKeyCommand); 
 
