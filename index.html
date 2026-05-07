@@ -272,8 +272,10 @@ let unlockHeart = (theme === "dark");  // flag current state page (group W\D)
 let switchZoneInAnim = false;          // flag block spam click on 50ms
 
 // safe iphone flags
-let resizeTimeout; let widescreen;
+let resizeTimeout, isWideScreen, initWidescr;
 let isTouching = false;
+
+
 let initWidth = window.innerWidth;                
 let lastWidth = window.innerWidth; 
 
@@ -310,11 +312,20 @@ window.addEventListener("pageshow", (event) => {
 
 // Helpers & Debugs
 
-function checkWidescreen(){
-  const checkValue = (window.innerHeight > window.innerWidth) ? false : true;
-  const changed = (checkValue !== widescreen);
-  widescreen = checkValue;
+function checkWidescreen(x, y) {
+  const valueX = x || window.innerWidth; 
+  const valueY = y || window.innerHeight;
+  const isWide = (valueX > valueY); 
+
+  if (x && y) return isWide;
+
+  if (isWide !== isWideScreen) {
+    isWideScreen = isWide;
+    return true; // Изменилось
+  }
+  return false; // Не изменилось
 }
+
 
 function getRowData(type = 'count') {
   //buttonContainer.offsetHeight; 
@@ -422,6 +433,28 @@ function removeOverflowBtnsMobile() {
       console.log("[Slash] move");
       container.insertBefore(obtn, prevBtn);
     }
+  }
+}
+
+function removeOverflowBtnsUpdate() {
+  if (!isMobile) return;
+  const container = buttonContainer;
+  const maxHeight = mainWrapper.clientHeight;
+
+  while (container.scrollHeight > maxHeight) {
+    const candidates = Array.from(container.querySelectorAll('button'))
+      .filter(btn => {
+        const isLock = btn.dataset.st === "lock";
+        const isGhost = btn.classList.contains('btn_ghost');
+        const isSystem = ['firstBtn'].includes(btn.id);
+        const isEndGroup = document.getElementById('endGroup').contains(btn);
+        
+        return (isLock || isGhost) && !isSystem && !isEndGroup;
+      });
+
+    if (candidates.length === 0) break; 
+    const target = candidates.pop();
+    target.remove();
   }
 }
 
@@ -824,17 +857,11 @@ function initSourceBtns() {
 
   container.querySelectorAll('button').forEach(btn => {
     btn.dataset.source = "true"; // Помечаем оригиналы
-    
-    if (window.theme === "dark") {
-      btn.classList.add('dstate');
-    }
+    if (window.theme === "dark") btn.classList.add('dstate');
   });
 
-  // 2. Сохраняем эталон в SOURCE_BUTTONS один раз. больше  не меняеем 
   SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
-
-  // 3. добавляем слушатели
-  container.addEventListener('click', handleButtonClick);
+  container.addEventListener('click', handleButtonClick); // добавляем слушатели
 }
 
 
@@ -842,8 +869,7 @@ function updSourceBtns(mode){
     const container = document.getElementById('mainButtons');
     const domOrder = Array.from(container.querySelectorAll('button')); // все кнопки вклюая end группу
 
-    if(mode === "reset"){
-      // ПОЛНАЯ ПЕРЕЗАПИСЬ (Сортировка + Метки)
+    if(mode === "reset"){ // ПОЛНАЯ ПЕРЕЗАПИСЬ (Сортировка + Метки)
       const sorted = [];
       domOrder.forEach(domBtn => {
         const found = SOURCE_BUTTONS.find(s => 
@@ -853,7 +879,6 @@ function updSourceBtns(mode){
 
         if (found) {
           if (found.dataset.ghost !== "true") {
-
               found.dataset.ghost = (domBtn.dataset.ghost === "true") ? "true" : "false";
               if(found.dataset.ghost === "true") console.log("GHOST!")
           }
@@ -874,14 +899,11 @@ function updSourceBtns(mode){
       });
       
       SOURCE_BUTTONS = sorted;
-      //console.log(SOURCE_BUTTONS) 
 
     } else { 
-      // ТОЛЬКО МЕТКИ (Порядок не трогаем)
+      // ТОЛЬКО МЕТКИ
       const domButtons = Array.from(container.children).filter(el => el.tagName === 'BUTTON');
-
       SOURCE_BUTTONS.forEach(s => {
-          // Ищем кнопку в основном списке
           const domBtn = domButtons.find(d => (d.id && d.id === s.id) || (d.dataset.href === s.dataset.href));
           if (domBtn) {
               s.dataset.ghost = (domBtn.dataset.ghost === "true") ? "true" : "false";
@@ -955,30 +977,36 @@ function restoreSourceBtns(mode) {
 function rebuildGUI(mode = "update", shuffle = false) { 
   // modes reset/update
 
-
-
   restoreSourceBtns(mode); // пересобирает через innerHtml по массиву
 
   if (shuffle) shuffleButtonsWithRules();
   
   removeOverflowBtnsMobile();
   
-  if (mode === "reset") checkLastRow();
+  if (mode === "reset"){
+    checkLastRow();
+  }else{
+    removeOverflowBtnsUpdate(); // Hard Overflow
+  }
 
   if (isMobile) fallbackMobileSnap();
   
   if(isMobile && mode === "update"){
     
     const endGroup = document.getElementById('endGroup');
-    if(lastWidth === initWidth){
-      endGroup.style.flex = "1 0 100%"; 
-      endGroup.style.marginLeft = "0";
-      endGroup.style.justifyContent = "space-between";
-    }else{
-      endGroup.style.flex = "auto";
-      endGroup.style.marginLeft = "";
-      endGroup.style.justifyContent = "";
+
+    if(!initWidescr){
+      if( lastWidth === initWidth ){
+        endGroup.style.flex = "1 0 100%"; 
+        endGroup.style.marginLeft = "0";
+        endGroup.style.justifyContent = "space-between";
+      }else{
+        endGroup.style.flex = "auto";
+        endGroup.style.marginLeft = "";
+        endGroup.style.justifyContent = "";
+      }
     }
+
   }
 
   updSourceBtns(mode);
@@ -987,7 +1015,9 @@ function rebuildGUI(mode = "update", shuffle = false) {
 
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
+  
   checkWidescreen();
+  initWidescr = isWideScreen;
 
   // Prepare
   removeDeskBtnOnMobile();
