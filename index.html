@@ -943,9 +943,9 @@ function rebuildGUI(mode = "current", shuffle = false) {
   removeOverflowBtnsMobile();
   checkLastRow(); 
   
-  if (isMobile) fallbackMobileSnap();
+  //if (isMobile) fallbackMobileSnap();
 
-  // 6. ФИНАЛИЗАЦИЯ: Только проставляем метки current! Массив не перезаписываем!
+  // 6. ФИНАЛИЗАЦИЯ: Массив не перезаписываем! Только проставляем метки current! 
   SOURCE_BUTTONS.forEach(btn => delete btn.dataset.current);
   
   const currentHrefs = [
