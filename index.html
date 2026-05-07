@@ -262,7 +262,8 @@ margin-left: auto; /* прижмет группу вправо */
 
 <script>
 
-const MOBILE_TARGET_ROW = 8;
+let INIT_TARGET_ROW = 8;
+let MOBILE_TARGET_ROW = 8;
 
  // contain struct page btns (need for innerHtml)
 let SOURCE_BUTTONS = [];
@@ -272,7 +273,7 @@ let unlockHeart = (theme === "dark");  // flag current state page (group W\D)
 let switchZoneInAnim = false;          // flag block spam click on 50ms
 
 // safe iphone flags
-let resizeTimeout, isWideScreen, initWidescr;
+let resizeTimeout, isWideScreen;
 let isTouching = false;
 
 
@@ -326,7 +327,6 @@ function checkWidescreen(x, y) {
   return false; // Не изменилось
 }
 
-
 function getRowData(type = 'count') {
   //buttonContainer.offsetHeight; 
   const elements = Array.from(buttonContainer.children);
@@ -343,22 +343,6 @@ function getRowData(type = 'count') {
 
 function saveLocalStorage() {
   localStorage.setItem('theme', unlockHeart ? 'dark' : 'light');
-}
-
-function debugHalfBtnsRemove(count = 5) {
-  // for fast check fallbackMobileSnap()
-  const container = document.getElementById('mainButtons');
-  const buttons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
-    .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id));
-
-  if (buttons.length <= count) return;
-  const startIndex = Math.floor(buttons.length / 2) - Math.floor(count / 2);
-  
-  for (let i = 0; i < count; i++) {
-    if (buttons[startIndex + i]) {
-      buttons[startIndex + i].remove();
-    }
-  }
 }
 
 // GUI Preload
@@ -387,6 +371,31 @@ function removeDeskBtnOnMobile() {
 
 
 // GUI Preload - Sort and Restruct Logic
+
+
+/*  // метод не используется
+function removeOverflowBtnsOld() {
+  if (!isMobile) return;
+  const container = buttonContainer;
+  const maxHeight = mainWrapper.clientHeight;
+
+  while (container.scrollHeight > maxHeight) {
+    const candidates = Array.from(container.querySelectorAll('button'))
+      .filter(btn => {
+        const isLock = btn.dataset.st === "lock";
+        const isGhost = btn.classList.contains('btn_ghost');
+        const isSystem = ['firstBtn'].includes(btn.id);
+        const isEndGroup = document.getElementById('endGroup').contains(btn);
+        
+        return (isLock || isGhost) && !isSystem && !isEndGroup;
+      });
+
+    if (candidates.length === 0) break; 
+    const target = candidates.pop();
+    target.remove();
+  }
+}
+*/
 
 function removeOverflowBtnsMobile() {
   if (!isMobile) return;
@@ -436,30 +445,9 @@ function removeOverflowBtnsMobile() {
   }
 }
 
-function removeOverflowBtnsUpdate() {
-  if (!isMobile) return;
-  const container = buttonContainer;
-  const maxHeight = mainWrapper.clientHeight;
-
-  while (container.scrollHeight > maxHeight) {
-    const candidates = Array.from(container.querySelectorAll('button'))
-      .filter(btn => {
-        const isLock = btn.dataset.st === "lock";
-        const isGhost = btn.classList.contains('btn_ghost');
-        const isSystem = ['firstBtn'].includes(btn.id);
-        const isEndGroup = document.getElementById('endGroup').contains(btn);
-        
-        return (isLock || isGhost) && !isSystem && !isEndGroup;
-      });
-
-    if (candidates.length === 0) break; 
-    const target = candidates.pop();
-    target.remove();
-  }
-}
-
 function checkLastRow() {
   const endGroup = document.getElementById('endGroup');
+  const presolve = (getRowData('count')<MOBILE_TARGET_ROW);
 
   function applyFix(items, mode = "mobile") {
     if (!endGroup || (mode === "mobile" && !isMobile)) return false;
@@ -486,10 +474,11 @@ function checkLastRow() {
       ghost.id = ""; 
       ghost.dataset.ghost = "true"; 
       ghost.classList.add('btn_ghost'); // Метка для CSS (opacity 0 + no events)
-      console.log("ПЫФВ")
+      console.log("checkLastRow  add mobile ghost")
       
       bestBuddy.parentNode.insertBefore(ghost, bestBuddy);
       endGroup.prepend(bestBuddy);
+
     } else { // Режим RESULT: работаем со всеми соседями
       [...targets].reverse().forEach(el => endGroup.prepend(el));
     }
@@ -502,24 +491,24 @@ function checkLastRow() {
 
     const currentCount = getRowData('count');
 
-    if (currentCount !== MOBILE_TARGET_ROW) {
+    if ( currentCount !== MOBILE_TARGET_ROW  ) {      
       console.log(`[Fix Failure] Нарушена сетка! Рядов: ${currentCount}. Откатываем...`);
+      
       for (let j = 0; j < 3; j++) {
         const locks = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
           .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
         
         if (locks.length > 0) {
           locks[locks.length - 1].remove();
-          // Если после удаления всё встало на свои 8 строк
           if (getRowData('count') === MOBILE_TARGET_ROW) {
-            console.log("[Успешно] Сетка восстановлена до 8 строк");
+            console.log(`[Успешно] Сетка восстановлена до ${MOBILE_TARGET_ROW} строк`);
             return true;
           } 
         }
       }
 
       // Если удаление lock-кнопок выше не помогло:
-      console.log("[Fix Failure] Не удалось спасти 8 строк. ОТКАТЫВАЕМ изменения.");
+      console.log(`[Fix Failure] Не удалось спасти ${MOBILE_TARGET_ROW} строк. ОТКАТЫВАЕМ изменения.`);
       const buddyInGroup = endGroup.querySelector('button:not(#preBtn):not(#lastBtn)');
       const ghost = Array.from(buttonContainer.children).find(el => el.dataset.ghost === "true");
 
@@ -548,21 +537,22 @@ function checkLastRow() {
           src.dataset.moved = "true";
         }
       });
-
-
     }
 
     return true;
   }
 
   // Основная логика
+
   for (let i = 0; i < 3; i++) {
     const rowItems = getRowData('items'); 
     const n = rowItems.length; console.log("LastRowLength", n)
   
     if (n === 1) {
-      if (isMobile && applyFix(rowItems, "mobile")){
+      if (isMobile){
+        applyFix(rowItems, "mobile")
         mergeFromCheck = true;
+        console.log("mobmerg")
         break;
       } 
 
@@ -578,6 +568,7 @@ function checkLastRow() {
       buttonContainer.offsetHeight;
 
     } else {
+      console.log("hard merge")
       applyFix(rowItems, "result");
       break;
     }
@@ -916,11 +907,17 @@ function updSourceBtns(mode){
       // ТОЛЬКО МЕТКИ
       const domButtons = Array.from(container.children).filter(el => el.tagName === 'BUTTON');
       SOURCE_BUTTONS.forEach(s => {
-          const domBtn = domButtons.find(d => ( d.dataset.href === s.dataset.href) );
-          if (domBtn) {
+
+          const domIdx = domButtons.findIndex(d => d.dataset.href === s.dataset.href);
+
+           if (domIdx !== -1) {
+              const domBtn = domButtons[domIdx];
               s.dataset.ghost = (domBtn.dataset.ghost === "true") ? "true" : "false";
+              s.dataset.idx = domIdx; 
+              if(domBtn.dataset.ghost === "true"){console.log("позиция", domIdx)}
           } else {
               //s.dataset.ghost = "true"; 
+            s.dataset.idx = -1; 
           }
       });
     }
@@ -932,13 +929,13 @@ function restoreSourceBtns(mode) {
 
   mergeFromCheck = false;
   container.innerHTML = "";
-    
+  
+
   if (mode === "reset") {
-    // удаляем госта из End группы
+    // удаляем госта всех из end группы
     Array.from(endGroup.children).forEach(btn => {
       if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
     });
-  }else{ 
   }
 
   const recoverState = (btn) => {
@@ -1001,49 +998,34 @@ function restoreSourceBtns(mode) {
 
 function rebuildGUI(mode = "update", shuffle = false) { 
   // modes reset/update
+  
+  checkWidescreen();
+  MOBILE_TARGET_ROW = isWideScreen ? 3 : 8;
+  
+  console.log("target count", MOBILE_TARGET_ROW)
+  
+  SOURCE_BUTTONS.forEach(btn => btn.dataset.ghost = "false");
 
-  restoreSourceBtns(mode); // пересобирает через innerHtml по массиву
+  restoreSourceBtns("reset"); 
 
   if (shuffle) shuffleButtonsWithRules();
-  
-  removeOverflowBtnsMobile();
-  
-  if (mode === "reset"){
-    if (!isMobile) checkLastRow();
-    if(isMobile && !initWidescr) checkLastRow();
-    else if (isMobile && initWidescr) removeOverflowBtnsUpdate(); 
 
-  }else{ // update
-    
-    if(isMobile && !initWidescr){
-      const endGroup = document.getElementById('endGroup');
+  if (isMobile) removeOverflowBtnsMobile();
 
-      if( lastWidth === initWidth ){ // возвращаемся в портретный фикс
-
-        endGroup.style.flex = "1 0 100%"; 
-        endGroup.style.marginLeft = "0";
-        endGroup.style.justifyContent = "space-between";
-      
-      }else{ // делаем группу обычной кнопкой в альбомной 
-        endGroup.style.flex = "auto";
-        endGroup.style.marginLeft = "";
-        endGroup.style.justifyContent = "";
-      }
-    }
-
-    removeOverflowBtnsUpdate(); // Hard Overflow if Album Reorient
-  }
+  checkLastRow(); 
 
   if (isMobile) fallbackMobileSnap();
-  
+
   updSourceBtns(mode);
+
 }
 
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
   
   checkWidescreen();
-  initWidescr = isWideScreen;
+  MOBILE_TARGET_ROW = isWideScreen ? 3 : 8;
+  INIT_TARGET_ROW = MOBILE_TARGET_ROW;
 
   // Prepare
   removeDeskBtnOnMobile();
@@ -1068,7 +1050,7 @@ function initPage() {
       clearTimeout(resizeTimeout);
       const t = isLocal ? 5 : 250  
       resizeTimeout = setTimeout(() => {
-        rebuildGUI(); // "current" state
+        rebuildGUI("update", false); // "current" state
       }, t);
     });
   }else{
