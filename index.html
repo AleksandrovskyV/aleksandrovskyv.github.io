@@ -838,13 +838,19 @@ function initSourceBtns() {
   container.addEventListener('click', handleButtonClick);
 }
 
+
 function updSourceBtns(mode){
     const container = document.getElementById('mainButtons');
+    // Собираем кнопки и из контейнера, и из группы (чтобы не терять тех, кто в конце)
+    const endGroup = document.getElementById('endGroup');
+    const domOrder = [
+      ...Array.from(container.querySelectorAll('button')),
+      ...Array.from(endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)'))
+    ]; 
 
-    if(mode==="sort"){
-      const domOrder = Array.from(container.querySelectorAll('button')); 
+    if(mode === "reset"){
+      // ПОЛНАЯ ПЕРЕЗАПИСЬ (Сортировка + Метки)
       const sorted = [];
-
       domOrder.forEach(domBtn => {
         const found = SOURCE_BUTTONS.find(s => 
           (domBtn.id && s.id === domBtn.id) || 
@@ -852,30 +858,37 @@ function updSourceBtns(mode){
         );
 
         if (found) {
-          if (domBtn.dataset.ghost === "true") {
-            found.dataset.ghost = "true";
-          } else {
-            found.dataset.ghost = "false";
-          }
-          
-          // Пушим в sorted только если этого оригинала там еще нет 
-          // (защита от дубля, так как у нас теперь и гост, и оригинал в DOM)
+          found.dataset.ghost = domBtn.dataset.ghost === "true" ? "true" : "false";
           if (!sorted.includes(found)) sorted.push(found);
         }
       });
 
-      // Добавляем те, что вообще не в DOM (удаленные по overflow)
       SOURCE_BUTTONS.forEach(s => { 
         const alreadyIn = sorted.some(already => (already.id && already.id === s.id));
         if (!alreadyIn) {
-          s.dataset.ghost = "false"; // сбрасываем статус для скрытых
+          s.dataset.ghost = "false";
           sorted.push(s);
         }
       });
-
       SOURCE_BUTTONS = sorted;
+
+    } else { 
+      // ТОЛЬКО МЕТКИ (Порядок не трогаем)
+      SOURCE_BUTTONS.forEach(s => {
+        const domBtn = domOrder.find(d => 
+          (d.id && d.id === s.id) || (d.dataset.href === s.dataset.href)
+        );
+        
+        if (domBtn) {
+          s.dataset.ghost = domBtn.dataset.ghost === "true" ? "true" : "false";
+        } else {
+          // Если кнопки нет в DOM (скрыта overflow), она точно не гост
+          s.dataset.ghost = "false";
+        }
+      });
     }
 }
+
 
 function restoreSourceBtns(mode) {
   const container = document.getElementById('mainButtons');
@@ -893,7 +906,7 @@ function restoreSourceBtns(mode) {
 
   }
 
-  // 3. Восстановление FirstBtn
+  // 1. Восстановление FirstBtn
   const fOrig = SOURCE_BUTTONS.find(b => b.id === 'firstBtn');
   if (fOrig) {
     const fClone = fOrig.cloneNode(true);
@@ -901,7 +914,7 @@ function restoreSourceBtns(mode) {
     container.appendChild(fClone);
   }
 
-  // 4. Отрисовка основного состава
+  // 2. Отрисовка основного состава
   SOURCE_BUTTONS.forEach(btn => {
     if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
       const clone = btn.cloneNode(true);
@@ -926,6 +939,7 @@ function restoreSourceBtns(mode) {
     }
   });
 
+  // 3. Конечная группа (дубликат из DOM)
   container.appendChild(endGroup);
 
   const sprite = document.getElementById('heartIcon');
@@ -938,6 +952,7 @@ function restoreSourceBtns(mode) {
 function rebuildGUI(mode = "update", shuffle = false) { // modes reset/update
   
   restoreSourceBtns(mode);
+  
   if (shuffle) shuffleButtonsWithRules();
   
   removeOverflowBtnsMobile();
@@ -945,8 +960,7 @@ function rebuildGUI(mode = "update", shuffle = false) { // modes reset/update
 
   if (isMobile) fallbackMobileSnap();
   
-  // Массив не перезаписываем! Только проставляем порядок! 
-  if(shuffle) updSourceBtns("sort");
+  updSourceBtns(mode);
 }
 
 
