@@ -34,13 +34,13 @@
 
   if (savedTheme === 'dark') {
       window.theme = "dark";
-      document.documentElement.classList.add('dark');
       document.documentElement.style.setProperty('--theme', 'dark');
-      document.documentElement.style.setProperty('--bg',    '#000');
+
+      document.documentElement.classList.add('dark');
       
   }else{
       window.theme = "light";
-      document.documentElement.classList.add('light');
+      document.documentElement.style.setProperty('--theme', 'light');
   }
 </script>
 
@@ -53,18 +53,15 @@
 
 <style>
 :root {
---theme: light; 
---bg: #e5e5e5;
---text: #ccc;
 --debug: false;
+--theme: light; 
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-html, body {
-  height: 100%; background: #e5e5e5;
-  transition: background-color 0.8s ease;
+
+html, body { height: 100%; transition: background-color 0.8s ease;
 }
-body.invert{background: #000;}
+.dark  body {background: #000;}
 
 [hidden] { display: none !important; }
 
@@ -661,7 +658,7 @@ function changeZone(state = "open") {
 
   if (state === "open") {
     setTimeout(() => {
-      document.body.classList.add("invert");
+      document.body.classList.add("dark");
       
       setTimeout(() => {
         //firstBtn.textContent = "*";
@@ -675,8 +672,9 @@ function changeZone(state = "open") {
   
   } else {
     setTimeout(() => {
-      document.body.classList.remove("invert");
       
+      document.body.classList.remove("dark");
+
       setTimeout(() => {
         //firstBtn.textContent = "~";
       }, delayText);
