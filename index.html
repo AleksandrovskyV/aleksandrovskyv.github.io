@@ -452,8 +452,6 @@ function checkLastRow() {
       ghost.id = ""; 
       ghost.dataset.ghost = "true"; 
       ghost.classList.add('btn_ghost'); // Метка для CSS (opacity 0 + no events)
-      //delete ghost.dataset.source; 
-
       
       bestBuddy.parentNode.insertBefore(ghost, bestBuddy);
       endGroup.prepend(bestBuddy);
@@ -874,15 +872,20 @@ function updSourceBtns(mode){
 
     } else { 
       // ТОЛЬКО МЕТКИ (Порядок не трогаем)
+
       SOURCE_BUTTONS.forEach(s => {
-        const domBtn = domOrder.find(d => 
-          (d.id && d.id === s.id) || (d.dataset.href === s.dataset.href)
+        // Ищем ВСЕ упоминания этой кнопки в DOM (и в списке, и в группе)
+        const domOccurrences = domOrder.filter(d => 
+          (d.id && d.id === s.id) || (d.innerText === s.innerText && d.dataset.href === s.dataset.href)
         );
         
-        if (domBtn) {
-          s.dataset.ghost = domBtn.dataset.ghost === "true" ? "true" : "false";
+        // Если среди них есть хоть один ГОСТ — значит, оригинал в группе, 
+        // а в списке должна быть дырка. Записываем "true".
+        const hasGhost = domOccurrences.some(d => d.dataset.ghost === "true");
+        
+        if (domOccurrences.length > 0) {
+          s.dataset.ghost = hasGhost ? "true" : "false";
         } else {
-          // Если кнопки нет в DOM (скрыта overflow), она точно не гост
           s.dataset.ghost = "false";
         }
       });
@@ -903,7 +906,6 @@ function restoreSourceBtns(mode) {
       if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
     });
   }else{ 
-
   }
 
   // 1. Восстановление FirstBtn
