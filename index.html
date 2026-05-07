@@ -817,6 +817,7 @@ function onKeyCommand(e) {
 
   return
 }
+
 // GUI Updaters
 
 function initSourceButtons() {
@@ -892,7 +893,7 @@ function restoreSourceBtns(mode) {
       duplicate.dataset.ghost = "true"; 
       duplicate.style.opacity = "0"; 
       duplicate.classList.add('btn_ghost'); 
-      /*
+      /* пока убрал
       if (widescreen) {
         duplicate.style.display = "none"; 
       } else {
@@ -983,7 +984,7 @@ function initPage() {
       clearTimeout(resizeTimeout);
 
       resizeTimeout = setTimeout(() => {
-        rebuildGUI(); // "current" state
+        //rebuildGUI(); // "current" state
       }, 250);
     });
 
