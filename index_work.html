@@ -1,0 +1,1250 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preload" href="/content/heart_sprite.png" as="image" fetchpriority="high">
+
+<meta name="description" content="Присутствуют негативы, почти целый триптих и многое другое..." />
+
+<meta property="og:title" content="вский.space">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://vsky.space/">
+<meta property="og:description" content="Присутствуют негативы, почти целый триптих и многое другое...">
+<meta property="og:image" content="https://vsky.space/vsky.jpg">
+<meta property="og:image:secure_url" content="https://vsky.space/vsky.jpg">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="вский.space">
+<meta name="twitter:description" content="Присутствуют негативы, почти целый триптих и многое другое...">
+<meta name="twitter:image" content="https://vsky.space/vsky.jpg">
+<meta name="twitter:site" content="@AleksandrovskyV">
+
+<meta vdebugmode="ios">
+
+<script>
+  const ua = navigator.userAgent.toLowerCase();
+  const savedTheme = localStorage.getItem('theme'); 
+
+  // set global platform variable !
+  // iphone|ipad|ipod|android|blackberry|webos|iemobile|opera mini ;
+  window.isMobile = /iphone|ipad|android/.test(ua);
+  window.isLocal = (window.location.protocol === "file:");
+  
+  if (window.isMobile) {
+    document.documentElement.classList.add('mobile');
+  }
+
+  if (savedTheme === 'dark') {
+      window.theme = "dark";
+      document.documentElement.setAttribute('data-theme', 'dark'); 
+      document.documentElement.style.setProperty('--bg', '#000');      
+  } else {
+      window.theme = "light";
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.style.setProperty('--bg', '#e5e5e5');
+  }
+//console.log("EndPreScript", theme, isMobile, isLocal);
+</script>
+
+<title>вский.space</title>
+
+
+<style>
+:root {
+--bg: #e5e5e5;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html, body { height: 100%; background:var(--bg) ; transition: background-color 0.8s ease; }
+
+[hidden] { display: none !important; }
+
+/* 1. Main Geometry */
+.fswrap {
+position: fixed; inset: 0;
+display: flex; align-items: center;
+justify-content: center; z-index: 1000;
+}
+.mobile .fswrap {
+top: env(safe-area-inset-top, 0);
+left: env(safe-area-inset-left, 0);
+right: env(safe-area-inset-right, 0);
+bottom: env(safe-area-inset-bottom, 0);
+}
+
+.mobile .fswrap.stickToBot {
+align-items: flex-end;
+padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+}
+
+/* 2. Btns Geometry */
+.btnsWrap {
+display: flex; flex-wrap: wrap;
+justify-content: space-between;
+background: transparent;
+
+/* Desktop */
+width: min(90vw, 700px); height: min(90vh, 680px);
+align-content: center; 
+padding: 20px;
+gap: 16px;
+}
+
+@media (max-width:420px){ /* Web Adapt */
+  .btnsWrap { 
+    padding:12px; 
+    gap:10px; 
+  }
+}
+
+.mobile .btnsWrap {
+  width: auto; height: auto;
+  align-content: normal;
+  padding: max(12px, env(safe-area-inset-top))
+           max(12px, env(safe-area-inset-right))
+           max(12px, env(safe-area-inset-bottom))
+           max(12px, env(safe-area-inset-left));
+  gap: 10px; 
+}
+
+.endBtnWrapper {
+display: inline-flex;
+gap: inherit; 
+flex: 0 0 auto;
+}
+
+.mobile .endBtnWrapper { /* предохранитель */
+margin-left: auto; /* прижмет группу вправо */
+}
+
+/* 3. Buttons */
+
+.btnsWrap button {
+  flex: 0 0 auto; display:inline-flex; align-items:center; justify-content:center;
+  padding:12px; font-size:1.25rem; color: gray; border: 0; cursor:pointer;
+  transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color .6s ease;
+  will-change: opacity, transform; z-index: 99; user-select: none; background: transparent;
+
+  font-weight: 400 !important; 
+  font-variation-settings: "wght" 400;
+
+  -webkit-text-stroke-width: 0px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width:420px){ /* Web Adapt */
+  .btnsWrap button { 
+    padding:10px 14px; 
+    font-size:1rem; 
+  }
+}
+
+.mobile .btnsWrap button { 
+  padding: 10px 14px; 
+  font-size: 1rem; 
+}
+
+.btnsWrap button[data-st="lock"] { color: rgba(70,70,70,1.0); }
+
+/* - Buttons Desktop Special */
+@media (hover: hover) {
+  .btnsWrap button:not([data-st="lock"]):hover { opacity: .5; }
+  .btnsWrap button[data-st="lock"] { cursor: grab; }
+  .btnsWrap button[data-st="lock"]:active {
+    cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
+  }
+}
+
+/* - Buttons by Groups (bd = dark, bw = white, bb = both) */
+.btnsWrap button.bd, .btnsWrap button.bw, .btnsWrap button.bb {
+  cursor: default; pointer-events: none;
+}
+
+/* - Buttons on White Page State (default) */
+.btnsWrap button.bd { color: rgba(128, 128, 128, 0); }
+.btnsWrap button.bb, .btnsWrap button.bw { color: #9b9b9b; }
+
+/* - Buttons Special */
+.btnsWrap button.bb { transition: color 0.6s ease; }
+
+.btnsWrap button.bw:not([data-st="lock"]){
+  pointer-events: auto; cursor: pointer; 
+}
+
+/* - Buttons on Dark Page State */
+.btnsWrap button.bd.dstate {
+  pointer-events: auto; cursor: pointer; color: rgba(128, 128, 128, 1);
+  transition: opacity .6s ease, transform .45s cubic-bezier(.2,.9,.2,1), color 1.6s ;
+}
+
+.btnsWrap button.bw.dstate, .btnsWrap button.bb.dstate {
+  pointer-events: auto; cursor: grab; color: rgba(70,70,70,1.0);
+}
+.btnsWrap button.bw.dstate:active, .btnsWrap button.bb.dstate:active {
+  cursor: grabbing; transform: scale(0.99); color: rgba(50,50,50,1.0); 
+}
+
+.btn_hide  { opacity: 0 !important; pointer-events: none !important; }
+.btn_ghost { opacity: 0 !important; pointer-events: none !important; } /* color: rgba(24, 24, 24, .0) !important; */
+
+/* 3. Heart Sprite */
+/* base64-image.de */
+.h_icon { display: block; margin: 5px auto 0; width: 88px; height: 42px; }
+.h_sprite {
+  background: url("/content/heart_sprite.png") no-repeat 0 0;
+  background-size: 100% auto;
+  transition: background-position 0.4s steps(19);
+  will-change: background-position;
+}
+.h_sprite svg { display: none; }
+.h_sprite.complete { background-position: 0 100%; }
+</style>
+
+</head>
+<body>
+
+<div id="mainWrapper" class="fswrap" >
+  <div id="mainButtons" class="btnsWrap" >
+
+    <!-- g=group ; mb=mobile ; mh=mobilehidden-->
+
+    <button id="firstBtn" data-g="W" data-st="open" data-mb="false"  data-href="/wolume"  class="bw" >~</button>
+
+    <!-- mobile special -->
+    <button id="bbtn"     data-g="D" data-st="open" data-mb="true"  data-href="/chat"     class="bd" >chat___</button>
+    <button id="cbtn"     data-g="D" data-st="open" data-mb="true"  data-href="/день"     class="bd" >день</button>
+    <button id="dbtn"     data-g="D" data-st="open" data-mb="true"  data-href="/триптих"  class="bd" >триптих</button>
+
+    <!-- disable on mobile -->
+    <button id="pbtn"     data-g="D" data-st="open" data-mb="false" data-href="/fe"       class="bd" data-mh="true" >fe</button>
+    <button id="qbtn"     data-g="D" data-st="open" data-mb="false" data-href="/flipbook" class="bd" data-mh="true" >flipbook</button>
+
+    <!-- combine between web and mobile  -->
+    <button id="ebtn"     data-g="D" data-st="open" data-mb="false" data-href="/негативы" class="bd" >негативы</button>
+    <button id="fbtn"     data-g="D" data-st="open" data-mb="false" data-href="/exegesis" class="bd" >.exe</button>
+
+    <button id="gbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/renders"  class="bw" >_enders</button>
+    <button id="hbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/снимки"   class="bw" >снимки</button>
+    <button id="ibtn"     data-g="W" data-st="lock" data-mb="false" data-href="/графика"  class="bw" >графика</button>
+  
+    <button id="jbtn"     data-g="W" data-st="open" data-mb="false" data-href="/bread"    class="bw" >bread</button>
+    <button id="kbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/haloguys" class="bw" >[ haloguys ]</button>
+    <button id="lbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/покпокки" class="bw" >покпокки</button>
+  
+    <button id="mbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/работа"   class="bw" >работа</button>
+    <button id="nbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/process"  class="bw" >_cess</button>
+
+    <button id="obtn"     data-g="B" data-st="lock" data-mb="false" data-href="/const"    class="bb" >/</button>
+
+    <div id="endGroup" class="endBtnWrapper">
+      <button id="preBtn"   data-g="B" data-st="lock" data-mb="false" data-href="/space"  class="bb" >—</button>
+
+      <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
+      <!-- инициализация спрайта перенесена в js -->
+      <button id="lastBtn"  data-st="open" data-href="/about" >
+          <div id="heartIcon" class="h_icon">
+
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 240" fill="#9b9b9b">
+              <path d="M422.9 5.5v16.4h33.3V217h-33.3v16.5h52.3V5.5h-52.3zM25.2 233.5h52.3v-16.4H44.2V21.9h33.3V5.5H25.2v228z"/>
+              <path d="M323.3 40.1c-19.8-9.8-41.5-6.3-58.2 5.7-7 5-14.3 15.8-15.1 17l.1.2c-3.1-3.8-10.3-14.2-15-17.2-11.7-9.7-31.7-13.7-46.9-9.8-4.2 1-8.2 2.6-12.2 4.6-28.1 14.4-40 55.2-25 84.9 21.7 43.3 64.7 71.3 86.3 82.7 8.3 4.4 18.2 4.2 26.3-.4l.1-.1c1.8-1 14.9-8.4 18.5-11.4v.1c1.3-1.1 8.5-6.7 15.3-11.9 18.5-14.2 39.3-33.3 51.8-59.9 14.2-30 3.8-69.8-26-84.5z"/>
+            </svg>
+
+          </div>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+let INIT_TARGET_ROW = 8;
+let MOBILE_TARGET_ROW = 8;
+
+ // contain struct page btns (need for innerHtml)
+let SOURCE_BUTTONS = [];
+
+let mergeFromCheck = false;
+let unlockHeart = (theme === "dark");  // flag current state page (group W\D)
+let switchZoneInAnim = false;          // flag block spam click on 50ms
+
+// safe iphone flags
+let resizeTimeout, isWideScreen;
+let isTouching = false;
+
+
+let initWidth = window.innerWidth;                
+let lastWidth = window.innerWidth; 
+
+const buttonContainer = document.getElementById('mainButtons');
+
+// onload js solvers
+
+(function(id, src) {
+  // Замена static на sprite по готовности картинки
+  const img = new Image();
+  img.src = src;
+  // Ждем готовности картинки к отрисовке
+  img.decode().then(() => {
+    document.getElementById(id).classList.add('h_sprite');
+    if(unlockHeart) document.getElementById(id).classList.add('complete');
+  }).catch(() => { /* если картинка битая, останется SVG */ });
+})('heartIcon', "/content/heart_sprite.png");
+
+window.addEventListener("pageshow", (event) => {
+  // ВОССТАНОВЛЕНИЕ ПОСЛЕ ВОЗВРАТА НАЗАД
+
+  if (event.persisted) {
+    // только восстанавливаем видимость скрытых кнопок
+    const buttons = Array.from(buttonContainer.querySelectorAll('button'));
+    buttons.forEach(btn => {
+      if(btn.classList.contains('btn_hide')){
+        btn.classList.remove('btn_hide');
+        btn.style.visibility = 'visible';
+      }
+    });
+    buttonContainer.style.pointerEvents = "";
+  }
+});
+
+
+// Helpers & Debugs
+
+function checkWidescreen(x, y) {
+  const valueX = x || window.innerWidth; 
+  const valueY = y || window.innerHeight;
+  const isWide = (valueX > valueY); 
+
+  if (x && y) return isWide;
+
+  if (isWide !== isWideScreen) {
+    isWideScreen = isWide;
+    return true; // Изменилось
+  }
+  return false; // Не изменилось
+}
+
+function getRowData(type = 'count') {
+  //buttonContainer.offsetHeight; 
+  const elements = Array.from(buttonContainer.children);
+  if (!elements.length) return type === 'count' ? 0 : [];
+
+  if (type === 'count') {
+    return new Set(elements.map(el => el.offsetTop)).size;
+  }
+  if (type === 'items') {
+    const lastTop = elements[elements.length - 1].offsetTop;
+    return elements.filter(el => Math.abs(el.offsetTop - lastTop) < 5);
+  }
+}
+
+function saveLocalStorage() {
+  localStorage.setItem('theme', unlockHeart ? 'dark' : 'light');
+}
+
+// GUI Preload
+
+function adjustFontByCount(){
+  // подстройка размера шрифта в зависимости от кол-ва кнопок 
+  // простая эвристика: чем больше кнопок — тем меньше шрифт
+
+  const buttons = Array.from(buttonContainer.querySelectorAll('button'));
+  const n = buttons.length;
+  const base = isMobile ? 4.4 : 4.6; //web - 4.6 
+  const sizeRem = Math.max(0.9, base - (n - 3) * 0.12);
+  buttons.forEach(b => b.style.fontSize = sizeRem + 'rem');
+};
+
+function removeDeskBtnOnMobile() {
+  if (!isMobile) return;
+
+  const container = document.getElementById('mainButtons');
+  const btnsToRemove = container.querySelectorAll('button[data-mh="true"]');
+
+  btnsToRemove.forEach(btn => {
+    btn.remove();
+  });
+}
+
+
+// GUI Preload - Sort and Restruct Logic
+
+function removeOverflowBtnsMobile() {
+  if (!isMobile) return;
+  const container = buttonContainer;
+
+  let iteration = 0;
+  while (getRowData('count') > MOBILE_TARGET_ROW) {
+    iteration++;
+    const currentRows = getRowData('count');
+    const lockButtons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
+      .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id));
+
+    if (lockButtons.length === 0) {
+      break;
+    }
+
+    let success = false;
+    for (let j = lockButtons.length - 1; j >= 0; j--) {
+      const btnToTry = lockButtons[j];
+      const nextSibling = btnToTry.nextElementSibling;
+      
+      btnToTry.remove();
+      const n = getRowData('count');
+
+      if (n >= MOBILE_TARGET_ROW) {
+        success = true;
+        break; 
+      } else {
+        container.insertBefore(btnToTry, nextSibling);
+      }
+    }
+
+    if (!success) {
+      break;
+    }
+  }
+
+  // Фикс односимвольных в нашем случае - слэш
+  const endGroup = document.getElementById('endGroup');
+  const obtn = document.getElementById('obtn');
+  if (obtn && endGroup && obtn.nextElementSibling === endGroup) {
+    const prevBtn = obtn.previousElementSibling;
+    if (prevBtn && prevBtn.id !== 'firstBtn') {
+      console.log("[Slash] move");
+      container.insertBefore(obtn, prevBtn);
+    }
+  }
+}
+
+function checkLastRow(mode, replaced) {
+  const endGroup = document.getElementById('endGroup');
+  const presolve = (getRowData('count')<MOBILE_TARGET_ROW);
+
+  function applyFix(items, mode = "mobile") {
+    if (!endGroup || (mode === "mobile" && !isMobile)) return false;
+    
+    let targets = [];
+    if (mode === "result") {
+      targets = items.filter(el => el !== endGroup && el.id !== 'firstBtn' && el.id !== 'obtn');
+    } else {
+      targets = Array.from(buttonContainer.querySelectorAll('button'))
+        .filter(btn => btn.id !== 'firstBtn' && btn.id !== 'obtn' && !endGroup.contains(btn) && btn.innerText.length > 2);
+    }
+
+    if (targets.length === 0){
+      console.log("[Fix Failure] КАНДИДАТОВ НЕТ");
+      return false;
+    }
+
+    // Режим MOBILE: работаем с одной кнопкой
+    if (mode === "mobile") {
+      targets.sort((a, b) => a.innerText.length - b.innerText.length);
+      const bestBuddy = replaced || targets[0];
+      const ghost = bestBuddy.cloneNode(true);
+
+      ghost.id = ""; 
+      ghost.dataset.ghost = "true"; 
+      ghost.classList.add('btn_ghost'); // Метка для CSS (opacity 0 + no events)
+      
+      bestBuddy.parentNode.insertBefore(ghost, bestBuddy);
+      endGroup.prepend(bestBuddy);
+
+    } else { // Режим RESULT: работаем со всеми соседями
+      [...targets].reverse().forEach(el => endGroup.prepend(el));
+    }
+
+    endGroup.style.flex = "1 0 100%"; 
+    endGroup.style.marginLeft = "0";
+    endGroup.style.justifyContent = "space-between";
+
+    if(!isMobile) return true
+
+    const currentCount = getRowData('count');
+
+    if ( currentCount !== MOBILE_TARGET_ROW  ) { 
+      console.log(`[checkLastRow][FixFailure] Нарушена сетка! Рядов: ${currentCount}. Откатываем...`);
+
+
+      if (currentCount > MOBILE_TARGET_ROW) {
+
+        for (let j = 0; j < 3; j++) {
+          const locks = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
+            .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
+          
+          if (locks.length > 0) {
+            locks[locks.length - 1].remove();
+            if (getRowData('count') === MOBILE_TARGET_ROW) {
+              console.log(`[checkLastRow][Success] Сетка восстановлена до ${MOBILE_TARGET_ROW} строк`);
+              return true;
+            } 
+          }
+        }
+
+
+      // 2. Если рядов МЕНЬШЕ (твой кейс на скрине) — выкидываем кнопки из группы назад
+
+      }else if (currentCount < MOBILE_TARGET_ROW) {
+        // надо доставать кнопки из SOURCE_BUTTONS, тех что нет в доке и пробовать их вставить пока условия target не выполнится
+
+        console.log(`[checkLastRow] Рядов мало (${currentCount}). Восстанавливаем из группы...`);
+        
+        // Берем кнопки из группы (кроме системных и кроме той, что мы принудительно фиксили)
+        const candidates = Array.from(endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)'))
+          .filter(btn => btn !== replaced); // replaced мы НЕ трогаем, он должен остаться!
+
+        for (let btn of candidates) {
+          // Возвращаем кнопку в общий контейнер ПЕРЕД группой
+          buttonContainer.insertBefore(btn, endGroup);
+          
+          if (getRowData('count') === MOBILE_TARGET_ROW) {
+            console.log(`[checkLastRow][Success] Сетка восстановлена (ряд добавлен)`);
+            return true;
+          }
+        }
+      
+      }
+
+      // Если удаление lock-кнопок выше не помогло:
+      console.log(`[checkLastRow][FixFailure] Не удалось спасти ${MOBILE_TARGET_ROW} строк. ОТКАТЫВАЕМ изменения.`);
+      const buddyInGroup = endGroup.querySelector('button:not(#preBtn):not(#lastBtn)');
+      const ghost = Array.from(buttonContainer.children).find(el => el.dataset.ghost === "true");
+
+      if (buddyInGroup && ghost) {
+        ghost.replaceWith(buddyInGroup); 
+        console.log(`[checkLastRow][Rollback] Кнопка ${buddyInGroup.id} вернулась на базу.`);
+      } else if (mode === "result") {
+        // Добавляем .reverse(), чтобы вернуть кнопки в правильном порядке
+        const neighbours = Array.from(endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)'));
+        neighbours.reverse().forEach(btn => buttonContainer.insertBefore(btn, endGroup));
+      }
+
+      // 3. СБРАСЫВАЕМ стили группы к дефолтным (как в CSS)
+      endGroup.style.flex = "";
+      endGroup.style.marginLeft = ""; 
+      endGroup.style.justifyContent = "";
+
+      return false; 
+    
+    }else{
+
+      // Если кол-во строк == target
+      targets.forEach(target => {
+        const src = SOURCE_BUTTONS.find(s => 
+          (s.dataset.href === target.dataset.href)
+        );
+        if (src) {
+          src.dataset.moved = "true";
+        }
+      });
+    
+    }
+
+    return true;
+  }
+
+  // Основная логика
+
+  for (let i = 0; i < 3; i++) {
+    const rowItems = getRowData('items'); 
+    const n = rowItems.length; console.log("[checkLastRow] on Last Row:", n, "elements")
+  
+    if (mode==="force"){
+      console.log("[checkLastRow][Mode] FORCE MergeAll Elements to one endGroup")
+      applyFix(rowItems, "result");
+      break;
+    }
+
+    if (n === 1) {
+      if (isMobile){
+        console.log("[checkLastRow][Mode] Mobile with ghost")
+        applyFix(rowItems, "mobile")
+        mergeFromCheck = true;
+        break;
+      } 
+
+      const lockButtons = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
+        .filter(btn => !['preBtn', 'lastBtn', 'firstBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
+
+      if (lockButtons.length === 0) {
+        console.log("[checkLastRow][Mode] UnknowMode")
+        applyFix(rowItems, "result");
+        break;
+      }
+      
+      lockButtons[lockButtons.length - 1].remove();
+      buttonContainer.offsetHeight;
+
+    } else {
+      console.log("[checkLastRow][Mode] MergeAll Elements to one endGroup")
+      applyFix(rowItems, "result");
+      break;
+    }
+  }
+  console.log("[checkLastRow][Complete]")
+}
+
+function shuffleButtonsWithRules() {
+  const container = buttonContainer;
+  const firstBtn = document.getElementById('firstBtn');
+  const endGroup = document.getElementById('endGroup');
+
+  // Берем ВСЕ кнопки, которые НЕ входят в "неприкосновенные"
+  const allBtns = Array.from(container.querySelectorAll('button'));
+  const rest = allBtns.filter(b => b !== firstBtn && !endGroup.contains(b));
+
+  const excl = rest.filter(b => b.dataset.href === "/const");
+
+  if (rest.length === 0) return;
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  let valid = false;
+  while (!valid) {
+    shuffle(rest);
+    valid = !excl.includes(rest[rest.length - 1]);
+  }
+
+  container.appendChild(firstBtn);
+  rest.forEach(btn => container.appendChild(btn));
+  container.appendChild(endGroup); // Вставляем группу целиком
+}
+
+function fallbackMobileSnap() {
+  // final fallback (remove last 3% error prev logic)
+  if (!isMobile) return;
+  
+  //debugHalfBtnsRemove();
+
+  const currentRows = getRowData('count');
+  const isVert = (window.innerHeight > window.innerWidth);
+
+  if (currentRows > 0 && currentRows < MOBILE_TARGET_ROW && isVert) {
+    
+    console.log("[fallbackMobileSnap]", MOBILE_TARGET_ROW);
+    
+    const buttonContainer = document.getElementById('mainButtons');
+    //buttonContainer.offsetHeight; 
+
+    const computedStyle = window.getComputedStyle(buttonContainer);
+    const basePad = parseInt(computedStyle.paddingTop) || 12;
+    const fg = parseInt(computedStyle.gap) || 10;
+
+    const allBtns = Array.from(buttonContainer.children);
+    if (!allBtns.length) return;
+
+    buttonContainer.style.paddingTop = ""; // Сбрасываем ПЕРЕД замерами
+
+    const firstTop = allBtns[0].offsetTop;
+    const secondRowBtn = allBtns.find(btn => btn.offsetTop > firstTop + fg);
+    
+    const rowH = secondRowBtn ? (secondRowBtn.offsetTop - firstTop) : (allBtns[0].offsetHeight + fg);
+    const fullHeight8 = (rowH * (MOBILE_TARGET_ROW) ) - fg;
+    const currentHeight = (rowH * currentRows) - fg;
+    const smartPadding = (fullHeight8 - currentHeight) + (basePad);
+
+    buttonContainer.style.paddingTop = smartPadding + "px";
+    // document.body.style.backgroundColor = "grey"; 
+  }else{
+    if(!isVert) buttonContainer.style.paddingTop = "";
+  }
+}
+
+
+// User Interaction
+
+function turnToDark(toDark = true) {
+
+  if (switchZoneInAnim) return; 
+  switchZoneInAnim = true;
+
+  const sprite = document.getElementById('heartIcon');
+  const bContainer = document.getElementById('mainButtons');
+  
+  const delayIcon = 50;
+  const delayStyles = 0; 
+  const delayText = 500;
+
+  const firstBtn =  document.getElementById('firstBtn');
+
+  if (toDark) {
+      firstBtn.dataset.href = "/identity"
+      //firstBtn.dataset.g = "D"
+      //firstBtn.classList.replace('bw', 'bd');
+      //firstBtn.textContent = "\u00A0";
+  } else {
+      firstBtn.dataset.href = "/wolume"
+      //firstBtn.dataset.g = "W"
+      //firstBtn.textContent = "\u00A0";
+      //firstBtn.classList.replace('bd', 'bw');
+  }
+
+  // Используем прямые команды вместо toggle
+  // исключает риск рассинхрона стейта при спам-кликах
+  setTimeout(() => {
+    if (toDark) {
+      sprite.classList.add('complete');
+    } else {
+      sprite.classList.remove('complete');
+    }
+    switchZoneInAnim = false;
+  }, delayIcon);
+
+  const dButtons = Array.from(bContainer.querySelectorAll('button[data-g="D"]'))
+    .filter(btn => btn.id !== 'lastBtn');
+
+  const wButtons = Array.from(bContainer.querySelectorAll('button[data-g="W"]'))
+    .filter(btn => btn.id !== 'lastBtn');
+
+  const bButtons = Array.from(bContainer.querySelectorAll('button[data-g="B"]'))
+    .filter(btn => btn.id !== 'lastBtn');
+
+
+  if (toDark) {
+    setTimeout(() => {
+
+      window.theme = "dark";
+      document.documentElement.style.setProperty('--bg',    '#000');
+
+      setTimeout(() => {
+        //firstBtn.textContent = "*";
+      }, delayText);
+
+      dButtons.forEach(b => b.classList.add('dstate'));
+      wButtons.forEach(b => b.classList.add('dstate'));
+      bButtons.forEach(b => b.classList.add('dstate'));
+
+    }, delayStyles);
+  
+  } else {
+    setTimeout(() => {
+      
+      window.theme = "light";
+      document.documentElement.style.setProperty('--bg',    '#e5e5e5');
+
+      setTimeout(() => {
+        //firstBtn.textContent = "~";
+      }, delayText);
+
+      dButtons.forEach(b => b.classList.remove('dstate'));
+      wButtons.forEach(b => b.classList.remove('dstate'));
+      bButtons.forEach(b => b.classList.remove('dstate'));
+    }, delayStyles);
+  
+  }
+}
+
+function toggleHeart(){
+  unlockHeart = !unlockHeart;
+  turnToDark(unlockHeart);
+  saveLocalStorage(); 
+}
+
+function hideAllButtons() {
+  // Анимация скрытия всех кнопок
+
+  return new Promise(resolve => {
+    let finished = 0;
+    const buttons = Array.from(buttonContainer.querySelectorAll('button'));
+
+    const total = buttons.length;
+
+    function onTransitionEnd(e) {
+      if (e.propertyName !== 'opacity') return;
+      finished++;
+      if (finished >= total) {
+        cleanup();
+        buttons.forEach(btn => btn.style.visibility = 'hidden');
+        resolve();
+      }
+    }
+
+    function cleanup(){
+      buttons.forEach(btn => btn.removeEventListener('transitionend', onTransitionEnd));
+    }
+
+    // привязываем слушатель И запускаем анимацию скрытия
+    buttons.forEach(btn => btn.addEventListener('transitionend', onTransitionEnd));
+    // небольшая задержка, чтобы гарантировано применился класс и началась анимация
+    requestAnimationFrame(() => {
+      buttons.forEach(btn => btn.classList.add('btn_hide'));
+    });
+
+    // safety fallback — если transitionend не сработает, через 1.2s всё равно продолжим
+    setTimeout(() => {
+      if (finished < total) {
+        cleanup();
+        buttons.forEach(btn => btn.style.visibility = 'hidden');
+        resolve();
+      }
+    }, 1400);
+  });
+}
+
+async function handleButtonClick(ev) {
+  const btn = ev.target.closest('button');
+  if (!btn) return;
+
+  ev.preventDefault();
+
+  if (btn.id === 'lastBtn') {
+    toggleHeart();
+    return;
+  }
+
+  if ( !unlockHeart && (btn.dataset.st === 'lock' && btn.classList.contains('bw'))  ){
+    // блокировка нажатий только на светлом сайте
+    return false;
+  }
+
+
+  let target = btn.dataset.href || '#';
+  buttonContainer.style.pointerEvents = 'none'; // lock for clicks
+  
+  await hideAllButtons(); // anim opacity
+
+  // Create URL
+  if (isLocal) {
+    if (target.startsWith("/")) target = target.slice(1);
+    //target = target + ".html";
+    target = target + "/index.html"; // if git rep
+  
+  } else {
+    if (target.endsWith(".html")) {
+      target = "/" + target.replace(".html", "");
+    }
+  }
+
+  if (isMobile && btn.dataset.mb === 'true') {
+    target = "/ios" + target + "/";
+  }
+  if (isMobile) {
+    target = target + "/";
+  }
+
+  window.location.href = target;
+}
+
+function onKeyCommand(e) {
+  const cod = e.code;
+  const key = e.key;
+
+  const pressedCtrl = e.ctrlKey;
+  const pressedShift = e.shiftKey;
+
+  //console.log("Press", cod, key);
+  if(!pressedCtrl && !pressedShift){ // hardcore transit to page
+
+    e.preventDefault();
+    e.stopImmediatePropagation(); 
+
+    if (cod === 'KeyV' || cod === "Space") return rebuildGUI("reset", true); // hard reset
+    if (cod === 'KeyI') return toggleHeart();
+
+
+    let targetHREF = null;
+    if (cod === 'KeyR') targetHREF = "./renders";
+
+    if(unlockHeart){
+      if (cod === 'KeyE') targetHREF = "./exegesis";
+      else if (cod === 'KeyH') targetHREF = "./негативы";
+    }else{
+      if (cod === "Backquote") targetHREF = "./wolume";
+      else if (cod === 'KeyG') targetHREF = "./графика";
+      else if (cod === 'KeyB') targetHREF = "./bread";
+    }
+
+    if (targetHREF) {
+      if (isLocal) targetHREF = targetHREF + "/index.html";
+      window.location.href = targetHREF;
+    }
+  }
+
+  return
+}
+
+
+// GUI Updaters
+
+function initSourceBtns() {
+  const container = document.getElementById('mainButtons');
+
+  container.querySelectorAll('button').forEach(btn => {
+    btn.dataset.source = "true"; // Помечаем оригиналы
+    if (window.theme === "dark") btn.classList.add('dstate');
+  });
+
+  SOURCE_BUTTONS = Array.from(container.querySelectorAll('button')).map(btn => btn.cloneNode(true));
+  container.addEventListener('click', handleButtonClick); // добавляем слушатели
+}
+
+function updSourceBtns(mode){
+    const container = document.getElementById('mainButtons');
+    const domOrder = Array.from(container.querySelectorAll('button')); // все кнопки вклюая end группу
+
+    if(mode === "reset"){ // ПОЛНАЯ ПЕРЕЗАПИСЬ (Сортировка + Метки)
+      const sorted = [];
+      domOrder.forEach(domBtn => {
+        const found = SOURCE_BUTTONS.find(s => 
+          (domBtn.id && s.id === domBtn.id) || 
+          (domBtn.dataset.ghost === "true" && s.dataset.href === domBtn.dataset.href)
+        );
+
+        if (found) {
+          if (found.dataset.ghost !== "true") {
+              found.dataset.ghost = (domBtn.dataset.ghost === "true") ? "true" : "false";
+              //if(found.dataset.ghost === "true") console.log("GHOST!")
+          }
+          
+          if (!sorted.includes(found)) sorted.push(found);
+        }
+      });
+
+      SOURCE_BUTTONS.forEach(s => { 
+        const alreadyIn = sorted.some(already => 
+          (already.id && s.id && already.id === s.id) || 
+          (already.dataset.href === s.dataset.href)
+        );
+        if (!alreadyIn) {
+          s.dataset.ghost = "false";
+          sorted.push(s);
+        }
+      });
+      
+      SOURCE_BUTTONS = sorted;
+      console.log("[updSourceBtns][Init]", SOURCE_BUTTONS.map(s => s.dataset.href).join(', '));
+
+    } else { 
+
+      // ТОЛЬКО МЕТКИ
+      const domButtons = Array.from(container.children).filter(el => el.tagName === 'BUTTON');
+      SOURCE_BUTTONS.forEach(s => {
+
+          const domIdx = domButtons.findIndex(d => d.dataset.href === s.dataset.href);
+
+           if (domIdx !== -1) {
+              const domBtn = domButtons[domIdx];
+              s.dataset.ghost = (domBtn.dataset.ghost === "true") ? "true" : "false";
+              s.dataset.idx = domIdx; 
+              //if(domBtn.dataset.ghost === "true"){console.log("позиция", domIdx)}
+          } else {
+              //s.dataset.ghost = "true"; 
+            s.dataset.idx = -1; 
+          }
+      });
+
+    }
+}
+
+function restoreSourceBtns() {
+  const container = document.getElementById('mainButtons');
+  const endGroup = document.getElementById('endGroup');
+
+  mergeFromCheck = false;
+  container.innerHTML = "";
+  
+  const recoverState = (btn) => {
+    if (unlockHeart) {  
+      const g = btn.dataset.g;
+      if (g === "D") btn.classList.add('dstate');
+      if (g === "W") btn.classList.add('dstate');
+      if (g === "B") btn.classList.add('dstate');
+    } else {
+      btn.classList.remove('dstate');
+    }
+  };
+
+  // 1. Восстановление FirstBtn
+  const fOrig = SOURCE_BUTTONS.find(b => b.id === 'firstBtn');
+  if (fOrig) {
+    const fClone = fOrig.cloneNode(true);
+    fClone.dataset.href = unlockHeart ? "/identity" : "/wolume";
+    recoverState(fClone)
+    container.appendChild(fClone);
+  }
+
+  // 2. Отрисовка основного состава
+  SOURCE_BUTTONS.forEach(btn => {
+    if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
+      
+      const clone = btn.cloneNode(true);
+      recoverState(clone);
+      container.appendChild(clone);
+    }
+  });
+
+  // 3. Конечная группа (дубликат из DOM)
+  Array.from(endGroup.children).forEach(btn => {
+    if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
+  });
+  container.appendChild(endGroup); // держит стиль так как из Dom
+
+  const sprite = document.getElementById('heartIcon');
+  if (unlockHeart) sprite.classList.add('complete');
+  else sprite.classList.remove('complete');
+  endGroup.style.flex = endGroup.style.marginLeft = endGroup.style.justifyContent = "";
+}
+
+function reOrientFix(mode = "init", targetHREF) {
+  const debug = true;
+  const endGroup = document.getElementById('endGroup');
+
+  if(mode === "init"){
+      let foundHREF = null;
+      const occupiedHrefs = Array.from(endGroup.querySelectorAll('button'))
+        .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn')
+        .map(btn => btn.dataset.href);
+
+      if(debug) console.log("[reor][init] :", occupiedHrefs);
+
+      if(occupiedHrefs.length==1){
+        foundHREF = occupiedHrefs[0];
+        if(debug) console.log("[reor][init] save prelast in endGroup [1]:", foundHREF);
+      }else if(occupiedHrefs.length>1){
+        foundHREF = occupiedHrefs[occupiedHrefs.length - 1];
+        if(debug) console.log("[reor][init] save prelast in endGroup [n]:", foundHREF);
+      }else {
+        if(debug) console.log("[reor][init] nothing");
+      }
+
+      return foundHREF
+  }
+
+  if(mode === "fix"){
+
+    let targetBtn = Array.from(buttonContainer.children).find(b => b.dataset.href === targetHREF);
+    const allCurrentBtns = Array.from(buttonContainer.children).filter(b => b.tagName === 'BUTTON' && b !== endGroup);
+    const lastVisibleBtn = allCurrentBtns[allCurrentBtns.length - 1];
+
+    if(debug) console.log("[BEFEND]", lastVisibleBtn?.dataset.href, "[TARGET?]", targetBtn?.dataset.href);
+
+    let fromRemoved = false;
+    let replaced = false;
+
+    if(!targetBtn){
+      const originalToRestore = SOURCE_BUTTONS.find(s => s.dataset.href === targetHREF);
+      
+      if (originalToRestore) {
+        targetBtn = originalToRestore.cloneNode(true);
+        
+        if (unlockHeart) {
+          const g = targetBtn.dataset.g;
+          if (g === "D" || g === "W" || g === "B") targetBtn.classList.add('dstate');
+        }
+
+        fromRemoved = true;
+        if(debug) console.log("[reor][fix] Кнопка была удалена при перемешивании, добавляем", targetHREF);
+      }
+    }
+
+    if (targetBtn && lastVisibleBtn && lastVisibleBtn !== targetBtn) {
+      
+      // Замена при условии что кнопка была удалена и заменяет заблокированные или те что что пользователь не сможет нажать
+      if( fromRemoved && ( lastVisibleBtn.dataset.st === "lock" ||  ( unlockHeart && lastVisibleBtn.dataset.g === "W") ) ){
+          lastVisibleBtn.replaceWith(targetBtn);
+
+          if(debug) console.log("[reor][fix] replace:", targetHREF);
+          replaced = true;
+
+      }else{
+
+        // Я думаю удалить lock кнопку из середины, и переставить target 
+        // Потому что если он заменит живую ссылку на нашу кнопку - это плохо так как элементов мало
+        
+        buttonContainer.insertBefore(targetBtn, endGroup);
+        
+        const lockToSacrifice = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
+          .find(btn => btn !== targetBtn && !['firstBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
+
+        if (lockToSacrifice) {
+          lockToSacrifice.remove();
+          if (debug) console.log("[reor][fix] moving");
+          replaced = true
+        }else{
+          if (debug) console.log("[reor][fix] nothing change");
+        }
+
+      }
+
+    }
+    return replaced ? targetBtn : null;
+  }
+}
+
+function sortButtonsAsInImage() {
+  // Эталонный порядок из твоего скриншота
+  const order = [
+    "/wolume", "/триптих", "/bread", "/haloguys", "/покпокки", 
+    "/process", "/снимки", "/chat", "/const", "/день", 
+    "/негативы", "/exegesis", "/space", "/about", "/renders", 
+    "/графика", "/работа"
+  ];
+
+  SOURCE_BUTTONS.sort((a, b) => {
+    const indexA = order.indexOf(a.dataset.href);
+    const indexB = order.indexOf(b.dataset.href);
+    
+    // Если элемента нет в списке, отправляем его в конец
+    const sortA = indexA === -1 ? 999 : indexA;
+    const sortB = indexB === -1 ? 999 : indexB;
+    
+    return sortA - sortB;
+  });
+
+  console.log("Сортировка завершена:", SOURCE_BUTTONS.map(s => s.dataset.href).join(', '));
+}
+
+function rebuildGUI(mode = "update", shuffle = false) { 
+  // modes reset/update
+  const debug = true;
+  if(debug) console.log("[rebuildGUI] >>>>> START ");
+
+  checkWidescreen();
+  MOBILE_TARGET_ROW = isWideScreen ? 3 : 8;
+
+  // - Fix при поворотах (presolve)
+  const ruleCallFix = (mode === "update" && INIT_TARGET_ROW != MOBILE_TARGET_ROW);
+  let targetHREF = null; if (ruleCallFix) targetHREF = reOrientFix("init");
+
+  if(debug) console.log("[rebuildGUI] MOBILE_TARGET_ROW", MOBILE_TARGET_ROW, "RULE_CHANGE", ruleCallFix);
+
+  // 1. Восстановление кнопок
+  restoreSourceBtns(); 
+
+  // 2. Обновление
+  if (shuffle)  shuffleButtonsWithRules();
+  
+  if (isMobile) removeOverflowBtnsMobile();
+
+  // - Fix при поворотах (postsolve)
+  let replaced = null; if (ruleCallFix && !shuffle && targetHREF) replaced = reOrientFix("fix", targetHREF);
+
+  // 3. Чистка нижней строки
+
+  if(mode === "reset"){ // onstart
+    checkLastRow();
+  }else{ // on update
+
+    if (targetHREF) {
+      const forcedBtn = Array.from(buttonContainer.children).find(b => b.dataset.href === targetHREF);
+      checkLastRow("force", forcedBtn);
+    } else {
+      checkLastRow();
+    }
+  }
+  
+  if (isMobile) fallbackMobileSnap();
+
+  // 4. Обновление массива
+  updSourceBtns(mode);
+
+  if(debug && mode==="reset" ){
+    const endGroup = document.getElementById('endGroup');
+    const occupiedHrefs = Array.from(endGroup.querySelectorAll('button'))
+      .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn')
+      .map(btn => btn.dataset.href);
+
+    console.log("[rebuildGUI] result / hrefs in end :", JSON.parse(JSON.stringify(occupiedHrefs)));
+
+
+    const endContent = Array.from(endGroup.querySelectorAll('button'))
+        .filter(btn => !['preBtn', 'lastBtn'].includes(btn.id))
+        .map(btn => `${btn.dataset.href}${btn.id ? `(id:${btn.id})` : ''}${btn.dataset.ghost === "true" ? '[G]' : ''}`)
+        .join(' | ');
+
+    console.log(`[END_GROUP] ${endContent || 'EMPTY'}`);
+
+  }
+
+  if(debug) console.log("[rebuildGUI] >>>>> END ");
+}
+
+/*
+const TARGET_ORDER = [
+  "/wolume", "/триптих", "/bread", "/haloguys", "/покпокки", 
+  "/process", "/снимки", "/chat", "/const", "/день", 
+  "/негативы", "/exegesis", "/space", "/about", "/renders", 
+  "/графика", "/работа"
+];
+
+function applyDomOrder(order = []) {
+  const container = document.getElementById('mainButtons');
+  const endGroup = document.getElementById('endGroup');
+  
+  // Берем ТОЛЬКО прямых детей-кнопок, не заглядывая внутрь endGroup
+  const buttons = Array.from(container.children)
+    .filter(el => el.tagName === 'BUTTON' && el !== endGroup);
+
+  // Сортировка (без изменений)
+  buttons.sort((a, b) => {
+    if (a.id === 'firstBtn') return -1;
+    if (b.id === 'firstBtn') return 1;
+    const idxA = order.indexOf(a.dataset.href);
+    const idxB = order.indexOf(b.dataset.href);
+    return (idxA === -1 ? 999 : idxA) - (idxB === -1 ? 999 : idxB);
+  });
+
+  // Переставляем только тех, кого нашли на верхнем уровне
+  buttons.forEach(btn => container.appendChild(btn));
+  container.appendChild(endGroup);
+}
+*/
+
+function initPage() {
+
+  checkWidescreen();
+  MOBILE_TARGET_ROW = isWideScreen ? 3 : 8;
+  INIT_TARGET_ROW = MOBILE_TARGET_ROW;
+
+  console.log("InitPage / Mobile:", isMobile);
+  console.log("InitPage / Init Row:", INIT_TARGET_ROW);
+
+  // Prepare
+  removeDeskBtnOnMobile();
+  adjustFontByCount();
+  
+  //applyDomOrder(TARGET_ORDER);
+  initSourceBtns();
+
+  // Rebuild
+  rebuildGUI("reset", true);
+
+  // Events
+  if(isMobile){
+    window.addEventListener('touchstart', () => isTouching = true, {passive: true});
+    window.addEventListener('touchend', () => isTouching = false, {passive: true});
+
+    window.addEventListener('resize', () => {
+      if (isTouching) return; 
+      
+      // 1. Проверяем изменение
+      if (window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
+      clearTimeout(resizeTimeout);
+      const t = isLocal ? 15 : 250
+      resizeTimeout = setTimeout(() => {
+        rebuildGUI("update", false); // "current" state
+      }, t);
+    });
+  }else{
+    document.addEventListener("keydown", onKeyCommand); 
+
+    window.addEventListener('focus', () => {
+        console.log("Фокус вернулся");
+    });
+  }
+}
+
+// Initialization
+
+initPage();
+saveLocalStorage(); 
+
+</script>
+</body>
+</html>
