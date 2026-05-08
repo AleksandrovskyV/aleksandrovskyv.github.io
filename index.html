@@ -1026,6 +1026,9 @@ function reOrientFix(mode = "init", targetHREF) {
       }else if(occupiedHrefs.length==1){
         foundHREF = occupiedHrefs[0];
         if(debug) console.log("Запомнили псевдо госта:", foundHREF);
+      }else if(occupiedHrefs.length>1){
+        foundHREF = occupiedHrefs[occupiedHrefs.length - 1];
+        if(debug) console.log("Запомнили последнего псевдо госта:", foundHREF);
       }else {
         if(debug) console.log("Нет элементов для коррекции");
       }
