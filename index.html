@@ -311,6 +311,7 @@ window.addEventListener("pageshow", (event) => {
   }
 });
 
+
 // Helpers & Debugs
 
 function checkWidescreen(x, y) {
@@ -345,6 +346,7 @@ function saveLocalStorage() {
   localStorage.setItem('theme', unlockHeart ? 'dark' : 'light');
 }
 
+
 // GUI Preload
 
 function adjustFontByCount(){
@@ -373,7 +375,7 @@ function removeDeskBtnOnMobile() {
 // GUI Preload - Sort and Restruct Logic
 
 
-/*  // метод не используется
+/*  // старый метод чистки
 function removeOverflowBtnsOld() {
   if (!isMobile) return;
   const container = buttonContainer;
@@ -644,6 +646,7 @@ function fallbackMobileSnap() {
   }
 }
 
+
 // User Interaction
 
 function turnToDark(toDark = true) {
@@ -855,6 +858,7 @@ function onKeyCommand(e) {
 
   return
 }
+
 
 // GUI Updaters
 
