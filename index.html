@@ -1157,12 +1157,20 @@ function rebuildGUI(mode = "update", shuffle = false) {
       .map(btn => btn.dataset.href);
 
     console.log("[rebuildGUI] result / hrefs in end :", JSON.parse(JSON.stringify(occupiedHrefs)));
+
+
+    const endContent = Array.from(endGroup.querySelectorAll('button'))
+        .filter(btn => !['preBtn', 'lastBtn'].includes(btn.id))
+        .map(btn => `${btn.dataset.href}${btn.id ? `(id:${btn.id})` : ''}${btn.dataset.ghost === "true" ? '[G]' : ''}`)
+        .join(' | ');
+
+    console.log(`[END_GROUP] ${endContent || 'EMPTY'}`);
   }
 
   if(debug) console.log("[rebuildGUI] >>>>> END ");
 }
 
-/*
+/* // debug order part
 const TARGET_ORDER = [
   "/wolume", "/триптих", "/bread", "/haloguys", "/покпокки", 
   "/process", "/снимки", "/chat", "/const", "/день", 
@@ -1213,7 +1221,6 @@ function initPage() {
   rebuildGUI("reset", true);
 
   // Events
-
   if(isMobile){
     window.addEventListener('touchstart', () => isTouching = true, {passive: true});
     window.addEventListener('touchend', () => isTouching = false, {passive: true});
@@ -1225,7 +1232,7 @@ function initPage() {
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
       clearTimeout(resizeTimeout);
-      const t = isLocal ? 15 : 250  
+      const t = isLocal ? 15 : 250
       resizeTimeout = setTimeout(() => {
         rebuildGUI("update", false); // "current" state
       }, t);
