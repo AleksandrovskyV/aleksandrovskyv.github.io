@@ -19,6 +19,7 @@
 <meta name="twitter:site" content="@AleksandrovskyV">
 
 <meta vdebugmode="ios">
+<meta name="theme-color" id="theme-meta" content="#e5e5e5">
 
 <script>
   const ua = navigator.userAgent.toLowerCase();
@@ -40,7 +41,7 @@
   } else {
       window.theme = "light";
       document.documentElement.setAttribute('data-theme', 'light');
-      document.documentElement.style.setProperty('--bg', '#e5e5e5');
+      document.documentElement.style.setProperty('--bg', '#238636');
   }
 //console.log("EndPreScript", theme, isMobile, isLocal);
 </script>
@@ -1111,7 +1112,7 @@ function rebuildGUI(mode = "update", shuffle = false) {
 
   const fixLogic = true;
   const debug = true;
-  
+
   if(debug) console.log("[rebuildGUI] >>>>> START ");
 
   checkWidescreen();
