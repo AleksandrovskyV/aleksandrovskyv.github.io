@@ -529,6 +529,7 @@ function checkLastRow() {
       return false; 
     }else{
 
+      // Если кол-во строк == target
       targets.forEach(target => {
         const src = SOURCE_BUTTONS.find(s => 
           (s.dataset.href === target.dataset.href)
@@ -537,6 +538,7 @@ function checkLastRow() {
           src.dataset.moved = "true";
         }
       });
+    
     }
 
     return true;
@@ -552,7 +554,7 @@ function checkLastRow() {
       if (isMobile){
         applyFix(rowItems, "mobile")
         mergeFromCheck = true;
-        console.log("mobmerg")
+        console.log("solo merge")
         break;
       } 
 
