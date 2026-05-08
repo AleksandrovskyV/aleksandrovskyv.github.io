@@ -447,7 +447,7 @@ function removeOverflowBtnsMobile() {
   }
 }
 
-function checkLastRow(mode) {
+function checkLastRow(mode, replaced) {
   const endGroup = document.getElementById('endGroup');
   const presolve = (getRowData('count')<MOBILE_TARGET_ROW);
 
@@ -470,7 +470,7 @@ function checkLastRow(mode) {
     // Режим MOBILE: работаем с одной кнопкой
     if (mode === "mobile") {
       targets.sort((a, b) => a.innerText.length - b.innerText.length);
-      const bestBuddy = targets[0];
+      const bestBuddy = replaced || targets[0];
       const ghost = bestBuddy.cloneNode(true);
 
       ghost.id = ""; 
@@ -492,20 +492,47 @@ function checkLastRow(mode) {
 
     const currentCount = getRowData('count');
 
-    if ( currentCount !== MOBILE_TARGET_ROW  ) {      
+    if ( currentCount !== MOBILE_TARGET_ROW  ) { 
       console.log(`[checkLastRow][FixFailure] Нарушена сетка! Рядов: ${currentCount}. Откатываем...`);
-      
-      for (let j = 0; j < 3; j++) {
-        const locks = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
-          .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
-        
-        if (locks.length > 0) {
-          locks[locks.length - 1].remove();
-          if (getRowData('count') === MOBILE_TARGET_ROW) {
-            console.log(`[checkLastRow][Success] Сетка восстановлена до ${MOBILE_TARGET_ROW} строк`);
-            return true;
-          } 
+
+
+      if (currentCount > MOBILE_TARGET_ROW) {
+
+        for (let j = 0; j < 3; j++) {
+          const locks = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
+            .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
+          
+          if (locks.length > 0) {
+            locks[locks.length - 1].remove();
+            if (getRowData('count') === MOBILE_TARGET_ROW) {
+              console.log(`[checkLastRow][Success] Сетка восстановлена до ${MOBILE_TARGET_ROW} строк`);
+              return true;
+            } 
+          }
         }
+
+
+      // 2. Если рядов МЕНЬШЕ (твой кейс на скрине) — выкидываем кнопки из группы назад
+
+      }else if (currentCount < MOBILE_TARGET_ROW) {
+        // надо доставать кнопки из SOURCE_BUTTONS, тех что нет в доке и пробовать их вставить пока условия target не выполнится
+
+        console.log(`[checkLastRow] Рядов мало (${currentCount}). Восстанавливаем из группы...`);
+        
+        // Берем кнопки из группы (кроме системных и кроме той, что мы принудительно фиксили)
+        const candidates = Array.from(endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)'))
+          .filter(btn => btn !== replaced); // replaced мы НЕ трогаем, он должен остаться!
+
+        for (let btn of candidates) {
+          // Возвращаем кнопку в общий контейнер ПЕРЕД группой
+          buttonContainer.insertBefore(btn, endGroup);
+          
+          if (getRowData('count') === MOBILE_TARGET_ROW) {
+            console.log(`[checkLastRow][Success] Сетка восстановлена (ряд добавлен)`);
+            return true;
+          }
+        }
+      
       }
 
       // Если удаление lock-кнопок выше не помогло:
@@ -528,6 +555,7 @@ function checkLastRow(mode) {
       endGroup.style.justifyContent = "";
 
       return false; 
+    
     }else{
 
       // Если кол-во строк == target
@@ -585,7 +613,6 @@ function checkLastRow(mode) {
   }
   console.log("[checkLastRow][Complete]")
 }
-
 
 function shuffleButtonsWithRules() {
   const container = buttonContainer;
@@ -1075,9 +1102,10 @@ function reOrientFix(mode = "init", targetHREF) {
       }
 
     }
-    return replaced
+    return replaced ? targetBtn : null;
   }
 }
+
 
 function rebuildGUI(mode = "update", shuffle = false) { 
   // modes reset/update
@@ -1097,12 +1125,12 @@ function rebuildGUI(mode = "update", shuffle = false) {
   restoreSourceBtns(); 
 
   // 2. Обновление
-  if (shuffle) shuffleButtonsWithRules();
+  if (shuffle)  shuffleButtonsWithRules();
   
   if (isMobile) removeOverflowBtnsMobile();
 
   // - Fix при поворотах (postsolve)
-  let replaced = false; if (ruleCallFix && !shuffle && targetHREF) replaced = reOrientFix("fix", targetHREF);
+  let replaced = null; if (ruleCallFix && !shuffle && targetHREF) replaced = reOrientFix("fix", targetHREF);
 
   // 3. Чистка нижней строки
 
@@ -1110,11 +1138,12 @@ function rebuildGUI(mode = "update", shuffle = false) {
     checkLastRow();
   }else{ // on update
 
-    if(replaced){
-      checkLastRow("force")
-    }else{
+    if (targetHREF) {
+      const forcedBtn = Array.from(buttonContainer.children).find(b => b.dataset.href === targetHREF);
+      checkLastRow("force", forcedBtn);
+    } else {
       checkLastRow();
-    } 
+    }
   }
   
   if (isMobile) fallbackMobileSnap();
