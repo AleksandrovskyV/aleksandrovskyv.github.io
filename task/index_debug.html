@@ -1108,10 +1108,9 @@ function reOrientFix(mode = "init", targetHREF) {
 
 function rebuildGUI(mode = "update", shuffle = false) { 
   // modes reset/update
-
-  const fixLogic = true;
   const debug = true;
-  
+  const fixLogic = false;
+
   if(debug) console.log("[rebuildGUI] >>>>> START ");
 
   checkWidescreen();
@@ -1174,6 +1173,37 @@ function rebuildGUI(mode = "update", shuffle = false) {
   if(debug) console.log("[rebuildGUI] >>>>> END ");
 }
 
+/* // debug order part
+const TARGET_ORDER = [
+  "/wolume", "/триптих", "/bread", "/haloguys", "/покпокки", 
+  "/process", "/снимки", "/chat", "/const", "/день", 
+  "/негативы", "/exegesis", "/space", "/about", "/renders", 
+  "/графика", "/работа"
+];
+
+function applyDomOrder(order = []) {
+  const container = document.getElementById('mainButtons');
+  const endGroup = document.getElementById('endGroup');
+  
+  // Берем ТОЛЬКО прямых детей-кнопок, не заглядывая внутрь endGroup
+  const buttons = Array.from(container.children)
+    .filter(el => el.tagName === 'BUTTON' && el !== endGroup);
+
+  // Сортировка (без изменений)
+  buttons.sort((a, b) => {
+    if (a.id === 'firstBtn') return -1;
+    if (b.id === 'firstBtn') return 1;
+    const idxA = order.indexOf(a.dataset.href);
+    const idxB = order.indexOf(b.dataset.href);
+    return (idxA === -1 ? 999 : idxA) - (idxB === -1 ? 999 : idxB);
+  });
+
+  // Переставляем только тех, кого нашли на верхнем уровне
+  buttons.forEach(btn => container.appendChild(btn));
+  container.appendChild(endGroup);
+}
+*/
+
 function initPage() {
 
   checkWidescreen();
@@ -1186,6 +1216,8 @@ function initPage() {
   // Prepare
   removeDeskBtnOnMobile();
   adjustFontByCount();
+  
+  //applyDomOrder(TARGET_ORDER);
   initSourceBtns();
 
   // Rebuild
