@@ -1016,87 +1016,66 @@ function reOrientFix(mode = "init", targetHREF) {
       }
 
       return foundHREF
+  }
 
-  }else if(mode === "fix"){
+  if(mode === "fix"){
 
     let targetBtn = Array.from(buttonContainer.children).find(b => b.dataset.href === targetHREF);
     const allCurrentBtns = Array.from(buttonContainer.children).filter(b => b.tagName === 'BUTTON' && b !== endGroup);
     const lastVisibleBtn = allCurrentBtns[allCurrentBtns.length - 1];
 
-     if(debug) console.log("[BEFEND]", lastVisibleBtn?.dataset.href, "[TARGET?]", targetBtn?.dataset.href);
+    if(debug) console.log("[BEFEND]", lastVisibleBtn?.dataset.href, "[TARGET?]", targetBtn?.dataset.href);
 
-    if(targetBtn){
+    let fromRemoved = false;
+    let replaced = false;
 
-      const replace = true;
-
-      if(replace){
-        
-        if (lastVisibleBtn && lastVisibleBtn !== targetBtn) {  
-          lastVisibleBtn.replaceWith(targetBtn);
-          if(debug) console.log("[reor][fix] replace:", targetHREF);
-        }
-
-        /*
-        if (lastVisibleBtn && lastVisibleBtn !== targetBtn) {  
-          // Только на заблокированные кнопки или те что заблокированны в тёмноё теме (на них всё равно нажать)
-          if(lastVisibleBtn.dataset.st === "lock" ||  ( unlockHeart && lastVisibleBtn.dataset.g === "W") ){
-              lastVisibleBtn.replaceWith(targetBtn);
-
-              if(debug) console.log("[reor][fix] replace:", targetHREF);
-          }else{
-            // Я думаю здесь просто удалить lock кнопку из середины, и переставить понимаешь?
-            // Потому что если он заменит живую ссылку на нашу кнопку - это плохо так как элементов мало
-            buttonContainer.insertBefore(targetBtn, endGroup);
-            const lockToSacrifice = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
-              .find(btn => btn !== targetBtn && !['firstBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
-
-            if (lockToSacrifice) {
-              lockToSacrifice.remove();
-              if (debug) console.log("[reor][fix] moving");
-            }else{
-              if (debug) console.log("[reor][fix] nothing change");
-            }
-
-          }
-        }
-        */
-
-      }else{
-
-        if (targetBtn.nextElementSibling !== endGroup) {
-          buttonContainer.insertBefore(targetBtn, endGroup);
-          if(debug) console.log("[reor][fix] moving alt:", targetHREF);
-        }
-      }
-
-      const currentRows = getRowData('count'); 
-      if (currentRows > MOBILE_TARGET_ROW) {
-        console.log("[reor][fix] ROW PROBLEM");
-        const lockButtons = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
-          .filter(btn => !['firstBtn', 'obtn'].includes(btn.id) && btn !== targetBtn &&  !endGroup.contains(btn)
-          );
-
-        if (lockButtons.length > 0) {
-          lockButtons[0].remove();
-          if(debug) console.log("[reor][fix] stabilize row");
-        }
-      }
-
-    }else if(lastVisibleBtn){
-
+    if(!targetBtn){
       const originalToRestore = SOURCE_BUTTONS.find(s => s.dataset.href === targetHREF);
       
       if (originalToRestore) {
-        const newClone = originalToRestore.cloneNode(true);
-        if (unlockHeart) {
-          const g = newClone.dataset.g;
-          if (g === "D" || g === "W" || g === "B") newClone.classList.add('dstate');
-        }
+        targetBtn = originalToRestore.cloneNode(true);
         
-        lastVisibleBtn.replaceWith(newClone);
+        if (unlockHeart) {
+          const g = targetBtn.dataset.g;
+          if (g === "D" || g === "W" || g === "B") targetBtn.classList.add('dstate');
+        }
+
+        fromRemoved = true;
         if(debug) console.log("[reor][fix] Кнопка была удалена при перемешивании, добавляем", targetHREF);
       }
     }
+
+    if (targetBtn && lastVisibleBtn && lastVisibleBtn !== targetBtn) {
+      
+      // Замена при условии что кнопка была удалена и заменяет заблокированные или те что что пользователь не сможет нажать
+      if( fromRemoved && ( lastVisibleBtn.dataset.st === "lock" ||  ( unlockHeart && lastVisibleBtn.dataset.g === "W") ) ){
+          lastVisibleBtn.replaceWith(targetBtn);
+
+          if(debug) console.log("[reor][fix] replace:", targetHREF);
+          replaced = true;
+
+      }else{
+
+        // Я думаю удалить lock кнопку из середины, и переставить target 
+        // Потому что если он заменит живую ссылку на нашу кнопку - это плохо так как элементов мало
+        
+        buttonContainer.insertBefore(targetBtn, endGroup);
+        
+        const lockToSacrifice = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
+          .find(btn => btn !== targetBtn && !['firstBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
+
+        if (lockToSacrifice) {
+          lockToSacrifice.remove();
+          if (debug) console.log("[reor][fix] moving");
+          replaced = true
+        }else{
+          if (debug) console.log("[reor][fix] nothing change");
+        }
+
+      }
+
+    }
+    return replaced
   }
 }
 
@@ -1123,7 +1102,7 @@ function rebuildGUI(mode = "update", shuffle = false) {
   if (isMobile) removeOverflowBtnsMobile();
 
   // - Fix при поворотах (postsolve)
-  if (ruleCallFix && !shuffle && targetHREF) reOrientFix("fix", targetHREF);
+  let replaced = false; if (ruleCallFix && !shuffle && targetHREF) replaced = reOrientFix("fix", targetHREF);
 
   // 3. Чистка нижней строки
 
@@ -1131,15 +1110,11 @@ function rebuildGUI(mode = "update", shuffle = false) {
     checkLastRow();
   }else{ // on update
 
-    const CURRENT_ROW = getRowData('count'); 
-    
-    if (MOBILE_TARGET_ROW == CURRENT_ROW){
-        checkLastRow("force")
+    if(replaced){
+      checkLastRow("force")
     }else{
-        // либо init либо как из условия несовпадения
-        checkLastRow();
-    }
-    
+      checkLastRow();
+    } 
   }
   
   if (isMobile) fallbackMobileSnap();
