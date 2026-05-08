@@ -58,7 +58,12 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-html, body { height: 100%; background:var(--bg) ; transition: background-color 0.8s ease; }
+html, body {
+  height: 100%;
+  background-color: var(--bg);
+  will-change: background-color;
+  transition: background-color 0.8s ease;
+}
 
 [hidden] { display: none !important; }
 
@@ -1111,7 +1116,7 @@ function rebuildGUI(mode = "update", shuffle = false) {
 
   const fixLogic = true;
   const debug = true;
-  
+
   if(debug) console.log("[rebuildGUI] >>>>> START ");
 
   checkWidescreen();
