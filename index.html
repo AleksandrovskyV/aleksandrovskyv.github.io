@@ -19,7 +19,7 @@
 <meta name="twitter:site" content="@AleksandrovskyV">
 
 <meta vdebugmode="ios">
-<meta name="theme-color" id="theme-meta" content="#e5e5e5">
+<meta name="theme-color" id="theme-meta" content="#238636">
 
 <script>
   const ua = navigator.userAgent.toLowerCase();
@@ -41,7 +41,7 @@
   } else {
       window.theme = "light";
       document.documentElement.setAttribute('data-theme', 'light');
-      document.documentElement.style.setProperty('--bg', '#238636');
+      document.documentElement.style.setProperty('--bg', '#e5e5e5');
   }
 //console.log("EndPreScript", theme, isMobile, isLocal);
 </script>
@@ -741,6 +741,11 @@ function turnToDark(toDark = true) {
 
       window.theme = "dark";
       document.documentElement.style.setProperty('--bg',    '#000');
+      
+      const meta = document.getElementById('theme-meta');
+      if (meta) {
+          meta.setAttribute('content','#238636');
+      }
 
       setTimeout(() => {
         //firstBtn.textContent = "*";
@@ -757,6 +762,11 @@ function turnToDark(toDark = true) {
       
       window.theme = "light";
       document.documentElement.style.setProperty('--bg',    '#e5e5e5');
+
+      const meta = document.getElementById('theme-meta');
+      if (meta) {
+          meta.setAttribute('content', '#238636');
+      }
 
       setTimeout(() => {
         //firstBtn.textContent = "~";
