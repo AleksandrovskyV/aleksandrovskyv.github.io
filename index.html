@@ -476,7 +476,6 @@ function checkLastRow() {
       ghost.id = ""; 
       ghost.dataset.ghost = "true"; 
       ghost.classList.add('btn_ghost'); // Метка для CSS (opacity 0 + no events)
-      console.log("checkLastRow  add mobile ghost")
       
       bestBuddy.parentNode.insertBefore(ghost, bestBuddy);
       endGroup.prepend(bestBuddy);
@@ -494,7 +493,7 @@ function checkLastRow() {
     const currentCount = getRowData('count');
 
     if ( currentCount !== MOBILE_TARGET_ROW  ) {      
-      console.log(`[Fix Failure] Нарушена сетка! Рядов: ${currentCount}. Откатываем...`);
+      console.log(`[checkLastRow][FixFailure] Нарушена сетка! Рядов: ${currentCount}. Откатываем...`);
       
       for (let j = 0; j < 3; j++) {
         const locks = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
@@ -503,20 +502,20 @@ function checkLastRow() {
         if (locks.length > 0) {
           locks[locks.length - 1].remove();
           if (getRowData('count') === MOBILE_TARGET_ROW) {
-            console.log(`[Успешно] Сетка восстановлена до ${MOBILE_TARGET_ROW} строк`);
+            console.log(`[checkLastRow][Success] Сетка восстановлена до ${MOBILE_TARGET_ROW} строк`);
             return true;
           } 
         }
       }
 
       // Если удаление lock-кнопок выше не помогло:
-      console.log(`[Fix Failure] Не удалось спасти ${MOBILE_TARGET_ROW} строк. ОТКАТЫВАЕМ изменения.`);
+      console.log(`[checkLastRow][FixFailure] Не удалось спасти ${MOBILE_TARGET_ROW} строк. ОТКАТЫВАЕМ изменения.`);
       const buddyInGroup = endGroup.querySelector('button:not(#preBtn):not(#lastBtn)');
       const ghost = Array.from(buttonContainer.children).find(el => el.dataset.ghost === "true");
 
       if (buddyInGroup && ghost) {
         ghost.replaceWith(buddyInGroup); 
-        console.log(`[Rollback] Кнопка ${buddyInGroup.id} вернулась на базу.`);
+        console.log(`[checkLastRow][Rollback] Кнопка ${buddyInGroup.id} вернулась на базу.`);
       } else if (mode === "result") {
         // Добавляем .reverse(), чтобы вернуть кнопки в правильном порядке
         const neighbours = Array.from(endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)'));
@@ -550,13 +549,13 @@ function checkLastRow() {
 
   for (let i = 0; i < 3; i++) {
     const rowItems = getRowData('items'); 
-    const n = rowItems.length; console.log("LastRowLength", n)
+    const n = rowItems.length; console.log("[checkLastRow] on Last Row:", n, "elements")
   
     if (n === 1) {
       if (isMobile){
+        console.log("[checkLastRow][Mode] Mobile with ghost")
         applyFix(rowItems, "mobile")
         mergeFromCheck = true;
-        console.log("solo merge")
         break;
       } 
 
@@ -564,6 +563,7 @@ function checkLastRow() {
         .filter(btn => !['preBtn', 'lastBtn', 'firstBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
 
       if (lockButtons.length === 0) {
+        console.log("[checkLastRow][Mode] UnknowMode")
         applyFix(rowItems, "result");
         break;
       }
@@ -572,11 +572,12 @@ function checkLastRow() {
       buttonContainer.offsetHeight;
 
     } else {
-      console.log("hard merge")
+      console.log("[checkLastRow][Mode] MergeAll Elements to one endGroup")
       applyFix(rowItems, "result");
       break;
     }
   }
+  console.log("[checkLastRow][Complete]")
 }
 
 function shuffleButtonsWithRules() {
@@ -621,6 +622,8 @@ function fallbackMobileSnap() {
 
   if (currentRows > 0 && currentRows < MOBILE_TARGET_ROW && isVert) {
     
+    console.log("[fallbackMobileSnap]", MOBILE_TARGET_ROW);
+    
     const buttonContainer = document.getElementById('mainButtons');
     //buttonContainer.offsetHeight; 
 
@@ -643,6 +646,8 @@ function fallbackMobileSnap() {
 
     buttonContainer.style.paddingTop = smartPadding + "px";
     // document.body.style.backgroundColor = "grey"; 
+  }else{
+    if(!isVert) buttonContainer.style.paddingTop = "";
   }
 }
 
@@ -889,7 +894,7 @@ function updSourceBtns(mode){
         if (found) {
           if (found.dataset.ghost !== "true") {
               found.dataset.ghost = (domBtn.dataset.ghost === "true") ? "true" : "false";
-              if(found.dataset.ghost === "true") console.log("GHOST!")
+              //if(found.dataset.ghost === "true") console.log("GHOST!")
           }
           
           if (!sorted.includes(found)) sorted.push(found);
@@ -908,8 +913,10 @@ function updSourceBtns(mode){
       });
       
       SOURCE_BUTTONS = sorted;
+      console.log("[updSourceBtns][Init]", SOURCE_BUTTONS.map(s => s.dataset.href).join(', '));
 
     } else { 
+
       // ТОЛЬКО МЕТКИ
       const domButtons = Array.from(container.children).filter(el => el.tagName === 'BUTTON');
       SOURCE_BUTTONS.forEach(s => {
@@ -920,30 +927,23 @@ function updSourceBtns(mode){
               const domBtn = domButtons[domIdx];
               s.dataset.ghost = (domBtn.dataset.ghost === "true") ? "true" : "false";
               s.dataset.idx = domIdx; 
-              if(domBtn.dataset.ghost === "true"){console.log("позиция", domIdx)}
+              //if(domBtn.dataset.ghost === "true"){console.log("позиция", domIdx)}
           } else {
               //s.dataset.ghost = "true"; 
             s.dataset.idx = -1; 
           }
       });
+
     }
 }
 
-function restoreSourceBtns(mode) {
+function restoreSourceBtns() {
   const container = document.getElementById('mainButtons');
   const endGroup = document.getElementById('endGroup');
 
   mergeFromCheck = false;
   container.innerHTML = "";
   
-
-  if (mode === "reset") {
-    // удаляем госта всех из end группы
-    Array.from(endGroup.children).forEach(btn => {
-      if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
-    });
-  }
-
   const recoverState = (btn) => {
     if (unlockHeart) {  
       const g = btn.dataset.g;
@@ -964,36 +964,20 @@ function restoreSourceBtns(mode) {
     container.appendChild(fClone);
   }
 
-  const occupiedHrefs = Array.from(endGroup.querySelectorAll('button'))
-    .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn')
-    .map(btn => btn.dataset.href);
-
   // 2. Отрисовка основного состава
   SOURCE_BUTTONS.forEach(btn => {
     if (btn.id !== 'firstBtn' && btn.id !== 'preBtn' && btn.id !== 'lastBtn') {
       
-      if (occupiedHrefs.includes(btn.dataset.href)) {
-        if(mode === "update") console.log("Skip duplicate from endGroup:", btn.dataset.href);
-        return; 
-      }
-
       const clone = btn.cloneNode(true);
-      
-      // СНАЧАЛА проверяем, гост это или нет (независимо от темы)
-      if (btn.dataset.ghost === "true") {
-        clone.classList.add('btn_ghost'); 
-        clone.id = ""; 
-        clone.dataset.ghost = "true";
-        if(mode === "update") console.log("подцепили госта");
-      } else {
-        recoverState(clone);
-      }
-
+      recoverState(clone);
       container.appendChild(clone);
     }
   });
 
   // 3. Конечная группа (дубликат из DOM)
+  Array.from(endGroup.children).forEach(btn => {
+    if (btn.id !== 'preBtn' && btn.id !== 'lastBtn') btn.remove();
+  });
   container.appendChild(endGroup); // держит стиль так как из Dom
 
   const sprite = document.getElementById('heartIcon');
@@ -1003,34 +987,25 @@ function restoreSourceBtns(mode) {
 }
 
 function reOrientFix(mode = "init", targetHREF) {
-  const debug = false;
-
+  const debug = true;
   const endGroup = document.getElementById('endGroup');
 
   if(mode === "init"){
-
       let foundHREF = null;
-
-      const prevGhost = SOURCE_BUTTONS.find(s => s.dataset.ghost === "true");
-
       const occupiedHrefs = Array.from(endGroup.querySelectorAll('button'))
         .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn')
         .map(btn => btn.dataset.href);
 
-      if(debug) console.log("ruleChangeIDX:", occupiedHrefs);
+      if(debug) console.log("[reor][init] :", occupiedHrefs);
 
-      if (prevGhost) {
-        foundHREF = prevGhost.dataset.href;
-        //targetIDX = prevGhost.dataset.idx;
-        if(debug) console.log("Запомнили бывшего госта:", foundHREF ); //targetIDX
-      }else if(occupiedHrefs.length==1){
+      if(occupiedHrefs.length==1){
         foundHREF = occupiedHrefs[0];
-        if(debug) console.log("Запомнили псевдо госта:", foundHREF);
+        if(debug) console.log("[reor][init] save prelast in endGroup [1]:", foundHREF);
       }else if(occupiedHrefs.length>1){
         foundHREF = occupiedHrefs[occupiedHrefs.length - 1];
-        if(debug) console.log("Запомнили последнего псевдо госта:", foundHREF);
+        if(debug) console.log("[reor][init] save prelast in endGroup [n]:", foundHREF);
       }else {
-        if(debug) console.log("Нет элементов для коррекции");
+        if(debug) console.log("[reor][init] nothing");
       }
 
       return foundHREF
@@ -1048,29 +1023,55 @@ function reOrientFix(mode = "init", targetHREF) {
       const replace = true;
 
       if(replace){
-        if (lastVisibleBtn && lastVisibleBtn !== targetBtn) {      
+        
+        if (lastVisibleBtn && lastVisibleBtn !== targetBtn) {  
           lastVisibleBtn.replaceWith(targetBtn);
-          if(debug) console.log("Рокировка: заменили хвост на существующий targetBtn:", targetHREF);
+          if(debug) console.log("[reor][fix] replace:", targetHREF);
         }
+
+        /*
+        if (lastVisibleBtn && lastVisibleBtn !== targetBtn) {  
+          // Только на заблокированные кнопки или те что заблокированны в тёмноё теме (на них всё равно нажать)
+          if(lastVisibleBtn.dataset.st === "lock" ||  ( unlockHeart && lastVisibleBtn.dataset.g === "W") ){
+              lastVisibleBtn.replaceWith(targetBtn);
+
+              if(debug) console.log("[reor][fix] replace:", targetHREF);
+          }else{
+            // Я думаю здесь просто удалить lock кнопку из середины, и переставить понимаешь?
+            // Потому что если он заменит живую ссылку на нашу кнопку - это плохо так как элементов мало
+            buttonContainer.insertBefore(targetBtn, endGroup);
+            const lockToSacrifice = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
+              .find(btn => btn !== targetBtn && !['firstBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
+
+            if (lockToSacrifice) {
+              lockToSacrifice.remove();
+              if (debug) console.log("[reor][fix] moving");
+            }else{
+              if (debug) console.log("[reor][fix] nothing change");
+            }
+
+          }
+        }
+        */
+
       }else{
 
         if (targetBtn.nextElementSibling !== endGroup) {
           buttonContainer.insertBefore(targetBtn, endGroup);
-          if(debug) console.log("Переставили существующую кнопку к группе:", targetHREF);
+          if(debug) console.log("[reor][fix] moving alt:", targetHREF);
         }
       }
 
       const currentRows = getRowData('count'); 
-      
       if (currentRows > MOBILE_TARGET_ROW) {
-        console.log("Добавление ряда!");
+        console.log("[reor][fix] ROW PROBLEM");
         const lockButtons = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
           .filter(btn => !['firstBtn', 'obtn'].includes(btn.id) && btn !== targetBtn &&  !endGroup.contains(btn)
           );
 
         if (lockButtons.length > 0) {
           lockButtons[0].remove();
-          if(debug) console.log("Удаление для стабилизации ряда.");
+          if(debug) console.log("[reor][fix] stabilize row");
         }
       }
 
@@ -1086,7 +1087,7 @@ function reOrientFix(mode = "init", targetHREF) {
         }
         
         lastVisibleBtn.replaceWith(newClone);
-        if(debug) console.log("Замена последней кнопку на целевого госта:", targetHREF);
+        if(debug) console.log("[reor][fix] Кнопка была удалена при перемешивании, добавляем", targetHREF);
       }
     }
   }
@@ -1094,19 +1095,20 @@ function reOrientFix(mode = "init", targetHREF) {
 
 function rebuildGUI(mode = "update", shuffle = false) { 
   // modes reset/update
-  const debug = false;
+  const debug = true;
+  if(debug) console.log("[rebuildGUI] >>>>> START ");
 
   checkWidescreen();
   MOBILE_TARGET_ROW = isWideScreen ? 3 : 8;
-  if(debug) console.log("target count", MOBILE_TARGET_ROW)
-  
+
   // - Fix при поворотах (presolve)
   const ruleChangeIDX = (mode === "update" && INIT_TARGET_ROW != MOBILE_TARGET_ROW);
   let targetHREF = null; if (ruleChangeIDX) targetHREF = reOrientFix("init");
 
+  if(debug) console.log("[rebuildGUI] MOBILE_TARGET_ROW", MOBILE_TARGET_ROW, "RULE_CHANGE", ruleChangeIDX);
+
   // 1. Восстановление кнопок
-  SOURCE_BUTTONS.forEach(btn => btn.dataset.ghost = "false"); // Обнуляем гостов
-  restoreSourceBtns("reset"); 
+  restoreSourceBtns(); 
 
   // 2. Обновление
   if (shuffle) shuffleButtonsWithRules();
@@ -1117,6 +1119,7 @@ function rebuildGUI(mode = "update", shuffle = false) {
 
   // 3. Чистка нижней строки
   checkLastRow();
+  
   if (isMobile) fallbackMobileSnap();
 
   // 4. Обновление массива
@@ -1128,17 +1131,21 @@ function rebuildGUI(mode = "update", shuffle = false) {
       .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn')
       .map(btn => btn.dataset.href);
 
-    console.log("reset ocup (fixed):", JSON.parse(JSON.stringify(occupiedHrefs)));
+    console.log("[rebuildGUI] result / hrefs in end :", JSON.parse(JSON.stringify(occupiedHrefs)));
   }
+
+  if(debug) console.log("[rebuildGUI] >>>>> END ");
 }
 
 
 function initPage() {
-  console.log("InitPage / Mobile:", isMobile);
   
   checkWidescreen();
   MOBILE_TARGET_ROW = isWideScreen ? 3 : 8;
   INIT_TARGET_ROW = MOBILE_TARGET_ROW;
+
+  console.log("InitPage / Mobile:", isMobile);
+  console.log("InitPage / Init Row:", INIT_TARGET_ROW);
 
   // Prepare
   removeDeskBtnOnMobile();
@@ -1161,7 +1168,7 @@ function initPage() {
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
       clearTimeout(resizeTimeout);
-      const t = isLocal ? 5 : 250  
+      const t = isLocal ? 15 : 250  
       resizeTimeout = setTimeout(() => {
         rebuildGUI("update", false); // "current" state
       }, t);
