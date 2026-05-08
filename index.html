@@ -996,29 +996,133 @@ function restoreSourceBtns(mode) {
   endGroup.style.flex = endGroup.style.marginLeft = endGroup.style.justifyContent = "";
 }
 
+function reOrientFix(mode = "init", targetHREF) {
+  const debug = false;
+
+  const endGroup = document.getElementById('endGroup');
+
+  if(mode === "init"){
+
+      let foundHREF = null;
+
+      const prevGhost = SOURCE_BUTTONS.find(s => s.dataset.ghost === "true");
+
+      const occupiedHrefs = Array.from(endGroup.querySelectorAll('button'))
+        .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn')
+        .map(btn => btn.dataset.href);
+
+      if(debug) console.log("ruleChangeIDX:", occupiedHrefs);
+
+      if (prevGhost) {
+        foundHREF = prevGhost.dataset.href;
+        //targetIDX = prevGhost.dataset.idx;
+        if(debug) console.log("Запомнили бывшего госта:", foundHREF ); //targetIDX
+      }else if(occupiedHrefs.length==1){
+        foundHREF = occupiedHrefs[0];
+        if(debug) console.log("Запомнили псевдо госта:", foundHREF);
+      }else {
+        if(debug) console.log("Нет элементов для коррекции");
+      }
+
+      return foundHREF
+
+  }else if(mode === "fix"){
+
+    let targetBtn = Array.from(buttonContainer.children).find(b => b.dataset.href === targetHREF);
+    const allCurrentBtns = Array.from(buttonContainer.children).filter(b => b.tagName === 'BUTTON' && b !== endGroup);
+    const lastVisibleBtn = allCurrentBtns[allCurrentBtns.length - 1];
+
+     if(debug) console.log("[BEFEND]", lastVisibleBtn?.dataset.href, "[TARGET?]", targetBtn?.dataset.href);
+
+    if(targetBtn){
+
+      const replace = true;
+
+      if(replace){
+        if (lastVisibleBtn && lastVisibleBtn !== targetBtn) {      
+          lastVisibleBtn.replaceWith(targetBtn);
+          if(debug) console.log("Рокировка: заменили хвост на существующий targetBtn:", targetHREF);
+        }
+      }else{
+
+        if (targetBtn.nextElementSibling !== endGroup) {
+          buttonContainer.insertBefore(targetBtn, endGroup);
+          if(debug) console.log("Переставили существующую кнопку к группе:", targetHREF);
+        }
+      }
+
+      const currentRows = getRowData('count'); 
+      
+      if (currentRows > MOBILE_TARGET_ROW) {
+        console.log("Добавление ряда!");
+        const lockButtons = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
+          .filter(btn => !['firstBtn', 'obtn'].includes(btn.id) && btn !== targetBtn &&  !endGroup.contains(btn)
+          );
+
+        if (lockButtons.length > 0) {
+          lockButtons[0].remove();
+          if(debug) console.log("Удаление для стабилизации ряда.");
+        }
+      }
+
+    }else if(lastVisibleBtn){
+
+      const originalToRestore = SOURCE_BUTTONS.find(s => s.dataset.href === targetHREF);
+      
+      if (originalToRestore) {
+        const newClone = originalToRestore.cloneNode(true);
+        if (unlockHeart) {
+          const g = newClone.dataset.g;
+          if (g === "D" || g === "W" || g === "B") newClone.classList.add('dstate');
+        }
+        
+        lastVisibleBtn.replaceWith(newClone);
+        if(debug) console.log("Замена последней кнопку на целевого госта:", targetHREF);
+      }
+    }
+  }
+}
+
 function rebuildGUI(mode = "update", shuffle = false) { 
   // modes reset/update
-  
+  const debug = false;
+
   checkWidescreen();
   MOBILE_TARGET_ROW = isWideScreen ? 3 : 8;
+  if(debug) console.log("target count", MOBILE_TARGET_ROW)
   
-  console.log("target count", MOBILE_TARGET_ROW)
-  
-  SOURCE_BUTTONS.forEach(btn => btn.dataset.ghost = "false");
+  // - Fix при поворотах (presolve)
+  const ruleChangeIDX = (mode === "update" && INIT_TARGET_ROW != MOBILE_TARGET_ROW);
+  let targetHREF = null; if (ruleChangeIDX) targetHREF = reOrientFix("init");
 
+  // 1. Восстановление кнопок
+  SOURCE_BUTTONS.forEach(btn => btn.dataset.ghost = "false"); // Обнуляем гостов
   restoreSourceBtns("reset"); 
 
+  // 2. Обновление
   if (shuffle) shuffleButtonsWithRules();
-
   if (isMobile) removeOverflowBtnsMobile();
 
-  checkLastRow(); 
+  // - Fix при поворотах (postsolve)
+  if (ruleChangeIDX && !shuffle && targetHREF) reOrientFix("fix", targetHREF);
 
+  // 3. Чистка нижней строки
+  checkLastRow();
   if (isMobile) fallbackMobileSnap();
 
+  // 4. Обновление массива
   updSourceBtns(mode);
 
+  if(debug && mode==="reset" ){
+    const endGroup = document.getElementById('endGroup');
+    const occupiedHrefs = Array.from(endGroup.querySelectorAll('button'))
+      .filter(btn => btn.id !== 'preBtn' && btn.id !== 'lastBtn')
+      .map(btn => btn.dataset.href);
+
+    console.log("reset ocup (fixed):", JSON.parse(JSON.stringify(occupiedHrefs)));
+  }
 }
+
 
 function initPage() {
   console.log("InitPage / Mobile:", isMobile);
