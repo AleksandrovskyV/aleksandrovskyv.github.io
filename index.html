@@ -1131,19 +1131,15 @@ function rebuildGUI(mode = "update", shuffle = false) {
     checkLastRow();
   }else{ // on update
 
-    const currentRows = getRowData('count'); 
+    const CURRENT_ROW = getRowData('count'); 
     
-    if(INIT_TARGET_ROW == MOBILE_TARGET_ROW){
-      checkLastRow(); // возврат в init ветку
-    
-    } else if(ruleCallFix){
-
-      if(currentRows == MOBILE_TARGET_ROW){
+    if (MOBILE_TARGET_ROW == CURRENT_ROW){
         checkLastRow("force")
-      }else{
+    }else{
+        // либо init либо как из условия несовпадения
         checkLastRow();
-      }
     }
+    
   }
   
   if (isMobile) fallbackMobileSnap();
