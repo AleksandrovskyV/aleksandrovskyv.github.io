@@ -1208,9 +1208,10 @@ function rebuildGUI(mode = "update", shuffle = false) {
 
   checkWidescreen();
   MOBILE_TARGET_ROW = isWideScreen ? 3 : 8;
+  
+  const initLogic = (INIT_TARGET_ROW === MOBILE_TARGET_ROW);
 
   // - Fix при поворотах (presolve)
-
   const ruleCallFix = (mode === "update" && INIT_TARGET_ROW != MOBILE_TARGET_ROW);
   let targetHREF = null; if (fixLogic && ruleCallFix) targetHREF = reOrientFix("init");
 
@@ -1222,7 +1223,7 @@ function rebuildGUI(mode = "update", shuffle = false) {
   // 2. Обновление
   if (shuffle)  shuffleButtonsWithRules();
   
-  if (isMobile && (INIT_TARGET_ROW === MOBILE_TARGET_ROW )) removeOverflowBtnsMobile();
+  if (isMobile && initLogic) removeOverflowBtnsMobile();
 
   // - Fix при поворотах (postsolve)
   let replaced = null; if (fixLogic && ruleCallFix && !shuffle && targetHREF) replaced = reOrientFix("fix", targetHREF);
