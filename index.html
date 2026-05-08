@@ -447,7 +447,7 @@ function removeOverflowBtnsMobile() {
   }
 }
 
-function checkLastRow() {
+function checkLastRow(mode) {
   const endGroup = document.getElementById('endGroup');
   const presolve = (getRowData('count')<MOBILE_TARGET_ROW);
 
@@ -551,6 +551,12 @@ function checkLastRow() {
     const rowItems = getRowData('items'); 
     const n = rowItems.length; console.log("[checkLastRow] on Last Row:", n, "elements")
   
+    if (mode==="force"){
+      console.log("[checkLastRow][Mode] FORCE MergeAll Elements to one endGroup")
+      applyFix(rowItems, "result");
+      break;
+    }
+
     if (n === 1) {
       if (isMobile){
         console.log("[checkLastRow][Mode] Mobile with ghost")
@@ -579,6 +585,7 @@ function checkLastRow() {
   }
   console.log("[checkLastRow][Complete]")
 }
+
 
 function shuffleButtonsWithRules() {
   const container = buttonContainer;
@@ -1102,23 +1109,42 @@ function rebuildGUI(mode = "update", shuffle = false) {
   MOBILE_TARGET_ROW = isWideScreen ? 3 : 8;
 
   // - Fix при поворотах (presolve)
-  const ruleChangeIDX = (mode === "update" && INIT_TARGET_ROW != MOBILE_TARGET_ROW);
-  let targetHREF = null; if (ruleChangeIDX) targetHREF = reOrientFix("init");
+  const ruleCallFix = (mode === "update" && INIT_TARGET_ROW != MOBILE_TARGET_ROW);
+  let targetHREF = null; if (ruleCallFix) targetHREF = reOrientFix("init");
 
-  if(debug) console.log("[rebuildGUI] MOBILE_TARGET_ROW", MOBILE_TARGET_ROW, "RULE_CHANGE", ruleChangeIDX);
+  if(debug) console.log("[rebuildGUI] MOBILE_TARGET_ROW", MOBILE_TARGET_ROW, "RULE_CHANGE", ruleCallFix);
 
   // 1. Восстановление кнопок
   restoreSourceBtns(); 
 
   // 2. Обновление
   if (shuffle) shuffleButtonsWithRules();
+  
   if (isMobile) removeOverflowBtnsMobile();
 
   // - Fix при поворотах (postsolve)
-  if (ruleChangeIDX && !shuffle && targetHREF) reOrientFix("fix", targetHREF);
+  if (ruleCallFix && !shuffle && targetHREF) reOrientFix("fix", targetHREF);
 
   // 3. Чистка нижней строки
-  checkLastRow();
+
+  if(mode === "reset"){ // onstart
+    checkLastRow();
+  }else{ // on update
+
+    const currentRows = getRowData('count'); 
+    
+    if(INIT_TARGET_ROW == MOBILE_TARGET_ROW){
+      checkLastRow(); // возврат в init ветку
+    
+    } else if(ruleCallFix){
+
+      if(currentRows == MOBILE_TARGET_ROW){
+        checkLastRow("force")
+      }else{
+        checkLastRow();
+      }
+    }
+  }
   
   if (isMobile) fallbackMobileSnap();
 
