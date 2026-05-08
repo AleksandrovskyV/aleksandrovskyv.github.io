@@ -572,7 +572,7 @@ function checkLastRow(mode, replaced) {
     return true;
   }
 
-
+  // REORIENT LOGIC (WORK 100 %)
   if (mode==="force"){ // используется пре reorient
     
     console.log("[checkLastRow][Mode] FORCE");
@@ -672,7 +672,7 @@ function checkLastRow(mode, replaced) {
     return;
   }
 
-  // Основная логика
+  // BASE ON INIT LOGIC (WORK 100 %)
   for (let i = 0; i < 3; i++) {
     let rowItems = getRowData('items'); 
     const n = rowItems.length; console.log("[checkLastRow] on Last Row:", n, "elements")
