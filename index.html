@@ -267,8 +267,15 @@ margin-left: auto; /* прижмет группу вправо */
 
 <script>
 
-let INIT_TARGET_ROW = 8;
-let MOBILE_TARGET_ROW = 8;
+const WEB_TARGET_ROW = 5;
+
+const PORT_MOB_TRGT = 8;
+const ALBM_MOB_TRGT = 3;
+
+let INIT_TARGET_ROW = isMobile ? PORT_MOB_TRGT : WEB_TARGET_ROW;
+let PRE_TARGET_ROW = INIT_TARGET_ROW;
+let TEMP_TARGET_ROW = INIT_TARGET_ROW;
+
 
  // contain struct page btns (need for innerHtml)
 let SOURCE_BUTTONS = [];
@@ -405,11 +412,11 @@ function removeOverflowBtnsOld() {
 */
 
 function removeOverflowBtnsMobile() {
-  if (!isMobile) return;
+  //if (!isMobile) return;
   const container = buttonContainer;
 
   let iteration = 0;
-  while (getRowData('count') > MOBILE_TARGET_ROW) {
+  while (getRowData('count') > TEMP_TARGET_ROW) {
     iteration++;
     const currentRows = getRowData('count');
     const lockButtons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
@@ -427,7 +434,7 @@ function removeOverflowBtnsMobile() {
       btnToTry.remove();
       const n = getRowData('count');
 
-      if (n >= MOBILE_TARGET_ROW) {
+      if (n >= TEMP_TARGET_ROW) {
         success = true;
         break; 
       } else {
@@ -505,11 +512,11 @@ function checkLastRowRef(mode, replaced) {
     api.style("expand"); if (!isMobile) return true;
 
     const currentCount = api.count();
-    if (currentCount === MOBILE_TARGET_ROW) return true;
+    if (currentCount === TEMP_TARGET_ROW) return true;
 
     console.log(`[checkLastRow][FixFailure] Нарушена сетка! Рядов: ${currentCount}`);
 
-    if (currentCount > MOBILE_TARGET_ROW) {
+    if (currentCount > TEMP_TARGET_ROW) {
 
       for (let j = 0; j < 3; j++) {
         const locks = api.locks();
@@ -517,7 +524,7 @@ function checkLastRowRef(mode, replaced) {
 
         locks.at(-1).remove();
 
-        if (api.count() === MOBILE_TARGET_ROW)
+        if (api.count() === TEMP_TARGET_ROW)
           return console.log(`[checkLastRow][Success] Сетка восстановлена`), true;
       }
 
@@ -530,7 +537,7 @@ function checkLastRowRef(mode, replaced) {
       for (const btn of candidates) {
         buttonContainer.insertBefore(btn, endGroup);
 
-        if (api.count() === MOBILE_TARGET_ROW)
+        if (api.count() === TEMP_TARGET_ROW)
           return console.log(`[checkLastRow][Success] Ряд восстановлен`), true;
       }
     }
@@ -556,7 +563,7 @@ function checkLastRowRef(mode, replaced) {
     console.log("[checkLastRow][FORCE] Start");
     endGroup.prepend(replaced);
 
-    if (currentRows < MOBILE_TARGET_ROW) {
+    if (currentRows < TEMP_TARGET_ROW) {
       const visibleButtons = new Set(
         [...buttonContainer.querySelectorAll('button')]
           .map(b => b.dataset.href)
@@ -576,7 +583,7 @@ function checkLastRowRef(mode, replaced) {
 
         const nextRows = api.count();
 
-        if (nextRows <= MOBILE_TARGET_ROW) {
+        if (nextRows <= TEMP_TARGET_ROW) {
 
           if (unlockHeart) {
             const g = clone.dataset.g;
@@ -595,7 +602,7 @@ function checkLastRowRef(mode, replaced) {
 
     currentRows = api.count();
 
-    if (currentRows > MOBILE_TARGET_ROW) {
+    if (currentRows > TEMP_TARGET_ROW) {
       console.log("[checkLastRow][FORCE][Removing]");
 
       const allowedForDeletion = [...buttonContainer.children]
@@ -605,7 +612,7 @@ function checkLastRowRef(mode, replaced) {
           (b.dataset.st === "lock" || b.dataset.g === "W")
         );
 
-      while (allowedForDeletion.length && api.count() > MOBILE_TARGET_ROW) {
+      while (allowedForDeletion.length && api.count() > TEMP_TARGET_ROW) {
         const btn = allowedForDeletion.pop();
         console.log("[checkLastRow][FORCE][Removing]", btn.dataset.href);
         btn.remove();
@@ -615,8 +622,8 @@ function checkLastRowRef(mode, replaced) {
     currentRows = api.count();
     rowItems = api.items();
 
-    if (currentRows > MOBILE_TARGET_ROW) return api.style("reset");
-    if (currentRows === MOBILE_TARGET_ROW) {
+    if (currentRows > TEMP_TARGET_ROW) return api.style("reset");
+    if (currentRows === TEMP_TARGET_ROW) {
         rowItems.filter(item => item !== endGroup).forEach(item => endGroup.prepend(item));
     }
 
@@ -664,7 +671,7 @@ function checkLastRowRef(mode, replaced) {
 function checkLastRowHard(mode, replaced) { 
   const endGroup = document.getElementById('endGroup'), 
         cont = buttonContainer, 
-        target = MOBILE_TARGET_ROW;
+        target = TEMP_TARGET_ROW;
   if (!endGroup) return;
 
   const getC = () => getRowData('count'),
@@ -794,9 +801,9 @@ function fallbackMobileSnap() {
   const currentRows = getRowData('count');
   const isVert = (window.innerHeight > window.innerWidth);
 
-  if (currentRows > 0 && currentRows < MOBILE_TARGET_ROW && isVert) {
+  if (currentRows > 0 && currentRows < TEMP_TARGET_ROW && isVert) {
     
-    console.log("[fallbackMobileSnap]", MOBILE_TARGET_ROW);
+    console.log("[fallbackMobileSnap]", TEMP_TARGET_ROW);
     
     const buttonContainer = document.getElementById('mainButtons');
     //buttonContainer.offsetHeight; 
@@ -814,7 +821,7 @@ function fallbackMobileSnap() {
     const secondRowBtn = allBtns.find(btn => btn.offsetTop > firstTop + fg);
     
     const rowH = secondRowBtn ? (secondRowBtn.offsetTop - firstTop) : (allBtns[0].offsetHeight + fg);
-    const fullHeight8 = (rowH * (MOBILE_TARGET_ROW) ) - fg;
+    const fullHeight8 = (rowH * (TEMP_TARGET_ROW) ) - fg;
     const currentHeight = (rowH * currentRows) - fg;
     const smartPadding = (fullHeight8 - currentHeight) + (basePad);
 
@@ -1255,15 +1262,16 @@ function rebuildGUI(mode = "update", shuffle = false) {
   if(debug) console.log("[rebuildGUI] >>>>> START ");
 
   checkWidescreen();
-  MOBILE_TARGET_ROW = isWideScreen ? 3 : 8;
-  
-  const initLogic = (INIT_TARGET_ROW === MOBILE_TARGET_ROW);
+  PRE_TARGET_ROW = isWideScreen ? ALBM_MOB_TRGT : PORT_MOB_TRGT;
+  TEMP_TARGET_ROW = isMobile ? PRE_TARGET_ROW : WEB_TARGET_ROW;
+
+  const initLogic = (INIT_TARGET_ROW === TEMP_TARGET_ROW);
 
   // - Fix при поворотах (presolve)
-  const ruleCallFix = (mode === "update" && INIT_TARGET_ROW != MOBILE_TARGET_ROW);
+  const ruleCallFix = (mode === "update" && INIT_TARGET_ROW != TEMP_TARGET_ROW);
   let targetHREF = null; if (fixLogic && ruleCallFix) targetHREF = reOrientFix("init");
 
-  if(debug) console.log("[rebuildGUI] MOBILE_TARGET_ROW", MOBILE_TARGET_ROW, "RULE_CHANGE", ruleCallFix);
+  if(debug) console.log("[rebuildGUI] TEMP_TARGET_ROW", TEMP_TARGET_ROW, "RULE_CHANGE", ruleCallFix);
 
   // 1. Восстановление кнопок
   restoreSourceBtns(); 
@@ -1271,7 +1279,7 @@ function rebuildGUI(mode = "update", shuffle = false) {
   // 2. Обновление
   if (shuffle)  shuffleButtonsWithRules();
   
-  if (isMobile && initLogic) removeOverflowBtnsMobile();
+  if (initLogic) removeOverflowBtnsMobile();
 
   // - Fix при поворотах (postsolve)
   let replaced = null; if (fixLogic && ruleCallFix && !shuffle && targetHREF) replaced = reOrientFix("fix", targetHREF);
@@ -1279,7 +1287,15 @@ function rebuildGUI(mode = "update", shuffle = false) {
   // 3. Чистка нижней строки
 
   if(mode === "reset"){ // onstart
-    checkLastRowRef();
+    
+    if(!isMobile){  
+      const endGroup = document.getElementById('endGroup');
+      const prevBtn = endGroup.previousElementSibling;
+      checkLastRowRef("force", prevBtn);
+
+    } else{
+      checkLastRowRef(); 
+    }
   }else{ // on update
 
     if (fixLogic && targetHREF) {
@@ -1318,8 +1334,11 @@ function rebuildGUI(mode = "update", shuffle = false) {
 function initPage() {
 
   checkWidescreen();
-  MOBILE_TARGET_ROW = isWideScreen ? 3 : 8;
-  INIT_TARGET_ROW = MOBILE_TARGET_ROW;
+
+  PRE_TARGET_ROW = isWideScreen ? ALBM_MOB_TRGT : PORT_MOB_TRGT;
+  TEMP_TARGET_ROW = isMobile ? PRE_TARGET_ROW : WEB_TARGET_ROW;
+
+  INIT_TARGET_ROW = TEMP_TARGET_ROW;
 
   console.log("InitPage / Mobile:", isMobile);
   console.log("InitPage / Init Row:", INIT_TARGET_ROW);
