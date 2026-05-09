@@ -290,11 +290,11 @@ function checkLastRowRef(mode, replaced) {
     api.style("expand"); if (!isMobile) return true;
 
     const currentCount = api.count();
-    if (currentCount === MOBILE_TARGET_ROW) return true;
+    if (currentCount === TEMP_TARGET_ROW) return true;
 
     console.log(`[checkLastRow][FixFailure] Нарушена сетка! Рядов: ${currentCount}`);
 
-    if (currentCount > MOBILE_TARGET_ROW) {
+    if (currentCount > TEMP_TARGET_ROW) {
 
       for (let j = 0; j < 3; j++) {
         const locks = api.locks();
@@ -302,7 +302,7 @@ function checkLastRowRef(mode, replaced) {
 
         locks.at(-1).remove();
 
-        if (api.count() === MOBILE_TARGET_ROW)
+        if (api.count() === TEMP_TARGET_ROW)
           return console.log(`[checkLastRow][Success] Сетка восстановлена`), true;
       }
 
@@ -315,7 +315,7 @@ function checkLastRowRef(mode, replaced) {
       for (const btn of candidates) {
         buttonContainer.insertBefore(btn, endGroup);
 
-        if (api.count() === MOBILE_TARGET_ROW)
+        if (api.count() === TEMP_TARGET_ROW)
           return console.log(`[checkLastRow][Success] Ряд восстановлен`), true;
       }
     }
@@ -341,7 +341,7 @@ function checkLastRowRef(mode, replaced) {
     console.log("[checkLastRow][FORCE] Start");
     endGroup.prepend(replaced);
 
-    if (currentRows < MOBILE_TARGET_ROW) {
+    if (currentRows < TEMP_TARGET_ROW) {
       const visibleButtons = new Set(
         [...buttonContainer.querySelectorAll('button')]
           .map(b => b.dataset.href)
@@ -361,7 +361,7 @@ function checkLastRowRef(mode, replaced) {
 
         const nextRows = api.count();
 
-        if (nextRows <= MOBILE_TARGET_ROW) {
+        if (nextRows <= TEMP_TARGET_ROW) {
 
           if (unlockHeart) {
             const g = clone.dataset.g;
@@ -380,7 +380,7 @@ function checkLastRowRef(mode, replaced) {
 
     currentRows = api.count();
 
-    if (currentRows > MOBILE_TARGET_ROW) {
+    if (currentRows > TEMP_TARGET_ROW) {
       console.log("[checkLastRow][FORCE][Removing]");
 
       const allowedForDeletion = [...buttonContainer.children]
@@ -390,7 +390,7 @@ function checkLastRowRef(mode, replaced) {
           (b.dataset.st === "lock" || b.dataset.g === "W")
         );
 
-      while (allowedForDeletion.length && api.count() > MOBILE_TARGET_ROW) {
+      while (allowedForDeletion.length && api.count() > TEMP_TARGET_ROW) {
         const btn = allowedForDeletion.pop();
         console.log("[checkLastRow][FORCE][Removing]", btn.dataset.href);
         btn.remove();
@@ -400,8 +400,8 @@ function checkLastRowRef(mode, replaced) {
     currentRows = api.count();
     rowItems = api.items();
 
-    if (currentRows > MOBILE_TARGET_ROW) return api.style("reset");
-    if (currentRows === MOBILE_TARGET_ROW) {
+    if (currentRows > TEMP_TARGET_ROW) return api.style("reset");
+    if (currentRows === TEMP_TARGET_ROW) {
         rowItems.filter(item => item !== endGroup).forEach(item => endGroup.prepend(item));
     }
 
@@ -449,7 +449,7 @@ function checkLastRowRef(mode, replaced) {
 function checkLastRowHard(mode, replaced) { 
   const endGroup = document.getElementById('endGroup'), 
         cont = buttonContainer, 
-        target = MOBILE_TARGET_ROW;
+        target = TEMP_TARGET_ROW;
   if (!endGroup) return;
 
   const getC = () => getRowData('count'),
@@ -538,3 +538,25 @@ function checkLastRowHard(mode, replaced) {
     } else { fix(rI); break; }
   }
 }
+
+// Вызовы судя по коду, force используется как для пк как базовый, т.к. обновление вообще не предусмотрено 
+
+  if(mode === "reset"){ // onstart
+    
+    if(!isMobile){  
+      const endGroup = document.getElementById('endGroup');
+      const prevBtn = endGroup.previousElementSibling;
+      checkLastRowRef("force", prevBtn);
+
+    } else{
+      checkLastRowRef(); 
+    }
+  }else{ // on update
+
+    if (fixLogic && targetHREF) {
+      const forcedBtn = Array.from(buttonContainer.children).find(b => b.dataset.href === targetHREF);
+      checkLastRowRef("force", forcedBtn);
+    } else {
+      checkLastRowRef();
+    }
+  }
