@@ -968,14 +968,13 @@ async function handleButtonClick(ev) {
   }
 
   if ( btn.dataset.st === 'lock' || (unlockHeart && btn.classList.contains('bw') )  ){
-    console.log("cont")
+    console.log("lock for click")
     return false;
-  }else{
-    console.log("cont")
   }
 
   let target = btn.dataset.href || '#';
-  buttonContainer.style.pointerEvents = 'none'; // lock for clicks
+  // lock for clicks before transit
+  buttonContainer.style.pointerEvents = 'none'; 
   
   await hideAllButtons(); // anim opacity
 
