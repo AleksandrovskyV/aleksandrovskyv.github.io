@@ -967,11 +967,12 @@ async function handleButtonClick(ev) {
     return;
   }
 
-  if ( !unlockHeart && (btn.dataset.st === 'lock' && btn.classList.contains('bw'))  ){
-    // блокировка нажатий только на светлом сайте
+  if ( btn.dataset.st === 'lock' || (unlockHeart && btn.classList.contains('bw') )  ){
+    console.log("cont")
     return false;
+  }else{
+    console.log("cont")
   }
-
 
   let target = btn.dataset.href || '#';
   buttonContainer.style.pointerEvents = 'none'; // lock for clicks
