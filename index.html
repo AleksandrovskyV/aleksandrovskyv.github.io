@@ -250,6 +250,8 @@ margin-left: auto; /* прижмет группу вправо */
 
       <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
       <!-- инициализация спрайта перенесена в js -->
+      <!-- check svgomg.net for min -->
+      
       <button id="lastBtn"  data-st="open" data-href="/about" >
           <div id="heartIcon" class="h_icon">
 
@@ -1027,7 +1029,7 @@ function onKeyCommand(e) {
     if (cod === 'KeyV' || cod === "Space") return rebuildGUI("reset", true); // hard reset
     if (cod === 'KeyI') return toggleHeart();
 
-    
+
     if (cod === 'KeyR') return toLink("./renders");
 
     if(unlockHeart){
