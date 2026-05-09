@@ -1758,12 +1758,19 @@ window.addEventListener('mouseup', (e)=>{
   if (isDrawing) { isDrawing = false; buildUI(); }
 });
 
+
 /* Keyboard handling — reuse previous mapping */
 function onKeyCommand(e) {
   const cod = e.code;
   const key = e.key;
 
 
+  if (key === "Escape") {
+    e.preventDefault();
+    e.stopPropagation();
+    window.location.href = "https://vsky.space";
+  }
+  
   if (cod === "KeyR") resetCurrentArea();
   else if (cod === "KeyV") toggleVisualState();
   else if (cod === "Space"){
