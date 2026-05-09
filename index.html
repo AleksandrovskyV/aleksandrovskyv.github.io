@@ -267,14 +267,12 @@ margin-left: auto; /* прижмет группу вправо */
 
 <script>
 
-const WEB_TARGET_ROW = 5;
+const DESK_TARGET_ROW = 5; // Desktop
+const PORT_MOB_TRGT = 8;   // Portrait on Mobile
+const ALBM_MOB_TRGT = 3;   // Album on Mobile
 
-const PORT_MOB_TRGT = 8;
-const ALBM_MOB_TRGT = 3;
-
-let INIT_TARGET_ROW = isMobile ? PORT_MOB_TRGT : WEB_TARGET_ROW;
-let PRE_TARGET_ROW = INIT_TARGET_ROW;
-let TEMP_TARGET_ROW = INIT_TARGET_ROW;
+let INIT_TARGET_ROW = isMobile ? PORT_MOB_TRGT : DESK_TARGET_ROW; // port on init
+let TEMP_TARGET_ROW = INIT_TARGET_ROW; // Основная переменная для вычислений
 
 
  // contain struct page btns (need for innerHtml)
@@ -411,8 +409,7 @@ function removeOverflowBtnsOld() {
 }
 */
 
-function removeOverflowBtnsMobile() {
-  //if (!isMobile) return;
+function removeOverflowBtnsUpdate() {
   const container = buttonContainer;
 
   let iteration = 0;
@@ -1263,9 +1260,12 @@ function rebuildGUI(mode = "update", shuffle = false) {
 
   if(debug) console.log("[rebuildGUI] >>>>> START ");
 
-  checkWidescreen();
-  PRE_TARGET_ROW = isWideScreen ? ALBM_MOB_TRGT : PORT_MOB_TRGT;
-  TEMP_TARGET_ROW = isMobile ? PRE_TARGET_ROW : WEB_TARGET_ROW;
+  if(isMobile){
+    checkWidescreen();
+    const mobileCheck = isWideScreen ? ALBM_MOB_TRGT : PORT_MOB_TRGT;
+    TEMP_TARGET_ROW = isMobile ? mobileCheck : DESK_TARGET_ROW;
+  }
+
 
   const initLogic = (INIT_TARGET_ROW === TEMP_TARGET_ROW);
 
@@ -1279,9 +1279,9 @@ function rebuildGUI(mode = "update", shuffle = false) {
   restoreSourceBtns(); 
 
   // 2. Обновление
-  if (shuffle)  shuffleButtonsWithRules();
+  if ( shuffle ) shuffleButtonsWithRules();
   
-  if (initLogic) removeOverflowBtnsMobile();
+  if (initLogic) removeOverflowBtnsUpdate();
 
   // - Fix при поворотах (postsolve)
   let replaced = null; if (fixLogic && ruleCallFix && !shuffle && targetHREF) replaced = reOrientFix("fix", targetHREF);
@@ -1334,15 +1334,15 @@ function rebuildGUI(mode = "update", shuffle = false) {
 }
 
 function initPage() {
-
-  checkWidescreen();
-
-  PRE_TARGET_ROW = isWideScreen ? ALBM_MOB_TRGT : PORT_MOB_TRGT;
-  TEMP_TARGET_ROW = isMobile ? PRE_TARGET_ROW : WEB_TARGET_ROW;
-
-  INIT_TARGET_ROW = TEMP_TARGET_ROW;
-
   console.log("InitPage / Mobile:", isMobile);
+
+  if(isMobile){
+    checkWidescreen();
+    const mobileCheck = isWideScreen ? ALBM_MOB_TRGT : PORT_MOB_TRGT;
+    TEMP_TARGET_ROW = isMobile ? mobileCheck : DESK_TARGET_ROW;
+    INIT_TARGET_ROW = TEMP_TARGET_ROW;
+  }
+
   console.log("InitPage / Init Row:", INIT_TARGET_ROW);
 
   // Prepare
