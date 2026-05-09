@@ -108,7 +108,7 @@
     // clear full canvas (in CSS px)
     ctx.save();
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // ensure device scaling
-    ctx.fillStyle = '#dbd5d7'; // default base to avoid artifacts
+    ctx.fillStyle = '#e5e5e5'; // default base to avoid artifacts
     ctx.fillRect(0,0, canvas.width / dpr, canvas.height / dpr);
 
     if (!isReady) {
@@ -126,7 +126,7 @@
 
     // draw background of the world (this is the backdrop for multiply)
     ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = '#dbd5d7';
+    ctx.fillStyle = '#e5e5e5';
     // Draw a large rect covering world coords
     ctx.fillRect(-1000, -1000, WORLD_W + 3000, WORLD_H + 3000);
 
