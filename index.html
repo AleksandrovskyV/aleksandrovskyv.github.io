@@ -1011,33 +1011,33 @@ function onKeyCommand(e) {
   const pressedCtrl = e.ctrlKey;
   const pressedShift = e.shiftKey;
 
-  //console.log("Press", cod, key);
-  if(!pressedCtrl && !pressedShift){ // hardcore transit to page
-
+  function toLink(targetHREF) { 
     e.preventDefault();
     e.stopImmediatePropagation(); 
-
-    if (cod === 'KeyV' || cod === "Space") return rebuildGUI("reset", true); // hard reset
-    if (cod === 'KeyI') return toggleHeart();
-
-
-    let targetHREF = null;
-    if (cod === 'KeyR') targetHREF = "./renders";
-
-    if(unlockHeart){
-      if (cod === 'KeyE') targetHREF = "./exegesis";
-      else if (cod === 'KeyH') targetHREF = "./негативы";
-      else if (cod === 'KeyB') targetHREF = "./flipbook";
-      else if (cod === 'KeyF') targetHREF = "./fe";
-    }else{
-      if (cod === "Backquote") targetHREF = "./wolume";
-      else if (cod === 'KeyG') targetHREF = "./графика";
-      else if (cod === 'KeyB') targetHREF = "./bread";
-    }
 
     if (targetHREF) {
       if (isLocal) targetHREF = targetHREF + "/index.html";
       window.location.href = targetHREF;
+    }
+  }
+
+  //console.log("Press", cod, key);
+  if(!pressedCtrl && !pressedShift){ // hardcore transit to page
+
+    if (cod === 'KeyV' || cod === "Space") return rebuildGUI("reset", true); // hard reset
+    if (cod === 'KeyI') return toggleHeart();
+
+    
+    if (cod === 'KeyR') return toLink("./renders");
+    if(unlockHeart){
+      if (cod === 'KeyE') return toLink("./exegesis");
+      else if (cod === 'KeyH') return toLink("./негативы")
+      else if (cod === 'KeyB') return toLink("./flipbook")
+      else if (cod === 'KeyF') return toLink("./fe")
+    }else{
+      if (cod === "Backquote") return toLink("./wolume")
+      else if (cod === 'KeyG') return toLink("./графика")
+      else if (cod === 'KeyB') return toLink("./bread")
     }
   }
 
