@@ -539,6 +539,154 @@ function checkLastRowHard(mode, replaced) {
   }
 }
 
+// даёт ошибки
+function checkLastRowHardAlt(mode, replaced) { 
+  const endGroup = document.getElementById('endGroup'), cont = buttonContainer, target = TEMP_TARGET_ROW;
+  if (!endGroup) return;
+
+  const getC = () => getRowData('count'),
+        getI = () => getRowData('items'),
+        isSys = b => ['firstBtn','preBtn','lastBtn','obtn'].includes(b.id) || b.dataset.ghost,
+        isMove = b => !isSys(b) && !endGroup.contains(b),
+
+        setStyle = e => {
+          endGroup.style.flex = e ? "1 0 100%" : "";
+          endGroup.style.marginLeft = e ? "0" : "";
+          endGroup.style.justifyContent = e ? "space-between" : "";
+        };
+
+  function fix(items, mob = false) {
+
+    let tg = mob
+      ? [[...cont.querySelectorAll('button')]
+          .filter(b => isMove(b) && b.innerText.length > 2)
+          .sort((a,b)=>a.innerText.length-b.innerText.length)[0]]
+      : items.filter(el => el !== endGroup && !isSys(el));
+
+    tg = tg.filter(Boolean);
+    if (!tg.length) return false;
+
+    if (mob) {
+      const g = tg[0].cloneNode(true);
+      g.id = "";
+      g.dataset.ghost = "true";
+      g.classList.add('btn_ghost');
+      tg[0].before(g);
+    }
+
+    [...tg].reverse().forEach(el => endGroup.prepend(el));
+    setStyle(true);
+
+    if (!isMobile || getC() === target) return true;
+
+    if (getC() > target) {
+
+      for (let i=0;i<3;i++) {
+        const l = [...cont.querySelectorAll('button[data-st="lock"]')].filter(isMove);
+        if (!l.length) break;
+        l.at(-1).remove();
+        if (getC() === target) return true;
+      }
+
+    } else {
+
+      for (const b of [...endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)')].filter(b=>b!==replaced)) {
+        cont.insertBefore(b,endGroup);
+        if (getC() === target) return true;
+      }
+    }
+
+    const gh = [...cont.children].find(e => e.dataset.ghost),
+          bdy = endGroup.querySelector('button:not(#preBtn):not(#lastBtn)');
+
+    if (gh && bdy) gh.replaceWith(bdy);
+    else if (!mob)
+      [...endGroup.querySelectorAll('button:not(#preBtn):not(#lastBtn)')]
+        .reverse()
+        .forEach(b => cont.insertBefore(b,endGroup));
+
+    setStyle(false);
+    return false;
+  }
+
+  if (mode === "force") {
+
+    endGroup.prepend(replaced);
+
+    if (getC() < target) {
+
+      const vis = new Set(
+        [...cont.querySelectorAll('button')]
+          .map(b => b.dataset.href)
+          .filter(Boolean)
+      );
+
+      for (const s of SOURCE_BUTTONS) {
+
+        if (!s.dataset.href || vis.has(s.dataset.href) || isSys(s) || endGroup.contains(s))
+          continue;
+
+        const c = s.cloneNode(true);
+        cont.insertBefore(c,endGroup);
+
+        if (getC() <= target) {
+          if (unlockHeart && ["D","W","B"].includes(c.dataset.g))
+            c.classList.add('dstate');
+        } else {
+          c.remove();
+          break;
+        }
+      }
+    }
+
+    while (getC() > target) {
+
+      const al = [...cont.children].filter(b =>
+        b !== endGroup &&
+        b.id !== 'firstBtn' &&
+        (b.dataset.st === "lock" || b.dataset.g === "W")
+      );
+
+      if (!al.length) break;
+      al.at(-1).remove();
+    }
+
+    if (getC() > target) return setStyle(false);
+
+    if (getC() === target)
+      getI().filter(b => b !== endGroup).forEach(b => endGroup.prepend(b));
+
+    return setStyle(true);
+  }
+
+  let rI = getI();
+
+  if (rI.length === 1 && isMobile)
+    return mergeFromCheck = true, fix(rI, true);
+
+  for (let i=0;i<3;i++) {
+
+    rI = getI();
+
+    if (rI.length === 1) {
+
+      const l = [...cont.querySelectorAll('button[data-st="lock"]')].filter(isMove);
+
+      if (!l.length) {
+        fix(rI);
+        break;
+      }
+
+      l.at(-1).remove();
+      cont.offsetHeight;
+
+    } else {
+      fix(rI);
+      break;
+    }
+  }
+}
+
 // Вызовы судя по коду, force используется как для пк как базовый, т.к. обновление вообще не предусмотрено 
 
   if(mode === "reset"){ // onstart
