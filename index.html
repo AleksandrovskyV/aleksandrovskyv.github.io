@@ -1255,8 +1255,7 @@ function reOrientFix(mode = "init", targetHREF) {
 function rebuildGUI(mode = "update", shuffle = false) { 
   // modes reset/update
 
-  const fixLogic = true;
-  const debug = true;
+  const fixLogic = true; const debug = true;
 
   if(debug) console.log("[rebuildGUI] >>>>> START ");
 
@@ -1265,7 +1264,6 @@ function rebuildGUI(mode = "update", shuffle = false) {
     const mobileCheck = isWideScreen ? ALBM_MOB_TRGT : PORT_MOB_TRGT;
     TEMP_TARGET_ROW = isMobile ? mobileCheck : DESK_TARGET_ROW;
   }
-
 
   const initLogic = (INIT_TARGET_ROW === TEMP_TARGET_ROW);
 
@@ -1279,15 +1277,14 @@ function rebuildGUI(mode = "update", shuffle = false) {
   restoreSourceBtns(); 
 
   // 2. Обновление
-  if ( shuffle ) shuffleButtonsWithRules();
-  
+  if (shuffle  ) shuffleButtonsWithRules();
   if (initLogic) removeOverflowBtnsUpdate();
 
   // - Fix при поворотах (postsolve)
   let replaced = null; if (fixLogic && ruleCallFix && !shuffle && targetHREF) replaced = reOrientFix("fix", targetHREF);
 
-  // 3. Чистка нижней строки
 
+  // 3. Чистка нижней строки
   if(mode === "reset"){ // onstart
     
     if(!isMobile){  
