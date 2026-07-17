@@ -115,15 +115,16 @@ gap: 16px;
   gap: 10px; 
 }
 
-.endBtnWrapper {
+.btnWrapper {
 display: inline-flex;
 gap: inherit; 
 flex: 0 0 auto;
 }
 
-.mobile .endBtnWrapper { /* предохранитель */
-margin-left: auto; /* прижмет группу вправо */
+.mobile #endGroup {  /* предохранитель , .btnWrapper */
+margin-left: auto;  /* прижмет группу вправо */
 }
+
 
 /* 3. Buttons */
 
@@ -218,34 +219,38 @@ margin-left: auto; /* прижмет группу вправо */
     <!-- g=group ; mb=mobile ; mh=mobilehidden-->
 
     <button id="firstBtn" data-g="W" data-st="open" data-mb="false"  data-href="/wolume"  class="bw" >~</button>
+    <button id="specBtn"  data-g="B" data-st="lock" data-mb="false" data-href="/splink"   class="bb" >/</button>
 
     <!-- mobile special -->
-    <button id="bbtn"     data-g="D" data-st="open" data-mb="true"  data-href="/chat"     class="bd" >chat___</button>
-    <button id="cbtn"     data-g="D" data-st="open" data-mb="true"  data-href="/день"     class="bd" >день</button>
-    <button id="dbtn"     data-g="D" data-st="open" data-mb="true"  data-href="/триптих"  class="bd" >триптих</button>
+    <button id="abtn"     data-g="D" data-st="open" data-mb="true"  data-href="/chat"     class="bd" >chat___</button>
+    <button id="bbtn"     data-g="D" data-st="open" data-mb="true"  data-href="/день"     class="bd" >день</button>
+    <button id="cbtn"     data-g="D" data-st="open" data-mb="true"  data-href="/триптих"  class="bd" >триптих</button>
 
     <!-- disable on mobile -->
-    <button id="pbtn"     data-g="D" data-st="open" data-mb="false" data-href="/fe"       class="bd" data-mh="true" >fe</button>
-    <button id="qbtn"     data-g="D" data-st="open" data-mb="false" data-href="/flipbook" class="bd" data-mh="true" >flip_ook</button>
+    <button id="dbtn"     data-g="D" data-st="open" data-mb="false" data-href="/fe"       class="bd" data-mh="true" >fe</button>
+    <button id="ebtn"     data-g="D" data-st="open" data-mb="false" data-href="/flipbook" class="bd" data-mh="true" >flip_ook</button>
 
     <!-- combine between web and mobile  -->
-    <button id="ebtn"     data-g="D" data-st="open" data-mb="false" data-href="/негативы" class="bd" >негативы</button>
-    <button id="fbtn"     data-g="D" data-st="open" data-mb="false" data-href="/exegesis" class="bd" >.exe</button>
+    <button id="fbtn"     data-g="D" data-st="open" data-mb="false" data-href="/негативы" class="bd" >негативы</button>
+    <button id="gbtn"     data-g="D" data-st="open" data-mb="false" data-href="/exegesis" class="bd" >.exe</button>
 
-    <button id="gbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/renders"  class="bw" >_enders</button>
-    <button id="hbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/снимки"   class="bw" >снимки</button>
-    <button id="ibtn"     data-g="W" data-st="lock" data-mb="false" data-href="/графика"  class="bw" >графика</button>
+    <button id="hbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/renders"  class="bw" >_enders</button>
+    <button id="ibtn"     data-g="W" data-st="lock" data-mb="false" data-href="/снимки"   class="bw" >снимки</button>
+    
+    <div id="bGroupA" class="btnWrapper">
+      <button id="jbtn"   data-g="W" data-st="lock" data-mb="false" data-href="/графика"  class="bw" >графика</button>
+    </div>
+
+    <button id="kbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/flatcol"  class="bw" >плотный цвет</button>
+
+    <button id="lbtn"     data-g="W" data-st="open" data-mb="false" data-href="/bread"    class="bw" >bread</button>
+    <button id="mbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/haloguys" class="bw" >[ haloguys ]</button>
+    <button id="nbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/покпокки" class="bw" >покпокки</button>
   
-    <button id="jbtn"     data-g="W" data-st="open" data-mb="false" data-href="/bread"    class="bw" >bread</button>
-    <button id="kbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/haloguys" class="bw" >[ haloguys ]</button>
-    <button id="lbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/покпокки" class="bw" >покпокки</button>
-  
-    <button id="mbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/работа"   class="bw" >работа</button>
-    <button id="nbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/process"  class="bw" >_cess</button>
+    <button id="obtn"     data-g="W" data-st="lock" data-mb="false" data-href="/работа"   class="bw" >работа</button>
+    <button id="pbtn"     data-g="W" data-st="lock" data-mb="false" data-href="/process"  class="bw" >_cess</button>
 
-    <button id="obtn"     data-g="B" data-st="lock" data-mb="false" data-href="/const"    class="bb" >/</button>
-
-    <div id="endGroup" class="endBtnWrapper">
+    <div id="endGroup" class="btnWrapper">
       <button id="preBtn"   data-g="B" data-st="lock" data-mb="false" data-href="/space"  class="bb" >—</button>
 
       <!-- логика с гиф была полностью убрана, так как заставить её работать без перезагрузки в Safari никак   -->
@@ -419,7 +424,7 @@ function removeOverflowBtnsUpdate() {
     iteration++;
     const currentRows = getRowData('count');
     const lockButtons = Array.from(container.querySelectorAll('button[data-st="lock"]'))
-      .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'obtn'].includes(btn.id));
+      .filter(btn => !['firstBtn', 'preBtn', 'lastBtn', 'specBtn'].includes(btn.id));
 
     if (lockButtons.length === 0) {
       break;
@@ -448,12 +453,12 @@ function removeOverflowBtnsUpdate() {
 
   // Фикс односимвольных в нашем случае - слэш
   const endGroup = document.getElementById('endGroup');
-  const obtn = document.getElementById('obtn');
-  if (obtn && endGroup && obtn.nextElementSibling === endGroup) {
-    const prevBtn = obtn.previousElementSibling;
+  const specBtn = document.getElementById('specBtn');
+  if (specBtn && endGroup && specBtn.nextElementSibling === endGroup) {
+    const prevBtn = specBtn.previousElementSibling;
     if (prevBtn && prevBtn.id !== 'firstBtn') {
       console.log("[Slash] move");
-      container.insertBefore(obtn, prevBtn);
+      container.insertBefore(specBtn, prevBtn);
     }
   }
 }
@@ -473,7 +478,7 @@ function checkLastRowRef(mode, replaced) {
       endGroup.style.justifyContent = e ? "space-between" : "";
     },
     locks: () => [...buttonContainer.querySelectorAll('button[data-st="lock"]')]
-      .filter(b => !['firstBtn','preBtn','lastBtn','obtn'].includes(b.id) && !endGroup.contains(b))
+      .filter(b => !['firstBtn','specBtn','preBtn','lastBtn'].includes(b.id) && !endGroup.contains(b))
   };
 
   function textCorrection() { 
@@ -489,9 +494,9 @@ function checkLastRowRef(mode, replaced) {
     if (!endGroup) return false;
 
     const targets = mode === "line"
-      ? items.filter(el => el !== endGroup && !['firstBtn','obtn'].includes(el.id))
+      ? items.filter(el => el !== endGroup && !['firstBtn','specBtn'].includes(el.id))
       : [...buttonContainer.querySelectorAll('button')]
-          .filter(btn => btn.id !== 'firstBtn' && btn.id !== 'obtn' && !endGroup.contains(btn) && btn.innerText.length > 2);
+          .filter(btn => btn.id !== 'firstBtn' && btn.id !== 'specBtn' && !endGroup.contains(btn) && btn.innerText.length > 2);
 
     if (!targets.length) return console.log("[Fix Failure] КАНДИДАТОВ НЕТ"), false;
 
@@ -572,7 +577,7 @@ function checkLastRowRef(mode, replaced) {
       const candidatesToRestore = SOURCE_BUTTONS.filter(src =>
         src.dataset.href &&
         !visibleButtons.has(src.dataset.href) &&
-        !['firstBtn','obtn'].includes(src.id) &&
+        !['firstBtn','specBtn'].includes(src.id) &&
         !endGroup.contains(src)
       );
 
@@ -666,7 +671,8 @@ function checkLastRowRef(mode, replaced) {
   console.log("[checkLastRow][Complete]");
 }
 
-// даёт ошибки
+// !DELETION ON RELEASE BUT REBACK FOR SAVES HISTORY
+// ДАЁТ ОШИБКИ
 function checkLastRowHard(mode, replaced) { 
   const endGroup = document.getElementById('endGroup'), 
         cont = buttonContainer, 
@@ -675,7 +681,7 @@ function checkLastRowHard(mode, replaced) {
 
   const getC = () => getRowData('count'),
         getI = () => getRowData('items'),
-        isSys = b => ['firstBtn','preBtn','lastBtn','obtn'].includes(b.id) || b.dataset.ghost,
+        isSys = b => ['firstBtn','preBtn','lastBtn','specBtn'].includes(b.id) || b.dataset.ghost,
         isMove = b => !isSys(b) && !endGroup.contains(b),
         setStyle = s => {
           const e = s === "expand";
@@ -763,13 +769,18 @@ function checkLastRowHard(mode, replaced) {
 function shuffleButtonsWithRules() {
   const container = buttonContainer;
   const firstBtn = document.getElementById('firstBtn');
+  const specBtn = document.getElementById('specBtn');
   const endGroup = document.getElementById('endGroup');
 
   // Берем ВСЕ кнопки, которые НЕ входят в "неприкосновенные"
-  const allBtns = Array.from(container.querySelectorAll('button'));
-  const rest = allBtns.filter(b => b !== firstBtn && !endGroup.contains(b));
+  
+  //const allBtns = Array.from(container.querySelectorAll('button'));
+  //const rest = allBtns.filter(b => b !== firstBtn && !endGroup.contains(b)); 
+  
+  const items = Array.from(container.children);
+  const rest = items.filter(item => item !== firstBtn && item !== endGroup);
 
-  const excl = rest.filter(b => b.dataset.href === "/const");
+  const excl = rest.filter(item => item === specBtn || item.contains(specBtn));
 
   if (rest.length === 0) return;
 
@@ -790,6 +801,7 @@ function shuffleButtonsWithRules() {
   rest.forEach(btn => container.appendChild(btn));
   container.appendChild(endGroup); // Вставляем группу целиком
 }
+
 
 function fallbackMobileSnap() {
   // final fallback (remove last 3% error prev logic)
@@ -1238,7 +1250,7 @@ function reOrientFix(mode = "init", targetHREF) {
         buttonContainer.insertBefore(targetBtn, endGroup);
         
         const lockToSacrifice = Array.from(buttonContainer.querySelectorAll('button[data-st="lock"]'))
-          .find(btn => btn !== targetBtn && !['firstBtn', 'obtn'].includes(btn.id) && !endGroup.contains(btn));
+          .find(btn => btn !== targetBtn && !['firstBtn', 'specBtn'].includes(btn.id) && !endGroup.contains(btn));
 
         if (lockToSacrifice) {
           lockToSacrifice.remove();
